@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kumo-rfm-mcp"
+version = "0.1.0"
+description = "Model Context Protocol server for KumoRFM"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Kumo.AI", email = "hello@kumo.ai" }
+]
+requires-python = ">=3.9"
+dependencies = [
+    "mcp",
+    "kumoai", 
+    "pandas",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[project.scripts]
+kumo-rfm-mcp = "kumo_rfm_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kumo_rfm_mcp"]
