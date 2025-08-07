@@ -7,3 +7,4 @@ wheels/
 .venv
 .env
 .mypy_cache/
+tmp/

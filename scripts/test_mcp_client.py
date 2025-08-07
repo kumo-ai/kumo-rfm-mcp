@@ -26,27 +26,149 @@ async def test_kumo_mcp():
                 print(f"  - {tool.name}: {tool.description}")
             print()
 
-            print("Testing `add_table()`:")
+            # Add multiple tables
+            print("=== Adding Tables ===")
+            
+            print("Adding users table:")
             result = await session.call_tool('add_table', {
-                'path': '/tmp/users.csv',
+                'path': 'tmp/users.csv',
                 'name': 'users',
             })
             print(f"Result: {result.content[0].text}")
             print()
 
-            print("Testing `inspect_table()`:")
+            print("Adding orders table:")
+            result = await session.call_tool('add_table', {
+                'path': 'tmp/orders.csv',
+                'name': 'orders',
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Adding items table:")
+            result = await session.call_tool('add_table', {
+                'path': 'tmp/items.csv',
+                'name': 'items',
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            # Inspect tables
+            print("=== Inspecting Tables ===")
+            
+            print("Inspecting users table:")
             result = await session.call_tool('inspect_table', {
                 'name': 'users',
             })
             print(f"Result: {result.content[0].text}")
             print()
 
-            print("Testing `list_tables()`:")
+            print("Listing all tables:")
             result = await session.call_tool('list_tables', {})
             print(f"Result: {result.content[0].text}")
             print()
 
-            print("Basic MCP server test completed!")
+            # Infer edges automatically
+            print("=== Inferring Links ===")
+            
+            print("Running automatic link inference:")
+            result = await session.call_tool('infer_links', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            # Inspect graph structure
+            print("=== Inspecting Graph ===")
+            
+            print("Inspecting complete graph structure:")
+            result = await session.call_tool('inspect_graph', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            # Test unlinking and relinking
+            print("=== Testing Unlink/Relink ===")
+            
+            print("Unlinking orders and users:")
+            result = await session.call_tool('unlink_tables', {
+                'source_table': 'orders',
+                'foreign_key': 'user_id',
+                'target_table': 'users',
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Inspecting graph after unlinking:")
+            result = await session.call_tool('inspect_graph', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Re-linking orders and users:")
+            result = await session.call_tool('link_tables', {
+                'source_table': 'orders',
+                'foreign_key': 'user_id',
+                'target_table': 'users',
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            # Final inspection and finalization
+            print("=== Final Graph Operations ===")
+            
+            print("Final graph inspection:")
+            result = await session.call_tool('inspect_graph', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Finalizing graph and creating KumoRFM model:")
+            result = await session.call_tool('finalize_graph', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            # Inference Testing
+            print("=== Inference Testing ===")
+            
+            # Example query - predict if user will have orders in next 30 days
+            test_query = "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1"
+            
+            print("Validating query:")
+            result = await session.call_tool('validate_query', {
+                'query_string': test_query
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Running prediction:")
+            result = await session.call_tool('predict', {
+                'query_string': test_query
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Running evaluation:")
+            result = await session.call_tool('evaluate', {
+                'query_string': test_query
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            # Session Management Testing
+            print("=== Session Management ===")
+            
+            print("Getting session status:")
+            result = await session.call_tool('get_session_status', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Clearing session:")
+            result = await session.call_tool('clear_session', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Checking session status after clearing:")
+            result = await session.call_tool('get_session_status', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Comprehensive MCP server test completed!")
 
 
 if __name__ == '__main__':
