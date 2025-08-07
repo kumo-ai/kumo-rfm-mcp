@@ -3,7 +3,7 @@
 ## Prerequisites
 
 1. Get your API key from the [KumoRFM dashboard](https://kumorfm.ai)
-2. Install the KumoRFM MCP server:
+1. Install the KumoRFM MCP server:
    ```bash
    pip install kumo-rfm-mcp
    ```
