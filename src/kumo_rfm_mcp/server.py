@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+import sys
 from typing import Any, Dict
 
 import pandas as pd
@@ -9,7 +10,11 @@ from kumoai.experimental import rfm
 import kumo_rfm_mcp
 from kumo_rfm_mcp import SessionManager
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stderr  # Ensure logs go to stderr so they're visible
+)
 logger = logging.getLogger('kumo-rfm-mcp')
 
 mcp = FastMCP(
@@ -209,9 +214,53 @@ def list_tables() -> Dict[str, Any]:
             message=f"Failed to list tables. {e}",
         )
 
+@mcp.tool()
+async def infer_links() -> dict:
+    """
+    Automatically infer potential links between tables in the graph.
+    
+    This operation analyzes the schema and data of existing tables to
+    suggest possible relationships that could be added as links.
+    
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+        - data (dict, optional): Additional information on success
+    
+    Examples:
+        {
+            "success": true,
+            "message": "Link inference completed",
+            "data": {
+                "num_links": 1,
+            }
+        }
+    """
+    try:
+        session = SessionManager.get_default_session()
+        graph = session.graph
+        
+        # Run automatic link inference
+        graph.infer_links(verbose=False)
+        
+        return dict(
+            success=True,
+            message="Link inference completed",
+            data=dict(
+                num_links=len(graph.edges),
+            ),
+        )
+    except Exception as e:
+        return dict(
+            success=False,
+            message=f"Failed to infer links. {e}",
+        )
+
+
 # Graph Management
 @mcp.tool()
-async def kumo_inspect_graph() -> dict:
+async def inspect_graph() -> dict:
     """
     View the complete graph structure including all tables and their relationships.
     
@@ -235,40 +284,77 @@ async def kumo_inspect_graph() -> dict:
                         "columns": ["user_id", "dob", "gender"],
                         "primary_key": "user_id",
                         "time_column": "dob"
+                    },
+                    "orders": {
+                        "num_rows": 998998,
+                        "columns": ["order_id", "user_id", "order_date"],
+                        "primary_key": "order_id",
+                        "time_column": "order_date"
                     }
                 },
                 "links": [
                     {
-                        "source": "users",
-                        "target": "orders",
-                        "source_key": "user_id",
-                        "target_key": "customer_id"
+                        "source": "orders",
+                        "foreign_key": "user_id", 
+                        "destination": "users",
                     }
                 ]
             }
         }
     """
-    # TODO: Implement kumo_inspect_graph
-    return dict(
-        success=False,
-        message="kumo_inspect_graph is not yet implemented",
-    )
+    try:
+        session = SessionManager.get_default_session()
+        graph = session.graph
+        
+        # Get tables info
+        tables = {
+            table.name: dict(
+                num_rows=len(table._data),
+                columns=list(table._data.columns),
+                primary_key=table._primary_key,
+                time_column=table._time_column,
+            )
+            for table in graph.tables.values()
+        }
+        
+        # Get edges info
+        links = []
+        for edge in graph.edges:
+            links.append({
+                "source": edge.src_table,
+                "foreign_key": edge.fkey,
+                "destination": edge.dst_table,
+            })
+        
+        return dict(
+            success=True,
+            message="Graph structure retrieved successfully",
+            data=dict(
+                tables=tables,
+                links=links,
+            ),
+        )
+    except Exception as e:
+        return dict(
+            success=False,
+            message=f"Failed to inspect graph. {e}",
+        )
 
 @mcp.tool()
-async def kumo_add_table_link(
+async def link_tables(
     source_table: str,
+    foreign_key: str,
     target_table: str,
-    source_key: str,
-    target_key: str
 ) -> dict:
     """
     Create a link (edge) between two tables in the graph.
     
     Args:
         source_table: Name of the source table
-        target_table: Name of the target table
-        source_key: Column name in source table for the relationship
-        target_key: Column name in target table for the relationship
+        foreign_key: Column to link with the primary key 
+                     of the destination table, names should match
+        (e.g., ``'user_id'``)
+        target_table: Name of the destination table
     
     Returns:
         Dictionary containing:
@@ -279,32 +365,54 @@ async def kumo_add_table_link(
     Examples:
         {
             "success": true,
-            "message": "Link created successfully between users and orders",
+            "message": "Successfully linked users and orders by user_id",
             "data": {
                 "source_table": "users",
+                "foreign_key": "user_id", 
                 "target_table": "orders",
-                "source_key": "user_id", 
-                "target_key": "customer_id"
             }
         }
     """
-    # TODO: Implement kumo_add_table_link
-    return dict(
-        success=False,
-        message="kumo_add_table_link is not yet implemented",
-    )
+    try:
+        session = SessionManager.get_default_session()
+        graph = session.graph
+        
+        # LocalGrpah.link() already performs validations with appropriate error
+        # messages
+        graph.link(src_table=source_table, fkey=foreign_key, dst_table=target_table)
+        
+        return dict(
+            success=True,
+            message=(f"Successfully linked {source_table} and {target_table} "
+                     f"by {foreign_key}"),
+            data=dict(
+                source_table=source_table,
+                foreign_key=foreign_key,
+                target_table=target_table,
+            ),
+        )
+    except Exception as e:
+        return dict(
+            success=False,
+            message=(f"Failed to link {source_table} and {target_table} "
+                     f"by {foreign_key}. {e}"),
+        )
 
 @mcp.tool()
-async def kumo_remove_table_link(
+async def unlink_tables(
     source_table: str,
-    target_table: str
+    foreign_key: str,
+    target_table: str,
 ) -> dict:
     """
     Remove a link (edge) between two tables in the graph.
     
     Args:
         source_table: Name of the source table
-        target_table: Name of the target table
+        foreign_key: Column to link with the primary key 
+                     of the destination table, names should match
+        (e.g., ``'user_id'``)
+        target_table: Name of the destination table
     
     Returns:
         Dictionary containing:
@@ -315,26 +423,51 @@ async def kumo_remove_table_link(
     Examples:
         {
             "success": true,
-            "message": "Link removed successfully between users and orders",
+            "message": "Successfully unlinked users and orders by user_id",
             "data": {
                 "source_table": "users",
-                "target_table": "orders"
+                "foreign_key": "user_id", 
+                "target_table": "orders",
             }
         }
     """
-    # TODO: Implement kumo_remove_table_link
-    return dict(
-        success=False,
-        message="kumo_remove_table_link is not yet implemented",
-    )
+    try:
+        session = SessionManager.get_default_session()
+        graph = session.graph
+        
+        # LocalGraph.unlink() already performs validations with appropriate error
+        # messages
+        graph.unlink(
+            src_table=source_table, 
+            fkey=foreign_key, 
+            dst_table=target_table,
+        )
+        
+        return dict(
+            success=True,
+            message=(f"Successfully unlinked {source_table} and {target_table}"
+                     f" by {foreign_key}"),
+            data=dict(
+                source_table=source_table,
+                foreign_key=foreign_key,
+                target_table=target_table,
+            ),
+        )
+    except Exception as e:
+        return dict(
+            success=False,
+            message=(f"Failed to unlink {source_table} and {target_table} "
+                     f"by {foreign_key}. {e}"),
+        )
 
 @mcp.tool()
-async def kumo_finalize_graph() -> dict:
+async def finalize_graph() -> dict:
     """
     Finalize the graph and create a KumoRFM model instance.
     
     This operation creates a KumoRFM model from the current graph state,
-    making it available for inference operations.
+    making it available for inference operations (e.g., ``'predict'``, and 
+    ``'evaluate'``).
     
     Returns:
         Dictionary containing:
@@ -345,58 +478,52 @@ async def kumo_finalize_graph() -> dict:
     Examples:
         {
             "success": true,
-            "message": "Graph finalized and KumoRFM model created successfully",
-            "data": {
-                "model_id": "rfm_model_20241210",
-                "num_tables": 3,
-                "num_links": 2
-            }
+            "message": "Successfully spun up KumoRFM model!",
         }
     """
-    # TODO: Implement kumo_finalize_graph
-    return dict(
-        success=False,
-        message="kumo_finalize_graph is not yet implemented",
-    )
+    try:
+        logger.info("Starting graph finalization...")
+        session = SessionManager.get_default_session()
+        graph = session.graph
+        
+        logger.info(f"Graph has {len(graph.tables)} tables and {len(graph.edges)} edges")
+        
+        # Validate the graph before finalizing
+        logger.info("Validating graph...")
+        graph.validate()
+        logger.info("Graph validation completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Graph validation failed: {e}")
+        return dict(
+            success=False,
+            message=f"Encountered error while validating graph. {e}",
+        )
 
-@mcp.tool()
-async def kumo_infer_links() -> dict:
-    """
-    Automatically infer potential links between tables in the graph.
-    
-    This operation analyzes the schema and data of existing tables to
-    suggest possible relationships that could be added as links.
-    
-    Returns:
-        Dictionary containing:
-        - success (bool): ``True`` if operation succeeded
-        - message (str): Human-readable status message
-        - data (dict, optional): Additional information on success
-    
-    Examples:
-        {
-            "success": true,
-            "message": "Found 3 potential links",
-            "data": {
-                "suggested_links": [
-                    {
-                        "source": "users",
-                        "target": "orders", 
-                        "source_key": "user_id",
-                        "target_key": "customer_id",
-                        "confidence": 0.95
-                    }
-                ]
-            }
-        }
-    """
-    # TODO: Implement kumo_infer_links
-    return dict(
-        success=False,
-        message="kumo_infer_links is not yet implemented",
-    )
+    try:
+        # Create the KumoRFM model from the graph
+        logger.info("Creating KumoRFM model...")
+        model = rfm.KumoRFM(graph, verbose=False)
+        logger.info("KumoRFM model created successfully")
+        
+        session.model = model
+        logger.info("Model stored in session")
+        
+        return dict(
+            success=True,
+            message="Successfully spun up KumoRFM model!",
+        )
+    except Exception as e:
+        logger.error(f"Failed to create KumoRFM model: {e}")
+        return dict(
+            success=False,
+            message=f"Failed to spin up KumoRFM model. {e}",
+        )
+
+# Inference
 
 
+# Session Management
 
 
 
