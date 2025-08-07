@@ -1,122 +1,184 @@
 #!/usr/bin/env python3
-"""
-Simple KumoRFM MCP Server.
-"""
-
 import logging
+from typing import Any, Dict
+
 import pandas as pd
-from kumoai.experimental.rfm import LocalTable
-
 from fastmcp import FastMCP
-from fastmcp.client.transport import StdioTransport
-from kumo_rfm_mcp.session import SessionState
+from kumoai.experimental import rfm
 
-# Configure logging
+import kumo_rfm_mcp
+from kumo_rfm_mcp import SessionManager
+
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("kumo-rfm-mcp")
+logger = logging.getLogger('kumo-rfm-mcp')
 
-# Initialize FastMCP
 mcp = FastMCP(
-    name="KumoRFM",
-    version="0.1.0",
-    description="Machine learning on enterprise data with KumoRFM"
+    name='KumoRFM',
+    version=kumo_rfm_mcp.__version__,
 )
 
-# Initialize server state
-SessionState.initialize()  
 
+@mcp.tool()
+def add_table(path: str, name: str) -> Dict[str, Any]:
+    """Loads a ``*.csv`` or ``*.parquet`` file path and adds it to the
+    Kumo graph.
 
-@mcp.tool(
-    name="create_table",
-    description="Register local .csv/.parquet file as a table in the Kumo graph",
-)
-def kumo_create_table(file_path: str, table_name: str) -> Tuple[bool, str]:
-    """Transform local data file into a LocalTable"""
-    session = SessionState.get_session()
-    
-    if not session.initialized:
-        return False, "Error: Server is not initialized."
-    
+    Args:
+        path: File path to the data source (e.g., ``'data/users.csv'``)
+        name: The name of the table in the graph (e.g., ``'users'``)
+
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+
+    Examples:
+        {
+            "success": true,
+            "message": "Table with name '{name}' added successfully"
+        }
+    """
+    if not path.endswith('.csv') and not path.endswith('.parquet'):
+        return dict(
+            success=False,
+            message=(f"Can not read file from path '{path}'. Only '*.csv' or "
+                     f"'*.parquet' files are supported"),
+        )
+
     try:
-        df = pd.read_csv(file_path) or pd.read_parquet(file_path)
+        if path.endswith('.csv'):
+            df = pd.read_csv(path)
+        else:
+            df = pd.read_parquet(path)
+    except Exception as e:
+        return dict(
+            success=False,
+            message=(f"Could not load data source from '{path}'. {e}"),
+        )
 
-        # Create a LocalTable from the pandas DataFrame
-        table = LocalTable(df, name=table_name).infer_metadata()
-
-        # Add the table to the graph
+    try:
+        session = SessionManager.get_default_session()
+        table = rfm.LocalTable(df, name).infer_metadata(verbose=False)
         session.graph.add_table(table)
-        
-        return True, f"Table {table_name} created successfully."
+        return dict(
+            success=True,
+            message=f"Table with name '{name}' added successfully",
+        )
     except Exception as e:
-        logger.error(f"Table {table_name} creation failed: {e}")
-        return False, f"Table {table_name} creation failed: {str(e)}"
+        return dict(
+            success=False,
+            message=f"Failed to register table with name '{name}'. {e}",
+        )
 
 
-@mcp.tool(
-    name="remove_table",
-    description="Remove a table from the Kumo graph",
-)
-def kumo_remove_table(table_name: str) -> Tuple[bool, str]:
-    """Remove a table from the Kumo graph"""
-    session = SessionState.get_session()
-    
-    if not session.initialized:
-        return False, "Error: Server is not initialized."
-    
+@mcp.tool()
+def inspect_table(name: str, num_rows: int = 5) -> Dict[str, Any]:
+    """Inspects a table in the Kumo graph.
+
+    Args:
+        name: The name of the table in the graph (e.g., ``'users'``)
+        num_rows: The number of rows to inspect.
+
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+        - data (dict, optional): Additional information on success
+
+    Examples:
+        {
+            "success": true,
+            "message": "Table with name '{name}' inspected successfully",
+            "data": {
+                "name": "users",
+                "num_rows": 18431,
+                "num_columns": 3,
+                "primary_key": "user_id",
+                "time_column": "dob",
+                "rows": [
+                    {"user_id": 1, "dob": "1990-06-02", "gender": "male"},
+                    {"user_id": 2, "dob": "1989-08-25", "gender": "female"},
+                    {"user_id": 3, "dob": "1987-01-17", "gender": "male"}
+                ]
+            }
+        }
+    """
     try:
-        session.graph.remove_table(table_name)
-        return True, f"Table {table_name} removed successfully."
+        session = SessionManager.get_default_session()
+        table = session.graph[name]
+        return dict(
+            success=True,
+            message=f"Table with name '{name}' inspected successfully",
+            data=dict(
+                name=name,
+                num_rows=len(table._data),
+                num_columns=len(table._data.columns),
+                primary_key=table._primary_key,
+                time_column=table._time_column,
+                rows=table._data.iloc[:num_rows].to_dict(orient='records'),
+            ),
+        )
     except Exception as e:
-        logger.error(f"Table {table_name} removal failed: {e}")
-        return False, f"Table {table_name} removal failed: {str(e)}"
+        return dict(
+            success=False,
+            message=f"Failed to inspect table with name '{name}'. {e}",
+        )
 
 
-@mcp.tool(
-    name="inspect_table",
-    description="Inspect a table in the Kumo graph",
-)
-def kumo_inspect_table(table_name: str, row_limit: int = 3) -> Tuple[bool, str]:
-    """Inspect a table in the Kumo graph"""
-    session = SessionState.get_session()
+@mcp.tool()
+def list_tables() -> Dict[str, Any]:
+    """Lists all tables in the Kumo graph.
 
-    if not session.initialized:
-        return False, "Error: Server is not initialized."
-    
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+        - data (dict, optional): Additional information on success
+
+    Examples:
+        {
+            "success": true,
+            "message": "Listed 2 tables successfully",
+            "data": {
+                "users": {
+                    "num_rows": 18431,
+                    "columns": ["user_id", "dob", "gender"],
+                    "primary_key": "user_id",
+                    "time_column": "dob",
+                },
+                "items": {
+                    "num_rows": 3654,
+                    "columns": ["item_id", "category", "description"],
+                    "primary_key": "item_id",
+                    "time_column": None,
+                },
+            }
+        }
+    """
     try:
-        table = session.graph.get_table(table_name)
-
-        # sample
-        df = table.sample(row_limit)
-
-        # Return the sampled data
-        return True, json.dumps(df.to_dict(orient="records"), indent=2)
+        session = SessionManager.get_default_session()
+        data = {
+            table.name:
+            dict(
+                num_rows=len(table._data),
+                columns=list(table._data.columns),
+                primary_key=table._primary_key,
+                time_column=table._time_column,
+            )
+            for table in session.graph.tables.values()
+        }
+        return dict(
+            success=True,
+            message=f"Listed {len(data)} tables successfully",
+            data=data,
+        )
     except Exception as e:
-        logger.error(f"Table {table_name} inspection failed: {e}")
-        return False, f"Table {table_name} inspection failed: {str(e)}"
-
-@mcp.tool(
-    name="list_tables",
-    description="List all tables in the Kumo graph",
-)
-def kumo_list_tables() -> Tuple[bool, str]:
-    """List all tables in the Kumo graph"""
-    session = SessionState.get_session()
-
-    if not session.initialized:
-        return False, "Error: Server is not initialized."
-    
-    try:
-        tables = session.graph.tables
-        return True, json.dumps(tables, indent=2)
-    except Exception as e:
-        logger.error(f"Table listing failed: {e}")
-        return False, f"Table listing failed: {str(e)}"
+        return dict(
+            success=False,
+            message=f"Failed to list tables. {e}",
+        )
 
 
-def main():
-    """Main entry point for the MCP server"""
+if __name__ == '__main__':
     logger.info("Starting KumoRFM MCP Server...")
-    mcp.run(transport=StdioTransport)
-
-if __name__ == "__main__":
-    main()
+    mcp.run(transport='stdio')

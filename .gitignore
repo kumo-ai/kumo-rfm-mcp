@@ -6,3 +6,4 @@ wheels/
 *.egg-info
 .venv
 .env
+.mypy_cache/
