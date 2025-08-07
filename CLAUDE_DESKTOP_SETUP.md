@@ -43,8 +43,6 @@ If you prefer to run via Python:
 }
 ```
 
-### Development Setup
-
 For local development, you can point to your development version:
 
 ```json
