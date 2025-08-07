@@ -22,9 +22,6 @@ class Session:
     def initialize(self) -> Self:
         r"""Initialize a session from environment variables."""
         if not self.initialized:
-            # import os
-            # print('api key', os.getenv('KUMO_API_KEY'))
-            # logging.info(os.getenv('KUMO_API_KEY'))
             rfm.init()
             self.initialized = True
         return self
