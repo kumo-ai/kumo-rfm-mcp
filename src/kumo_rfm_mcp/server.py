@@ -35,7 +35,7 @@ def add_table(path: str, name: str) -> Dict[str, Any]:
     Examples:
         {
             "success": true,
-            "message": "Table with name '{name}' added successfully"
+            "message": "Table with name 'users' added successfully"
         }
     """
     if not path.endswith('.csv') and not path.endswith('.parquet'):
@@ -88,7 +88,7 @@ def inspect_table(name: str, num_rows: int = 5) -> Dict[str, Any]:
     Examples:
         {
             "success": true,
-            "message": "Table with name '{name}' inspected successfully",
+            "message": "Table with name 'users' inspected successfully",
             "data": {
                 "name": "users",
                 "num_rows": 18431,
