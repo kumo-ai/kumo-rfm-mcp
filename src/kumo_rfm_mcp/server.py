@@ -521,9 +521,282 @@ async def finalize_graph() -> dict:
         )
 
 # Inference
+@mcp.tool()
+async def validate_query(query_string: str) -> dict:
+    """
+    Validate a predictive query string against the current graph structure.
+    
+    This operation checks if the query syntax is correct and compatible with
+    the current graph schema without executing the prediction.
+    
+    Args:
+        query_string: The predictive query to validate (e.g., "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1")
+    
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+        - data (dict, optional): Additional information on success
+    
+    Examples:
+        {
+            "success": true,
+            "message": "Query validated successfully",
+            "data": {
+                "query": "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1",
+                "is_valid": true
+            }
+        }
+    """
+    try:
+        session = SessionManager.get_default_session()
+        
+        if session.model is None:
+            return dict(
+                success=False,
+                message="No KumoRFM model available. Please call finalize_graph first.",
+            )
+        
+        # Use the KumoRFM model's internal _parse_query method to validate
+        model = session.model
+        parsed_query = model._parse_query(query_string)
+        
+        return dict(
+            success=True,
+            message="Query validated successfully",
+            data=dict(
+                query=query_string,
+                is_valid=True,
+            ),
+        )
+    except Exception as e:
+        return dict(
+            success=False,
+            message=f"Query validation failed: {e}",
+            data=dict(
+                query=query_string,
+                is_valid=False,
+            ),
+        )
+
+@mcp.tool()
+async def predict(query_string: str) -> dict:
+    """
+    Execute a predictive query and return model predictions.
+    
+    This operation runs the specified predictive query against the KumoRFM model
+    and returns the predictions as tabular data.
+    
+    Args:
+        query_string: The predictive query to execute (e.g., "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1")
+    
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+        - data (dict, optional): Additional information on success
+    
+    Examples:
+        {
+            "success": true,
+            "message": "Prediction completed successfully",
+            "data": {
+                "query": "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1",
+                "predictions": [
+                    {"user_id": 1, "COUNT(orders.*, 0, 30, days) > 0": 0.85}
+                ]
+            }
+        }
+    """
+    try:
+        session = SessionManager.get_default_session()
+        
+        if session.model is None:
+            return dict(
+                success=False,
+                message="No KumoRFM model available. Please call finalize_graph first.",
+            )
+        
+        logger.info(f"Running prediction for query: {query_string}")
+        model = session.model
+        
+        # Execute the prediction with verbose=False to reduce output
+        result_df = model.predict(query_string, verbose=False)
+        
+        # Convert DataFrame to list of dictionaries for JSON serialization
+        predictions = result_df.to_dict(orient='records')
+        
+        logger.info(f"Prediction completed, returned {len(predictions)} results")
+        
+        return dict(
+            success=True,
+            message="Prediction completed successfully",
+            data=dict(
+                query=query_string,
+                predictions=predictions,
+            ),
+        )
+    except Exception as e:
+        logger.error(f"Prediction failed: {e}")
+        return dict(
+            success=False,
+            message=f"Prediction failed: {e}",
+        )
+
+@mcp.tool()
+async def evaluate(query_string: str) -> dict:
+    """
+    Evaluate a predictive query and return performance metrics.
+    
+    This operation runs the specified predictive query in evaluation mode,
+    comparing predictions against known ground truth labels and returning
+    performance metrics.
+    
+    Args:
+        query_string: The predictive query to evaluate (e.g., "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1")
+    
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+        - data (dict, optional): Additional information on success
+    
+    Examples:
+        {
+            "success": true,
+            "message": "Evaluation completed successfully",
+            "data": {
+                "query": "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1",
+                "metrics": [
+                    {"metric": "auroc", "value": 0.87},
+                    {"metric": "auprc", "value": 0.82}
+                ]
+            }
+        }
+    """
+    try:
+        session = SessionManager.get_default_session()
+        
+        if session.model is None:
+            return dict(
+                success=False,
+                message="No KumoRFM model available. Please call finalize_graph first.",
+            )
+        
+        logger.info(f"Running evaluation for query: {query_string}")
+        model = session.model
+        
+        # Execute the evaluation with verbose=False to reduce output
+        result_df = model.evaluate(query_string, verbose=False)
+        
+        # Convert DataFrame to list of dictionaries for JSON serialization
+        metrics = result_df.to_dict(orient='records')
+        
+        logger.info(f"Evaluation completed, returned {len(metrics)} metrics")
+        
+        return dict(
+            success=True,
+            message="Evaluation completed successfully",
+            data=dict(
+                query=query_string,
+                metrics=metrics,
+            ),
+        )
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}")
+        return dict(
+            success=False,
+            message=f"Evaluation failed: {e}",
+        )
+
 
 
 # Session Management
+@mcp.tool()
+async def get_session_status() -> dict:
+    """
+    Get the current session status including tables, graph state, and KumoRFM model status.
+    
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+        - data (dict, optional): Additional information on success
+    
+    Examples:
+        {
+            "success": true,
+            "message": "Session status retrieved successfully",
+            "data": {
+                "initialized": true,
+                "table_names": ["users", "orders", "items"],
+                "num_links": 2,
+                "is_rfm_model_ready": true
+            }
+        }
+    """
+    try:
+        session = SessionManager.get_default_session()
+        
+        table_names = list(session.graph.tables.keys())
+        num_links = len(session.graph.edges)
+        is_rfm_model_ready = session.model is not None
+        
+        return dict(
+            success=True,
+            message="Session status retrieved successfully",
+            data=dict(
+                initialized=session.initialized,
+                table_names=table_names,
+                num_links=num_links,
+                is_rfm_model_ready=is_rfm_model_ready,
+            ),
+        )
+    except Exception as e:
+        return dict(
+            success=False,
+            message=f"Failed to get session status. {e}",
+        )
+
+@mcp.tool()
+async def clear_session() -> dict:
+    """
+    Clear the current session by removing all tables, links, and the KumoRFM model.
+    
+    This operation resets the session to its initial state, allowing you to start fresh
+    with new data and graph configuration.
+    
+    Returns:
+        Dictionary containing:
+        - success (bool): ``True`` if operation succeeded
+        - message (str): Human-readable status message
+        - data (dict, optional): Additional information on success
+    
+    Examples:
+        {
+            "success": true,
+            "message": "Session cleared successfully",
+        }
+    """
+    try:
+        session = SessionManager.get_default_session()
+        
+        # Clear the graph by creating a new empty one
+        session.graph = rfm.LocalGraph(tables=[])
+        
+        # Clear the KumoRFM model
+        session.model = None
+        
+        return dict(
+            success=True,
+            message=("Session cleared successfully, "
+                     "ready to start with fresh data!"),
+        )
+    except Exception as e:
+        return dict(
+            success=False,
+            message=f"Failed to clear session. {e}",
+        )
 
 
 

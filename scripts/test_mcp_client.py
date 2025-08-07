@@ -123,6 +123,51 @@ async def test_kumo_mcp():
             print(f"Result: {result.content[0].text}")
             print()
 
+            # Inference Testing
+            print("=== Inference Testing ===")
+            
+            # Example query - predict if user will have orders in next 30 days
+            test_query = "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1"
+            
+            print("Validating query:")
+            result = await session.call_tool('validate_query', {
+                'query_string': test_query
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Running prediction:")
+            result = await session.call_tool('predict', {
+                'query_string': test_query
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Running evaluation:")
+            result = await session.call_tool('evaluate', {
+                'query_string': test_query
+            })
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            # Session Management Testing
+            print("=== Session Management ===")
+            
+            print("Getting session status:")
+            result = await session.call_tool('get_session_status', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Clearing session:")
+            result = await session.call_tool('clear_session', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
+            print("Checking session status after clearing:")
+            result = await session.call_tool('get_session_status', {})
+            print(f"Result: {result.content[0].text}")
+            print()
+
             print("Comprehensive MCP server test completed!")
 
 
