@@ -11,11 +11,11 @@ license = { text = "MIT" }
 authors = [
     { name = "Kumo.AI", email = "hello@kumo.ai" }
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "mcp",
     "kumoai", 
     "pandas",
+    "fastmcp",
 ]
 
 [project.optional-dependencies]

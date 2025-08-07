@@ -10,7 +10,7 @@ capabilities ([documentation](https://kumo-ai.github.io/kumo-sdk/docs/#)).
 
 ## Installation
 
-The KumoRFM MCP is available for Python 3.9 and above. To install, simply run
+The KumoRFM MCP is available for Python 3.10 and above. To install, simply run
 
 ```
 pip install kumo-rfm-mcp
