@@ -26,9 +26,8 @@ async def test_kumo_mcp():
                 print(f"  - {tool.name}: {tool.description}")
             print()
 
-            # Add multiple tables
             print("=== Adding Tables ===")
-            
+
             print("Adding users table:")
             result = await session.call_tool('add_table', {
                 'path': 'tmp/users.csv',
@@ -53,9 +52,8 @@ async def test_kumo_mcp():
             print(f"Result: {result.content[0].text}")
             print()
 
-            # Inspect tables
             print("=== Inspecting Tables ===")
-            
+
             print("Inspecting users table:")
             result = await session.call_tool('inspect_table', {
                 'name': 'users',
@@ -68,31 +66,29 @@ async def test_kumo_mcp():
             print(f"Result: {result.content[0].text}")
             print()
 
-            # Infer edges automatically
             print("=== Inferring Links ===")
-            
+
             print("Running automatic link inference:")
             result = await session.call_tool('infer_links', {})
             print(f"Result: {result.content[0].text}")
             print()
 
-            # Inspect graph structure
             print("=== Inspecting Graph ===")
-            
+
             print("Inspecting complete graph structure:")
             result = await session.call_tool('inspect_graph', {})
             print(f"Result: {result.content[0].text}")
             print()
 
-            # Test unlinking and relinking
-            print("=== Testing Unlink/Relink ===")
-            
+            print("=== Testing Unlink/Link ===")
+
             print("Unlinking orders and users:")
-            result = await session.call_tool('unlink_tables', {
-                'source_table': 'orders',
-                'foreign_key': 'user_id',
-                'target_table': 'users',
-            })
+            result = await session.call_tool(
+                'unlink_tables', {
+                    'source_table': 'orders',
+                    'foreign_key': 'user_id',
+                    'destination_table': 'users',
+                })
             print(f"Result: {result.content[0].text}")
             print()
 
@@ -102,17 +98,17 @@ async def test_kumo_mcp():
             print()
 
             print("Re-linking orders and users:")
-            result = await session.call_tool('link_tables', {
-                'source_table': 'orders',
-                'foreign_key': 'user_id',
-                'target_table': 'users',
-            })
+            result = await session.call_tool(
+                'link_tables', {
+                    'source_table': 'orders',
+                    'foreign_key': 'user_id',
+                    'destination_table': 'users',
+                })
             print(f"Result: {result.content[0].text}")
             print()
 
-            # Final inspection and finalization
             print("=== Final Graph Operations ===")
-            
+
             print("Final graph inspection:")
             result = await session.call_tool('inspect_graph', {})
             print(f"Result: {result.content[0].text}")
@@ -123,36 +119,37 @@ async def test_kumo_mcp():
             print(f"Result: {result.content[0].text}")
             print()
 
-            # Inference Testing
             print("=== Inference Testing ===")
-            
-            # Example query - predict if user will have orders in next 30 days
-            test_query = "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1"
-            
+
+            test_query = ("PREDICT COUNT(orders.*, 0, 30, days)>0 "
+                          "FOR users.user_id=1")
+
             print("Validating query:")
-            result = await session.call_tool('validate_query', {
-                'query_string': test_query
-            })
+            result = await session.call_tool(
+                'validate_query',
+                {'query': test_query},
+            )
             print(f"Result: {result.content[0].text}")
             print()
 
             print("Running prediction:")
-            result = await session.call_tool('predict', {
-                'query_string': test_query
-            })
+            result = await session.call_tool(
+                'predict',
+                {'query': test_query},
+            )
             print(f"Result: {result.content[0].text}")
             print()
 
             print("Running evaluation:")
-            result = await session.call_tool('evaluate', {
-                'query_string': test_query
-            })
+            result = await session.call_tool(
+                'evaluate',
+                {'query': test_query},
+            )
             print(f"Result: {result.content[0].text}")
             print()
 
-            # Session Management Testing
             print("=== Session Management ===")
-            
+
             print("Getting session status:")
             result = await session.call_tool('get_session_status', {})
             print(f"Result: {result.content[0].text}")
