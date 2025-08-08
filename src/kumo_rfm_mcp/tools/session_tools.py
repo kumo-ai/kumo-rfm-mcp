@@ -13,11 +13,25 @@ logger = logging.getLogger('kumo-rfm-mcp')
 
 def register_session_tools(mcp: FastMCP):
     """Register all session management tools with the MCP server."""
-    
+
     @mcp.tool()
     async def get_session_status() -> Dict[str, Any]:
-        """Gets the current session status including graph state 
+        """Gets the current session status including graph state
         and KumoRFM model status.
+
+        KumoRFM is a foundational relational model that can be used to
+        generate predictions from relational data without training. The model
+        uses a graph representation of the relational data and a PQL query (
+        Predictive Query Language) to generate predictions.
+
+        The session status includes:
+        - initialized: whether the session has been initialized
+        - table_names: list of table names in the graph
+        - num_links: number of links in the graph
+        - is_rfm_model_ready: whether the KumoRFM model is ready
+
+        A graph needs to be finalized before the KumoRFM model can start
+        generating predictions.
 
         Returns:
             Dictionary containing:
@@ -62,7 +76,10 @@ def register_session_tools(mcp: FastMCP):
         KumoRFM model.
 
         This operation resets the session to its initial state, allowing you to
-        start fresh with new data and graph configuration.
+        start fresh with new data and graph configuration. This operation will
+        reset the graph and the KumoRFM model to an empty state. New tables
+        and links will need to be added, and the graph will need to be
+        finalized before the KumoRFM model can start generating predictions.
 
         Returns:
             Dictionary containing:
