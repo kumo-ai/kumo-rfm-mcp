@@ -12,13 +12,21 @@ logger = logging.getLogger('kumo-rfm-mcp')
 
 def register_graph_tools(mcp: FastMCP):
     """Register all graph management tools with the MCP server."""
-    
+
     @mcp.tool()
     async def infer_links() -> Dict[str, Any]:
-        """Automatically infers potential links between tables in the graph.
+        """The graph is a collection of tables and links between them, it is
+        the core data structure powering the KumoRFM model. The graph needs to
+        be finalized before the KumoRFM model can start generating predictions.
 
-        This operation analyzes the schema and data of existing tables and adds
-        possible relationships as links.
+        This tool automatically infers potential links between tables in the
+        graph. It matches columns with the same name in different tables and
+        adds them as links.
+
+        The inferred links can be inspected using the ``inspect_graph`` tool.
+        This tool only works if no links have been added to the graph yet. To
+        add links manually, use the ``link_tables`` tool to link two tables via
+        a foreign key column.
 
         Returns:
             Dictionary containing:
@@ -72,10 +80,12 @@ def register_graph_tools(mcp: FastMCP):
     @mcp.tool()
     async def inspect_graph() -> Dict[str, Any]:
         """Obtains the complete graph structure including all tables and their
-        relationships.
-
-        This operation provides a comprehensive view of the current graph 
-        state, including all tables, their schemas, and the links between them.
+        relationships. This operation provides a comprehensive view of the
+        current graph state, including all tables, their schemas, and the links
+        between them. Use this tool to check if the graph contains all the
+        tables and edges that you will use to generate predictions. The graph
+        needs to be finalized before the KumoRFM model can start generating
+        predictions.
 
         Returns:
             Dictionary containing:
@@ -151,7 +161,9 @@ def register_graph_tools(mcp: FastMCP):
         foreign_key: str,
         destination_table: str,
     ) -> Dict[str, Any]:
-        """Creates a link (edge) between two tables in the graph.
+        """Creates a link (edge) between two tables in the graph. This tool
+        allows you to manually link two tables via a foreign key column. To
+        see the list of links in the graph, use ``inspect_graph`` tool.
 
         Args:
             source_table: Name of the source table (e.g., ``'orders'``)
@@ -169,7 +181,7 @@ def register_graph_tools(mcp: FastMCP):
         Examples:
             {
                 "success": true,
-                "message": "Successfully linked 'orders' and 'users' 
+                "message": "Successfully linked 'orders' and 'users'
                             by 'user_id'",
             }
         """
@@ -195,7 +207,9 @@ def register_graph_tools(mcp: FastMCP):
         foreign_key: str,
         destination_table: str,
     ) -> Dict[str, Any]:
-        """Removes a link (edge) between two tables in the graph.
+        """Removes a link (edge) between two tables in the graph. This tool
+        allows you to manually unlink two tables via a foreign key column. To
+        see the list of links in the graph, use ``inspect_graph`` tool.
 
         Args:
             source_table: Name of the source table (e.g., ``'orders'``)
@@ -213,7 +227,7 @@ def register_graph_tools(mcp: FastMCP):
         Examples:
             {
                 "success": true,
-                "message": "Successfully unlinked 'orders' and 'users' 
+                "message": "Successfully unlinked 'orders' and 'users'
                             by 'user_id'",
             }
         """
