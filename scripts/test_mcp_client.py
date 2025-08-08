@@ -87,7 +87,7 @@ async def test_kumo_mcp():
                 'unlink_tables', {
                     'source_table': 'orders',
                     'foreign_key': 'user_id',
-                    'target_table': 'users',
+                    'destination_table': 'users',
                 })
             print(f"Result: {result.content[0].text}")
             print()
@@ -102,7 +102,7 @@ async def test_kumo_mcp():
                 'link_tables', {
                     'source_table': 'orders',
                     'foreign_key': 'user_id',
-                    'target_table': 'users',
+                    'destination_table': 'users',
                 })
             print(f"Result: {result.content[0].text}")
             print()
