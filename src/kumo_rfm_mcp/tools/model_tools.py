@@ -13,14 +13,18 @@ logger = logging.getLogger('kumo-rfm-mcp')
 
 def register_model_tools(mcp: FastMCP):
     """Register all model tools with the MCP server."""
-    
+
     @mcp.tool()
     async def finalize_graph() -> Dict[str, Any]:
-        """Finalizes the graph and create a KumoRFM model instance.
-
-        This operation creates a KumoRFM model from the current graph state,
+        """
+        This tool creates a KumoRFM model from the **current graph state**,
         making it available for inference operations (e.g., ``predict`` and
         ``evaluate``).
+
+        The graph can be updated using the ``add_table``, ``remove_table``,
+        ``link_tables``, and ``unlink_tables`` tools, but the graph needs to be
+        finalized again before the KumoRFM model can start generating
+        predictions with the new graph state.
 
         Returns:
             Dictionary containing:
@@ -50,11 +54,26 @@ def register_model_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def validate_query(query: str) -> Dict[str, Any]:
-        """Validates a predictive query string against the current 
+        """Validates a predictive query string against the current finalized
         graph structure.
 
-        This operation checks if the query syntax is correct and compatible 
-        with the current graph schema without executing the prediction.
+        This operation checks if the query syntax is correct and compatible
+        with the current graph schema without executing the prediction and
+        raises validation errors if the query is not valid. Use this tool to
+        check if the query is valid before running it, it is also valuable to
+        figure out what the correct query syntax for a particular prediction
+        is.
+
+        The query syntax should always follow the format:
+        * PREDICT <target_expression>
+            - Declares the value or aggregate the model should predict
+        * FOR <entity_specification>
+            - Specifies the single ID or list of IDs to predict for
+        * WHERE <filters> (optional)
+            - Filters which historical rows are used to generate features
+
+        Refer to relevant resources for more information:
+        # TODO(@blaz): Add links to relevant resources
 
         Args:
             query: The predictive query to validate (e.g.,
@@ -77,9 +96,8 @@ def register_model_tools(mcp: FastMCP):
             if session.model is None:
                 return dict(
                     success=False,
-                    message=(
-                        "No model available. Please call "
-                        "'finalize_graph' first"),
+                    message=("No model available. Please call "
+                             "'finalize_graph' first"),
                 )
 
             session.model._parse_query(query)
@@ -96,10 +114,21 @@ def register_model_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def predict(query: str) -> Dict[str, Any]:
-        """Executes a predictive query and returns model predictions.
+        """Executes a predictive query and returns model predictions. This tool
+        runs the specified predictive query against the KumoRFM model and
+        returns the predictions as tabular data. The graph needs to be
+        finalized before the KumoRFM model can start generating predictions.
 
-        This operation runs the specified predictive query against the KumoRFM
-        model and returns the predictions as tabular data.
+        The query syntax should always follow the format:
+        * PREDICT <target_expression>
+            - Declares the value or aggregate the model should predict
+        * FOR <entity_specification>
+            - Specifies the single ID or list of IDs to predict for
+        * WHERE <filters> (optional)
+            - Filters which historical rows are used to generate features
+
+        Refer to relevant resources for more information:
+        # TODO(@blaz): Add links to relevant resources
 
         Args:
             query: The predictive query to validate (e.g.,
@@ -155,11 +184,23 @@ def register_model_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def evaluate(query: str) -> Dict[str, Any]:
-        """Evaluates a predictive query and returns performance metrics.
+        """Evaluates a predictive query and returns performance metrics. This
+        tool runs the specified predictive query in evaluation mode, comparing
+        predictions against known ground truth labels and returning performance
+        metrics. The graph needs to be finalized before the KumoRFM model can
+        start generating evaluation metrics.
 
-        This operation runs the specified predictive query in evaluation mode,
-        comparing predictions against known ground truth labels and returning
-        performance metrics.
+        The query syntax should always follow the format:
+        * PREDICT <target_expression>
+            - Declares the value or aggregate the model should predict
+        * FOR <entity_specification>
+            - Specifies the single ID or list of IDs to predict for
+        * WHERE <filters> (optional)
+            - Filters which historical rows are used to generate features
+
+        Refer to relevant resources for more information:
+        # TODO(@blaz): Add links to relevant query syntax resources
+        # TODO(@blaz): Add links to relevant evaluation metrics resources
 
         Args:
             query: The predictive query to validate (e.g.,
