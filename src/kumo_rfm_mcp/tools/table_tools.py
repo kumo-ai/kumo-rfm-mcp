@@ -14,11 +14,19 @@ logger = logging.getLogger('kumo-rfm-mcp')
 
 def register_table_tools(mcp: FastMCP):
     """Register all table management tools with the MCP server."""
-    
+
     @mcp.tool()
     def add_table(path: str, name: str) -> Dict[str, Any]:
-        """Loads a ``*.csv`` or ``*.parquet`` file path and adds it to the
-        Kumo graph.
+        """
+        Tables are the core entities in the Kumo graph. They are the tables
+        that will be used to generate predictions. Tables can be added to the
+        graph using this tool, each table only needs to be added once.
+
+        The tables need to be linked to each other using either ``infer_links``
+        or ``add_link`` tools before finalizing the graph.
+
+        This tool loads a ``*.csv`` or ``*.parquet`` file path and adds it to
+        the Kumo graph.
 
         Args:
             path: File path to the data source (e.g., ``'data/users.csv'``)
@@ -69,7 +77,12 @@ def register_table_tools(mcp: FastMCP):
 
     @mcp.tool()
     def remove_table(name: str) -> Dict[str, Any]:
-        """Removes an existing table from the Kumo graph.
+        """
+        Tables are the core entities in the Kumo graph. They are the tables
+        that will be used to generate predictions. Tables can be removed from
+        the graph using this tool, each table only needs to be removed once.
+
+        This tool removes an existing table from the Kumo graph.
 
         Args:
             name: The name of the table to remove (e.g., ``'users'``)
@@ -100,7 +113,14 @@ def register_table_tools(mcp: FastMCP):
 
     @mcp.tool()
     def inspect_table(name: str, num_rows: int = 20) -> Dict[str, Any]:
-        """Inspects a table in the Kumo graph.
+        """
+        Tables are core entities in the Kumo graph. They are the tables that
+        will be used to generate predictions. This tool inspects a table in
+        the Kumo graph. Use it to get information about the table, such as the
+        number of rows, columns, primary key, and time column.
+
+        Primary key, time column, and column names are particularly important
+        for defining the predictive queries.
 
         Args:
             name: The name of the table in the graph (e.g., ``'users'``)
@@ -123,11 +143,11 @@ def register_table_tools(mcp: FastMCP):
                     "primary_key": "user_id",
                     "time_column": "dob",
                     "rows": [
-                        {"user_id": 1, "dob": "1990-06-02", 
+                        {"user_id": 1, "dob": "1990-06-02",
                         "gender": "male"},
-                        {"user_id": 2, "dob": "1989-08-25", 
+                        {"user_id": 2, "dob": "1989-08-25",
                         "gender": "female"},
-                        {"user_id": 3, "dob": "1987-01-17", 
+                        {"user_id": 3, "dob": "1987-01-17",
                         "gender": "male"}
                         ...
                     ]
@@ -157,7 +177,9 @@ def register_table_tools(mcp: FastMCP):
 
     @mcp.tool()
     def list_tables() -> Dict[str, Any]:
-        """Lists all tables in the Kumo graph.
+        """Lists all tables in the Kumo graph. Use this tool to check if the
+        graph contains all the tables that you want to use to generate
+        predictions.
 
         Returns:
             Dictionary containing:
