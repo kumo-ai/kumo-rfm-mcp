@@ -12,6 +12,7 @@ from kumo_rfm_mcp.tools import (
     register_session_tools,
 )
 
+# set up logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
