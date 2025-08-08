@@ -1,0 +1,234 @@
+"""Graph management tools for KumoRFM MCP server."""
+
+import logging
+from typing import Any, Dict
+
+from fastmcp import FastMCP
+
+from kumo_rfm_mcp import SessionManager
+
+logger = logging.getLogger('kumo-rfm-mcp')
+
+
+def register_graph_tools(mcp: FastMCP):
+    """Register all graph management tools with the MCP server."""
+    
+    @mcp.tool()
+    async def infer_links() -> Dict[str, Any]:
+        """Automatically infers potential links between tables in the graph.
+
+        This operation analyzes the schema and data of existing tables and adds
+        possible relationships as links.
+
+        Returns:
+            Dictionary containing:
+            - success (bool): ``True`` if operation succeeded
+            - message (str): Human-readable status message
+            - data (dict, optional): Additional information on success
+
+        Examples:
+            {
+                "success": true,
+                "message": "Link inference completed",
+                "data": {
+                    "inferred_links": [
+                        {
+                            "source_table": "orders",
+                            "foreign_key": "user_id",
+                            "destination_table": "users"
+                        },
+                        {
+                            "source_table": "orders",
+                            "foreign_key": "item_id",
+                            "destination_table": "items"
+                        }
+                    ]
+                }
+            }
+        """
+        try:
+            session = SessionManager.get_default_session()
+            edges = set(session.graph.edges)
+            session.graph.infer_links(verbose=False)
+            edges = set(session.graph.edges) - edges
+
+            return dict(
+                success=True,
+                message="Link inference completed",
+                data=dict(inferred_links=[
+                    dict(
+                        source_table=edge.src_table,
+                        foreign_key=edge.fkey,
+                        destination_table=edge.dst_table,
+                    ) for edge in edges
+                ]),
+            )
+        except Exception as e:
+            return dict(
+                success=False,
+                message=f"Failed to infer links. {e}",
+            )
+
+    @mcp.tool()
+    async def inspect_graph() -> Dict[str, Any]:
+        """Obtains the complete graph structure including all tables and their
+        relationships.
+
+        This operation provides a comprehensive view of the current graph 
+        state, including all tables, their schemas, and the links between them.
+
+        Returns:
+            Dictionary containing:
+            - success (bool): ``True`` if operation succeeded
+            - message (str): Human-readable status message
+            - data (dict, optional): Additional information on success
+
+        Examples:
+            {
+                "success": true,
+                "message": "Graph structure retrieved successfully",
+                "data": {
+                    "tables": {
+                        "users": {
+                            "num_rows": 18431,
+                            "columns": ["user_id", "dob", "gender"],
+                            "primary_key": "user_id",
+                            "time_column": "dob"
+                        },
+                        "orders": {
+                            "num_rows": 998998,
+                            "columns": ["order_id", "user_id", "order_date"],
+                            "primary_key": "order_id",
+                            "time_column": "order_date"
+                        }
+                    },
+                    "links": [
+                        {
+                            "source_table": "orders",
+                            "foreign_key": "user_id",
+                            "destination_table": "users",
+                        }
+                    ]
+                }
+            }
+        """
+        try:
+            session = SessionManager.get_default_session()
+
+            tables = {
+                table.name:
+                dict(
+                    num_rows=len(table._data),
+                    columns=list(table._data.columns),
+                    primary_key=table._primary_key,
+                    time_column=table._time_column,
+                )
+                for table in session.graph.tables.values()
+            }
+
+            links = [
+                dict(
+                    source_table=edge.src_table,
+                    foreign_key=edge.fkey,
+                    destination_table=edge.dst_table,
+                ) for edge in session.graph.edges
+            ]
+
+            return dict(
+                success=True,
+                message="Graph structure retrieved successfully",
+                data=dict(tables=tables, links=links),
+            )
+        except Exception as e:
+            return dict(
+                success=False,
+                message=f"Failed to inspect graph. {e}",
+            )
+
+    @mcp.tool()
+    async def link_tables(
+        source_table: str,
+        foreign_key: str,
+        destination_table: str,
+    ) -> Dict[str, Any]:
+        """Creates a link (edge) between two tables in the graph.
+
+        Args:
+            source_table: Name of the source table (e.g., ``'orders'``)
+            foreign_key: Column name in the source table that acts as a foreign
+                key to link to the primary key of the destination table
+                (e.g. ``'user_id'``)
+            destination_table: Name of the destination table with a primary key
+                (e.g. ``'users'``)
+
+        Returns:
+            Dictionary containing:
+            - success (bool): ``True`` if operation succeeded
+            - message (str): Human-readable status message
+
+        Examples:
+            {
+                "success": true,
+                "message": "Successfully linked 'orders' and 'users' 
+                            by 'user_id'",
+            }
+        """
+        try:
+            session = SessionManager.get_default_session()
+            session.graph.link(source_table, foreign_key, destination_table)
+
+            return dict(
+                success=True,
+                message=(f"Successfully linked '{source_table}' and "
+                         f"'{destination_table}' by '{foreign_key}'"),
+            )
+        except Exception as e:
+            return dict(
+                success=False,
+                message=(f"Failed to link '{source_table}' and "
+                         f"'{destination_table}' by '{foreign_key}'. {e}"),
+            )
+
+    @mcp.tool()
+    async def unlink_tables(
+        source_table: str,
+        foreign_key: str,
+        destination_table: str,
+    ) -> Dict[str, Any]:
+        """Removes a link (edge) between two tables in the graph.
+
+        Args:
+            source_table: Name of the source table (e.g., ``'orders'``)
+            foreign_key: Column name in the source table that acts as a foreign
+                key to link to the primary key of the destination table
+                (e.g. ``'user_id'``)
+            destination_table: Name of the destination table with a primary key
+                (e.g. ``'users'``)
+
+        Returns:
+            Dictionary containing:
+            - success (bool): ``True`` if operation succeeded
+            - message (str): Human-readable status message
+
+        Examples:
+            {
+                "success": true,
+                "message": "Successfully unlinked 'orders' and 'users' 
+                            by 'user_id'",
+            }
+        """
+        try:
+            session = SessionManager.get_default_session()
+            session.graph.unlink(source_table, foreign_key, destination_table)
+
+            return dict(
+                success=True,
+                message=(f"Successfully unlinked '{source_table}' and "
+                         f"'{destination_table}' by '{foreign_key}'"),
+            )
+        except Exception as e:
+            return dict(
+                success=False,
+                message=(f"Failed to unlink '{source_table}' and "
+                         f"'{destination_table}' by '{foreign_key}'. {e}"),
+            )

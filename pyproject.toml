@@ -11,11 +11,32 @@ license = { text = "MIT" }
 authors = [
     { name = "Kumo.AI", email = "hello@kumo.ai" }
 ]
+keywords = [
+  "rfm",
+  "mcp",
+  "foundation model",
+  "relational data",
+  "kumo",
+]
 requires-python = ">=3.10"
 dependencies = [
-    "kumoai", 
+    "kumoai",
     "pandas",
     "fastmcp",
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 [project.optional-dependencies]
@@ -29,3 +50,8 @@ kumo-rfm-mcp = "kumo_rfm_mcp.server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kumo_rfm_mcp"]
+
+[project.urls]
+Homepage = "https://github.com/kumo-ai/kumo-rfm-mcp"
+Repository = "https://github.com/kumo-ai/kumo-rfm-mcp.git"
+Issues = "https://github.com/kumo-ai/kumo-rfm-mcp/issues"
