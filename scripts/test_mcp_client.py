@@ -20,10 +20,48 @@ async def test_kumo_mcp():
             print("Connected to KumoRFM MCP Server!")
             print()
 
+            # List available tools
             tools = await session.list_tools()
             print("Available Tools:")
             for tool in tools.tools:
                 print(f"  - {tool.name}: {tool.description}")
+            print()
+
+            # List available resources
+            print("=== Available Resources ===")
+            resources = await session.list_resources()
+            print(f"Found {len(resources.resources)} resources:")
+            for resource in resources.resources:
+                print(f"  - URI: {resource.uri}")
+                if resource.name:
+                    print(f"    Name: {resource.name}")
+                if resource.description:
+                    # Show first line of description
+                    desc_first_line = resource.description.split('\n')[0]
+                    print(f"    Description: {desc_first_line}")
+                print()
+
+            # Test reading a few key resources
+            print("=== Testing Resource Content ===")
+            test_resource_uris = [
+                "kumo://docs/overview", "kumo://docs/pql-guide",
+                "kumo://examples/e-commerce"
+            ]
+
+            for uri in test_resource_uris:
+                try:
+                    print(f"Reading resource: {uri}")
+                    content = await session.read_resource(uri)
+                    if content.contents:
+                        text_content = content.contents[0].text
+                        lines = text_content.split('\n')
+                        print(f"  ✅ Success! Content has {len(lines)} lines")
+                        print(f"  📄 First line: {lines[0]}")
+                    else:
+                        print("  ⚠️  No content returned")
+                except Exception as e:
+                    print(f"  ❌ Error reading resource: {e}")
+                print()
             print()
 
             print("=== Adding Tables ===")
