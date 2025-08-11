@@ -1,12 +1,9 @@
-"""Model tools for KumoRFM MCP server."""
-
 import logging
 from typing import Any, Dict
 
 from fastmcp import FastMCP
-from kumoai.experimental import rfm
-
 from kumo_rfm_mcp import SessionManager
+from kumoai.experimental import rfm
 
 logger = logging.getLogger('kumo-rfm-mcp')
 

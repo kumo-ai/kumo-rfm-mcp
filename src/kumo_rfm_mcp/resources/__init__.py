@@ -1,5 +1,3 @@
-"""Resource registration for KumoRFM MCP server."""
-
 from .docs_resources import register_docs_resources
 from .examples_resources import register_examples_resources
 from .overview_resources import register_overview_resources

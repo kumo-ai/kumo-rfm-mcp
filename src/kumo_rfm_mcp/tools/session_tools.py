@@ -1,14 +1,8 @@
-"""Session management tools for KumoRFM MCP server."""
-
-import logging
 from typing import Any, Dict
 
 from fastmcp import FastMCP
-from kumoai.experimental import rfm
-
 from kumo_rfm_mcp import SessionManager
-
-logger = logging.getLogger('kumo-rfm-mcp')
+from kumoai.experimental import rfm
 
 
 def register_session_tools(mcp: FastMCP):

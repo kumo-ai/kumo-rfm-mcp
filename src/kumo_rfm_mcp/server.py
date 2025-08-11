@@ -5,12 +5,7 @@ import sys
 from fastmcp import FastMCP
 
 import kumo_rfm_mcp
-from kumo_rfm_mcp.resources import (register_docs_resources,
-                                    register_examples_resources,
-                                    register_overview_resources)
-from kumo_rfm_mcp.tools import (register_docs_tools, register_graph_tools,
-                                register_model_tools, register_session_tools,
-                                register_table_tools)
+from kumo_rfm_mcp import resources, tools
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,33 +18,17 @@ mcp = FastMCP(
     version=kumo_rfm_mcp.__version__,
 )
 
-# TOOLS #
+# Tools ######################################################################
+tools.register_table_tools(mcp)
+tools.register_graph_tools(mcp)
+tools.register_model_tools(mcp)
+tools.register_session_tools(mcp)
+tools.register_docs_tools(mcp)
 
-# register table tools
-register_table_tools(mcp)
-
-# register graph tools
-register_graph_tools(mcp)
-
-# register model tools
-register_model_tools(mcp)
-
-# register session tools
-register_session_tools(mcp)
-
-# register documentation tools
-register_docs_tools(mcp)
-
-# RESOURCES #
-
-# register overview resources
-register_overview_resources(mcp)
-
-# register documentation resources
-register_docs_resources(mcp)
-
-# register example resources
-register_examples_resources(mcp)
+# Resources ##################################################################
+resources.register_overview_resources(mcp)
+resources.register_docs_resources(mcp)
+resources.register_examples_resources(mcp)
 
 if __name__ == '__main__':
     logger.info("Starting KumoRFM MCP Server...")

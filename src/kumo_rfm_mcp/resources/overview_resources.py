@@ -1,10 +1,4 @@
-"""Overview resources for KumoRFM MCP server."""
-
-import logging
-
 from fastmcp import FastMCP
-
-logger = logging.getLogger('kumo-rfm-mcp')
 
 
 def register_overview_resources(mcp: FastMCP):
@@ -16,10 +10,9 @@ def register_overview_resources(mcp: FastMCP):
         return """# KumoRFM MCP Server Overview
 
 ## What is KumoRFM?
-KumoRFM is a foundational relational model that can be used to generate
-predictions from relational data without training. The model uses a graph
-representation of the relational data and a PQL query
-(Predictive Query Language) to generate predictions.
+KumoRFM is a foundational relational model (RFM) that can be used to generate
+predictions from relational data without training (do not confuse with "Recency, Frequency, Monetary (RFM) analysis").
+The model uses a graph representation of the relational data and a PQL query (Predictive Query Language) to generate predictions.
 
 ## Available Documentation
 
@@ -46,4 +39,4 @@ Use the `get_docs` tool to access any resource:
 ```
 get_docs("kumo://docs/pql-syntax")
 get_docs("kumo://examples/e-commerce")
-```"""
+"""  # noqa: E501
