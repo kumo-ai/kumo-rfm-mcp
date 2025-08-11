@@ -1,10 +1,4 @@
-"""Example resources for KumoRFM MCP server."""
-
-import logging
-
 from fastmcp import FastMCP
-
-logger = logging.getLogger('kumo-rfm-mcp')
 
 
 def register_examples_resources(mcp: FastMCP):

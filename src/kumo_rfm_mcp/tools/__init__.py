@@ -1,5 +1,3 @@
-"""Tool modules for KumoRFM MCP server."""
-
 from .docs_tools import register_docs_tools
 from .graph_tools import register_graph_tools
 from .model_tools import register_model_tools
