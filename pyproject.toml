@@ -20,7 +20,7 @@ keywords = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "kumoai",
+    "kumoai>=2.5.0",
     "pandas",
     "fastmcp",
 ]
