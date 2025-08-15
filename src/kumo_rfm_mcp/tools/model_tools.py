@@ -2,10 +2,11 @@ import logging
 from typing import Any, Dict
 
 from fastmcp import FastMCP
-from kumo_rfm_mcp import SessionManager
 from kumoai.experimental import rfm
 
-logger = logging.getLogger('kumo-rfm-mcp')
+from kumo_rfm_mcp import SessionManager
+
+logger = logging.getLogger('kumo-rfm-mcp.model_tools')
 
 
 def register_model_tools(mcp: FastMCP):
@@ -44,6 +45,7 @@ def register_model_tools(mcp: FastMCP):
                 message="Successfully finalized graph",
             )
         except Exception as e:
+            logger.error(f"Failed to finalize graph: {e}")
             return dict(
                 success=False,
                 message=f"Failed to finalize graph. {e}",

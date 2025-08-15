@@ -9,7 +9,7 @@ from kumo_rfm_mcp import resources, tools
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='[%(levelname)s] - %(asctime)s - %(name)s - %(message)s',
     stream=sys.stderr)
 logger = logging.getLogger('kumo-rfm-mcp')
 
