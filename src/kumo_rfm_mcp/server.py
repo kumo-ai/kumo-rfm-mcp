@@ -30,6 +30,12 @@ resources.register_overview_resources(mcp)
 resources.register_docs_resources(mcp)
 resources.register_examples_resources(mcp)
 
-if __name__ == '__main__':
+
+def main():
+    """Main entry point for the CLI command."""
     logger.info("Starting KumoRFM MCP Server...")
     mcp.run(transport='stdio')
+
+
+if __name__ == '__main__':
+    main()
