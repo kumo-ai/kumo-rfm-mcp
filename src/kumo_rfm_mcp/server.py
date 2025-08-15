@@ -33,8 +33,15 @@ resources.register_examples_resources(mcp)
 
 def main():
     """Main entry point for the CLI command."""
-    logger.info("Starting KumoRFM MCP Server...")
-    mcp.run(transport='stdio')
+    try:
+        logger.info("Starting KumoRFM MCP Server...")
+        mcp.run(transport='stdio')
+    except KeyboardInterrupt:
+        logger.info("Server shutdown requested by user")
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Failed to start KumoRFM MCP Server: {e}")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
