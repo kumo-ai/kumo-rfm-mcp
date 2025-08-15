@@ -69,6 +69,15 @@ def register_session_tools(mcp: FastMCP):
                 message="Session status retrieved successfully",
                 data=status_data,
             )
+        except ValueError as e:
+            # Environment validation errors
+            logger.error(
+                "Failed to get session status due to missing environment "
+                "variable")
+            return dict(
+                success=False,
+                message=str(e),
+            )
         except Exception as e:
             logger.error(f"Failed to get session status: {e}")
             return dict(
@@ -108,6 +117,14 @@ def register_session_tools(mcp: FastMCP):
             return dict(
                 success=True,
                 message="Session cleared successfully",
+            )
+        except ValueError as e:
+            # Environment validation errors
+            logger.error(
+                "Failed to clear session due to missing environment variable")
+            return dict(
+                success=False,
+                message=str(e),
             )
         except Exception as e:
             logger.error(f"Failed to clear session: {e}")
