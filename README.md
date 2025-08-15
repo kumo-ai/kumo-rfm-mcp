@@ -49,3 +49,7 @@ The KumoRFM MCP provides several categories of tools for working with relational
 ### Documentation Tools
 
 - **get_docs**: Access documentation, guides, and examples via kumo:// URIs
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and [CLAUDE_DESKTOP_SETUP.md](CLAUDE_DESKTOP_SETUP.md) for Claude Desktop integration.
