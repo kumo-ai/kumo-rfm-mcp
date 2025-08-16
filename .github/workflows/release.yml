@@ -1,0 +1,177 @@
+name: Trigger Release
+
+description: >
+  To release `vX.Y.0rc1`, run this workflow on `main`.
+  To release `vX.Y.0rc{N+1}`, run this workflow on `vX.Y`.
+  To release `vX.Y.0`, run this workflow on `vX.Y` with `switch-from-rc-to-final` set to `true`.
+  To release `vX.Y.{Z+1}`, run this workflow on `vX.Y`.
+
+on:  # yamllint disable-line rule:truthy
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        type: boolean
+        required: false
+        default: true
+      switch-from-rc-to-final:
+        description: >
+          Whether to switch from `vX.Y.0rcN` to `vX.Y.0`. Only applicable when
+          triggering this workflow on vX.Y that has any RC release(s).
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # This token is necessary to push a commit and tag.
+          token: ${{ secrets.KUMO_GITHUB_BOT_TOKEN }}
+          fetch-depth: 0  # for verbosity
+          fetch-tags: true  # for verbosity
+
+      - name: Configure release
+        id: config
+        run: |
+          if [[ ${{ github.ref_name }} == main ]]; then
+            echo "create-rc-from-dev=true" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref_name }} =~ ^v[0-9]+\.[0-9]+$ ]]; then
+            if [[ ${{ inputs.switch-from-rc-to-final }} == true ]]; then
+              echo "create-final-from-rc=true" >> $GITHUB_OUTPUT
+            else
+              is_rc=$(python -c 'exec(input()); print("rc" in __version__)' < src/kumo_rfm_mcp/_version.py)
+              if [[ $is_rc == "True" ]]; then
+                echo "create-rc-from-rc=true" >> $GITHUB_OUTPUT
+              else
+                echo "create-final-from-final=true" >> $GITHUB_OUTPUT
+              fi
+            fi
+          else
+            echo "Error: Unexpected branch name: ${{ github.ref_name }}"
+            exit 1
+          fi
+
+      - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35  # v2.0.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+
+      - name: Create vX.Y and vX.Y.0rc1 from vX.Y.0.dev0 on main
+        if: ${{ steps.config.outputs.create-rc-from-dev == 'true' }}
+        run: |
+          # Get the release candidate version:
+          # - version_dev: X.Y.0.dev0
+          # - version_rc: X.Y.0rc1
+          # - version_final: X.Y.0
+          version_dev=$(python -c 'exec(input()); print(__version__)' < src/kumo_rfm_mcp/_version.py)  # X.Y.0.dev0
+          version_rc=$(npx semver --coerce $version_dev)rc1  # X.Y.0.dev0 -> X.Y.0rc1
+          version_final=$(npx semver --coerce $version_dev)  # X.Y.0.dev0 -> X.Y.0
+
+          # Update the version in src/kumo_rfm_mcp/_version.py
+          echo "__version__ = '$version_rc'" > src/kumo_rfm_mcp/_version.py
+          git diff --color=always
+          git add src/kumo_rfm_mcp/_version.py
+          git commit -m "Update version from $version_dev to $version_rc (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
+
+          # Create a release tag:
+          git tag v$version_rc  # vX.Y.0rc1
+
+          # Create a new release branch vX.Y on the commit right before it
+          # starts diverging from main:
+          git checkout -b v${version_final//.0}
+
+          # Update the version in src/kumo_rfm_mcp/_version.py again in main (vX.Y.0rc1 -> vX.{Y+1}.0.dev0)
+          git checkout ${{ github.ref_name }}  # This is normally main, but it's set to ref_name for dry-run.
+          version_dev_new=$(npx semver -i minor $version_final).dev0  # X.Y.0 -> X.{Y+1}.0.dev0
+          echo "__version__ = '$version_dev_new'" > src/kumo_rfm_mcp/_version.py
+          git diff --color=always
+          git add src/kumo_rfm_mcp/_version.py
+          git commit -m "Update version from $version_rc to $version_dev_new (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
+
+          # Push updated main branch, the new vX.Y branch, and vX.Y.0rc1 tag
+          # Note that ref_name is usually main, but it's set to ref_name for dry-run.
+          echo UPDATED_REFS="${{ github.ref_name }} v${version_final//.0} v$version_rc" >> $GITHUB_ENV
+
+      - name: Create vX.Y.0rc{N+1} from vX.Y.0rcN on vX.Y
+        if: ${{ steps.config.outputs.create-rc-from-rc == 'true' }}
+        run: |
+          # Get the release candidate version:
+          # - version_rc: X.Y.0rcN
+          # - version_rc_new: X.Y.0rc{N+1}
+          # - version_final: X.Y.0
+          version_rc=$(python -c 'exec(input()); print(__version__)' < src/kumo_rfm_mcp/_version.py)  # X.Y.0rcN
+          version_final=$(npx semver --coerce $version_rc)  # X.Y.0rcN -> X.Y.0
+          n=${version_rc##*rc}  # N
+          version_rc_new=${version_final}rc$((n + 1))  # X.Y.0rc{N+1}
+
+          # Update the version in src/kumo_rfm_mcp/_version.py
+          echo "__version__ = '$version_rc_new'" > src/kumo_rfm_mcp/_version.py
+          git diff --color=always
+          git add src/kumo_rfm_mcp/_version.py
+          git commit -m "Update version from $version_rc to $version_rc_new (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
+
+          # Create a release tag:
+          git tag v$version_rc_new  # vX.Y.0rc{N+1}
+
+          # Push updated vX.Y branch and vX.Y.0rc{N+1} tag
+          echo UPDATED_REFS="v${version_final//.0} v$version_rc_new" >> $GITHUB_ENV
+
+      - name: Create vX.Y.0 from vX.Y.0rcN on vX.Y
+        if: ${{ steps.config.outputs.create-final-from-rc == 'true' }}
+        run: |
+          # Get the final release version:
+          # - version_rc: X.Y.0rcN
+          # - version_final: X.Y.0
+          version_rc=$(python -c 'exec(input()); print(__version__)' < src/kumo_rfm_mcp/_version.py)  # X.Y.0rcN
+          version_final=$(npx semver --coerce $version_rc)  # X.Y.0rcN -> X.Y.0
+
+          # Update the version in src/kumo_rfm_mcp/_version.py
+          echo "__version__ = '$version_final'" > src/kumo_rfm_mcp/_version.py
+          git diff --color=always
+          git add src/kumo_rfm_mcp/_version.py
+          git commit -m "Update version from $version_rc to $version_final (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
+
+          # Create a release tag:
+          git tag v$version_final  # vX.Y.0
+
+          # Push updated vX.Y branch and vX.Y.0 tag
+          echo UPDATED_REFS="v${version_final//.0} v$version_final" >> $GITHUB_ENV
+
+      - name: Create vX.Y.{Z+1} from vX.Y.Z on vX.Y
+        if: ${{ steps.config.outputs.create-final-from-final == 'true' }}
+        run: |
+          # Get the next patch release version:
+          # - version_final: X.Y.Z
+          # - version_final_new: X.Y.{Z+1}
+          version_final=$(python -c 'exec(input()); print(__version__)' < src/kumo_rfm_mcp/_version.py)
+          version_final=$(npx semver --coerce $version_final)  # X.Y.Z -> X.Y.Z (just in case)
+          version_final_new=$(npx semver -i patch $version_final)  # X.Y.Z -> X.Y.{Z+1}
+
+          # Update the version in src/kumo_rfm_mcp/_version.py:
+          echo "__version__ = '$version_final_new'" > src/kumo_rfm_mcp/_version.py
+          git diff --color=always
+          git add src/kumo_rfm_mcp/_version.py
+          git commit -m "Update version from $version_final to $version_final_new (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
+
+          # Create a release tag:
+          git tag v$version_final_new  # vX.Y.{Z+1}
+
+          # Push updated vX.Y branch and vX.Y.{Z+1} tag
+          echo UPDATED_REFS="${{ github.ref_name }} v$version_final_new" >> $GITHUB_ENV
+
+      - name: Push changes to the remote repository
+        run: |
+          # For verbosity, show git tags and git logs:
+          git tag --list --sort=-v:refname
+          for ref in ${{ env.UPDATED_REFS }}; do
+            echo "git log on $ref:"
+            git log -n 10 --oneline --decorate $ref
+          done
+
+          if [[ ${{ inputs.dry-run }} == false ]]; then
+            for ref in ${{ env.UPDATED_REFS }}; do
+              git push origin $ref
+            done
+          fi

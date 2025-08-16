@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kumo-rfm-mcp"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Model Context Protocol server for KumoRFM"
 readme = "README.md"
 license = { text = "MIT" }
@@ -51,6 +51,9 @@ kumo-rfm-mcp = "kumo_rfm_mcp.server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kumo_rfm_mcp"]
+
+[tool.hatch.version]
+path = "src/kumo_rfm_mcp/_version.py"
 
 [project.urls]
 Homepage = "https://github.com/kumo-ai/kumo-rfm-mcp"

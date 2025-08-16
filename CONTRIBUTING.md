@@ -46,15 +46,23 @@ python -m build
 
 **Automatic builds** happen on every push to `main` and PR.
 
-**Publishing** only happens for releases:
-
-1. **Update version** in `pyproject.toml`
-1. **Create and push a version tag:**
-   ```bash
-   git tag v1.2.3
-   git push origin v1.2.3
-   ```
-1. **GitHub Actions automatically publishes to PyPI**
+**Publishing** only happens for releases.
+1. To release `vX.{Y+1}.0rc0`, run:
+```bash
+gh workflow run release.yml --ref main
+```
+1. To release `vX.Y.0rc{N+1}`, run:
+```bash
+gh workflow run release.yml --ref vX.Y
+```
+1. To release `vX.Y.0`, run:
+```bash
+gh workflow run release.yml --ref vX.Y -f switch-from-rc-to-final=true
+```
+1. To release `vX.Y.{Z+1}`, run:
+```bash
+gh workflow run release.yml --ref vX.Y
+```
 
 For manual publishing, use the "Publish Package" workflow in the Actions tab.
 
