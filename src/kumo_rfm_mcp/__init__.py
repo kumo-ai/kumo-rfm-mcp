@@ -1,5 +1,4 @@
-__version__ = '0.1.0'
-
+from ._version import __version__
 from .session import Session, SessionManager
 
 __all__ = [
