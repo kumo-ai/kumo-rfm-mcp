@@ -37,19 +37,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # TODO: Enable this when the workflow til here is tested.
-      # - name: Upload to TestPyPI
-      #   uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
-      #   with:
-      #     repository-url: https://test.pypi.org/legacy/
-      #     user: __token__
-      #     password: ${{ secrets.TEST_PYPI_TOKEN }}
-      #     verbose: true
+      - name: Upload to TestPyPI
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_TOKEN }}
+          verbose: true
 
-      # - name: Upload to PyPI
-      #   uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
-      #   with:
-      #     repository-url: https://upload.pypi.org/legacy/
-      #     user: __token__
-      #     password: ${{ secrets.PYPI_TOKEN }}
-      #     verbose: true
+      - name: Upload to PyPI
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
+        with:
+          repository-url: https://upload.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+          verbose: true
