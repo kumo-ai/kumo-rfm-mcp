@@ -37,9 +37,9 @@ See [`CLAUDE_DESKTOP_SETUP.md`](./CLAUDE_DESKTOP_SETUP.md) for Claude Desktop in
 ### Local Build
 
 ```bash
-pip install build
+pip install -U pip build twine
 python -m build
-./scripts/validate_wheels_for_release.sh
+twine check dist/*
 ```
 
 ### Publishing Process
