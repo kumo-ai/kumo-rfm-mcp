@@ -1,6 +1,9 @@
+import logging
 from typing import Any, Dict
 
 from fastmcp import FastMCP
+
+logger = logging.getLogger('kumo-rfm-mcp.docs_tools')
 
 
 def register_docs_tools(mcp: FastMCP):
@@ -36,9 +39,13 @@ def register_docs_tools(mcp: FastMCP):
             get_docs("kumo://examples/e-commerce")
         """
         try:
+            logger.info(f"Getting documentation for resource: {resource_uri}")
             resources = await mcp.get_resources()
+            logger.info(f"Found {len(resources)} available resources")
 
             if resource_uri not in resources:
+                logger.warning(f"Resource '{resource_uri}' not found. "
+                               f"Available: {list(resources.keys())}")
                 return dict(
                     success=False,
                     message=f"Resource '{resource_uri}' not found",
@@ -49,7 +56,10 @@ def register_docs_tools(mcp: FastMCP):
 
             # Call the resource function to get content:
             if hasattr(resource, 'fn') and callable(resource.fn):
+                logger.info(f"Retrieving content for '{resource_uri}'")
                 content = await resource.fn()
+                logger.info(f"Successfully retrieved {len(str(content))} "
+                            f"characters of content for '{resource_uri}'")
 
                 return dict(
                     success=True,
@@ -57,12 +67,14 @@ def register_docs_tools(mcp: FastMCP):
                     content=content,
                 )
             else:
+                logger.error(f"Resource '{resource_uri}' is not callable")
                 return dict(
                     success=False,
                     message=f"Resource '{resource_uri}' not callable",
                 )
 
         except Exception as e:
+            logger.error(f"Failed to get docs for '{resource_uri}': {e}")
             return dict(
                 success=False,
                 message=f"Error retrieving resource: {e}",

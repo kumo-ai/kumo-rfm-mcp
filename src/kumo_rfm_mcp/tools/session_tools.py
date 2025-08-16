@@ -1,8 +1,12 @@
+import logging
 from typing import Any, Dict
 
 from fastmcp import FastMCP
-from kumo_rfm_mcp import SessionManager
 from kumoai.experimental import rfm
+
+from kumo_rfm_mcp import SessionManager
+
+logger = logging.getLogger('kumo-rfm-mcp.session_tools')
 
 
 def register_session_tools(mcp: FastMCP):
@@ -46,19 +50,36 @@ def register_session_tools(mcp: FastMCP):
             }
         """
         try:
+            logger.info("Getting session status")
             session = SessionManager.get_default_session()
+
+            status_data = dict(
+                initialized=session.initialized,
+                table_names=list(session.graph.tables.keys()),
+                num_links=len(session.graph.edges),
+                is_rfm_model_ready=session.model is not None,
+            )
+            logger.info(
+                f"Session status retrieved: {len(status_data['table_names'])} "
+                f"tables, {status_data['num_links']} links, "
+                f"model_ready={status_data['is_rfm_model_ready']}")
 
             return dict(
                 success=True,
                 message="Session status retrieved successfully",
-                data=dict(
-                    initialized=session.initialized,
-                    table_names=list(session.graph.tables.keys()),
-                    num_links=len(session.graph.edges),
-                    is_rfm_model_ready=session.model is not None,
-                ),
+                data=status_data,
+            )
+        except ValueError as e:
+            # Environment validation errors
+            logger.error(
+                "Failed to get session status due to missing environment "
+                "variable")
+            return dict(
+                success=False,
+                message=str(e),
             )
         except Exception as e:
+            logger.error(f"Failed to get session status: {e}")
             return dict(
                 success=False,
                 message=f"Failed to get session status. {e}",
@@ -87,15 +108,26 @@ def register_session_tools(mcp: FastMCP):
             }
         """
         try:
+            logger.info("Clearing session")
             session = SessionManager.get_default_session()
             session.graph = rfm.LocalGraph(tables=[])
             session.model = None
+            logger.info("Session cleared successfully")
 
             return dict(
                 success=True,
                 message="Session cleared successfully",
             )
+        except ValueError as e:
+            # Environment validation errors
+            logger.error(
+                "Failed to clear session due to missing environment variable")
+            return dict(
+                success=False,
+                message=str(e),
+            )
         except Exception as e:
+            logger.error(f"Failed to clear session: {e}")
             return dict(
                 success=False,
                 message=f"Failed to clear session. {e}",

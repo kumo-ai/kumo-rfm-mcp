@@ -9,7 +9,7 @@ from kumo_rfm_mcp import resources, tools
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='[%(levelname)s] - %(asctime)s - %(name)s - %(message)s',
     stream=sys.stderr)
 logger = logging.getLogger('kumo-rfm-mcp')
 
@@ -30,6 +30,19 @@ resources.register_overview_resources(mcp)
 resources.register_docs_resources(mcp)
 resources.register_examples_resources(mcp)
 
+
+def main():
+    """Main entry point for the CLI command."""
+    try:
+        logger.info("Starting KumoRFM MCP Server...")
+        mcp.run(transport='stdio')
+    except KeyboardInterrupt:
+        logger.info("Server shutdown requested by user")
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Failed to start KumoRFM MCP Server: {e}")
+        sys.exit(1)
+
+
 if __name__ == '__main__':
-    logger.info("Starting KumoRFM MCP Server...")
-    mcp.run(transport='stdio')
+    main()

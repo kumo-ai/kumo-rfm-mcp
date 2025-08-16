@@ -36,7 +36,7 @@ If you prefer to run via Python:
       "args": ["-m", "kumo_rfm_mcp.server"],
       "env": {
         "KUMO_API_KEY": "your_api_key_here",
-        "KUMO_API_URL": "https://api.kumo.ai"
+        "KUMO_API_URL": "https://kumorfm.ai/api"
       }
     }
   }
@@ -53,7 +53,7 @@ For local development, you can point to your development version:
       "args": ["/path/to/kumo-rfm-mcp/src/kumo_rfm_mcp/server.py"],
       "env": {
         "KUMO_API_KEY": "your_api_key_here",
-        "KUMO_API_URL": "https://api.kumo.ai"
+        "KUMO_API_URL": "https://kumorfm.ai/api"
       }
     }
   }

@@ -1,9 +1,13 @@
+import logging
 from typing import Any, Dict
 
 import pandas as pd
 from fastmcp import FastMCP
-from kumo_rfm_mcp import SessionManager
 from kumoai.experimental import rfm
+
+from kumo_rfm_mcp import SessionManager
+
+logger = logging.getLogger('kumo-rfm-mcp.table_tools')
 
 
 def register_table_tools(mcp: FastMCP):
@@ -37,7 +41,12 @@ def register_table_tools(mcp: FastMCP):
                 "message": "Table with name 'users' added successfully"
             }
         """
+        logger.info(f"Adding table '{name}' from path '{path}'")
+
         if not path.endswith('.csv') and not path.endswith('.parquet'):
+            logger.error(
+                f"Unsupported file format for path '{path}' - only CSV and "
+                "Parquet are supported")
             return dict(
                 success=False,
                 message=(f"Can not read file from path '{path}'. Only "
@@ -45,11 +54,16 @@ def register_table_tools(mcp: FastMCP):
             )
 
         try:
+            logger.info(f"Loading data from '{path}'")
             if path.endswith('.csv'):
                 df = pd.read_csv(path)
             else:
                 df = pd.read_parquet(path)
+            logger.info(
+                f"Loaded {len(df)} rows and {len(df.columns)} columns from "
+                f"'{path}'")
         except Exception as e:
+            logger.error(f"Failed to load data from '{path}': {e}")
             return dict(
                 success=False,
                 message=(f"Could not load data source from '{path}'. {e}"),
@@ -57,13 +71,16 @@ def register_table_tools(mcp: FastMCP):
 
         try:
             session = SessionManager.get_default_session()
+            logger.info(f"Creating LocalTable '{name}' with {len(df)} rows")
             table = rfm.LocalTable(df, name).infer_metadata(verbose=False)
             session.graph.add_table(table)
+            logger.info(f"Successfully added table '{name}' to graph")
             return dict(
                 success=True,
                 message=f"Table with name '{name}' added successfully",
             )
         except Exception as e:
+            logger.error(f"Failed to register table '{name}': {e}")
             return dict(
                 success=False,
                 message=f"Failed to register table with name '{name}'. {e}",
@@ -93,13 +110,16 @@ def register_table_tools(mcp: FastMCP):
             }
         """
         try:
+            logger.info(f"Removing table '{name}' from graph")
             session = SessionManager.get_default_session()
             session.graph.remove_table(name)
+            logger.info(f"Successfully removed table '{name}' from graph")
             return dict(
                 success=True,
                 message=f"Table with name '{name}' removed successfully",
             )
         except Exception as e:
+            logger.error(f"Failed to remove table '{name}': {e}")
             return dict(
                 success=False,
                 message=f"Failed to remove table with name '{name}'. {e}",
@@ -149,21 +169,28 @@ def register_table_tools(mcp: FastMCP):
             }
         """
         try:
+            logger.info(f"Inspecting table '{name}' (showing {num_rows} rows)")
             session = SessionManager.get_default_session()
             table = session.graph[name]
+
+            table_info = dict(
+                name=name,
+                num_rows=len(table._data),
+                num_columns=len(table._data.columns),
+                primary_key=table._primary_key,
+                time_column=table._time_column,
+                rows=table._data.iloc[:num_rows].to_dict(orient='records'),
+            )
+            logger.info(f"Table '{name}' has {table_info['num_rows']} rows, "
+                        f"{table_info['num_columns']} columns")
+
             return dict(
                 success=True,
                 message=f"Table with name '{name}' inspected successfully",
-                data=dict(
-                    name=name,
-                    num_rows=len(table._data),
-                    num_columns=len(table._data.columns),
-                    primary_key=table._primary_key,
-                    time_column=table._time_column,
-                    rows=table._data.iloc[:num_rows].to_dict(orient='records'),
-                ),
+                data=table_info,
             )
         except Exception as e:
+            logger.error(f"Failed to inspect table '{name}': {e}")
             return dict(
                 success=False,
                 message=f"Failed to inspect table with name '{name}'. {e}",

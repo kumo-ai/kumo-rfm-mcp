@@ -1,7 +1,11 @@
+import logging
 from typing import Any, Dict
 
 from fastmcp import FastMCP
+
 from kumo_rfm_mcp import SessionManager
+
+logger = logging.getLogger('kumo-rfm-mcp.graph_tools')
 
 
 def register_graph_tools(mcp: FastMCP):
@@ -49,23 +53,35 @@ def register_graph_tools(mcp: FastMCP):
             }
         """
         try:
+            logger.info("Starting link inference")
             session = SessionManager.get_default_session()
             edges = set(session.graph.edges)
+            logger.info(f"Graph currently has {len(edges)} existing links")
+
             session.graph.infer_links(verbose=False)
-            edges = set(session.graph.edges) - edges
+            new_edges = set(session.graph.edges) - edges
+            logger.info(f"Inferred {len(new_edges)} new links")
+
+            inferred_links = [
+                dict(
+                    source_table=edge.src_table,
+                    foreign_key=edge.fkey,
+                    destination_table=edge.dst_table,
+                ) for edge in new_edges
+            ]
+
+            for link in inferred_links:
+                logger.info(
+                    f"Inferred link: {link['source_table']}."
+                    f"{link['foreign_key']} -> {link['destination_table']}")
 
             return dict(
                 success=True,
                 message="Link inference completed",
-                data=dict(inferred_links=[
-                    dict(
-                        source_table=edge.src_table,
-                        foreign_key=edge.fkey,
-                        destination_table=edge.dst_table,
-                    ) for edge in edges
-                ]),
+                data=dict(inferred_links=inferred_links),
             )
         except Exception as e:
+            logger.error(f"Failed to infer links: {e}")
             return dict(
                 success=False,
                 message=f"Failed to infer links. {e}",
