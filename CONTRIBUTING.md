@@ -49,19 +49,19 @@ twine check dist/*
 **Publishing** only happens for releases.
 1. To release `vX.{Y+1}.0rc0`, run:
 ```bash
-gh workflow run release.yml --ref main
+gh workflow run release.yml --ref main -f dry-run=false
 ```
 1. To release `vX.Y.0rc{N+1}`, run:
 ```bash
-gh workflow run release.yml --ref vX.Y
+gh workflow run release.yml --ref vX.Y -f dry-run=false
 ```
 1. To release `vX.Y.0`, run:
 ```bash
-gh workflow run release.yml --ref vX.Y -f switch-from-rc-to-final=true
+gh workflow run release.yml --ref vX.Y -f switch-from-rc-to-final=true -f dry-run=false
 ```
 1. To release `vX.Y.{Z+1}`, run:
 ```bash
-gh workflow run release.yml --ref vX.Y
+gh workflow run release.yml --ref vX.Y -f dry-run=false
 ```
 
 For manual publishing, use the "Publish Package" workflow in the Actions tab.
