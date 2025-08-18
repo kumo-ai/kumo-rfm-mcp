@@ -171,6 +171,14 @@ def register_table_tools(mcp: FastMCP):
         try:
             logger.info(f"Inspecting table '{name}' (showing {num_rows} rows)")
             session = SessionManager.get_default_session()
+
+            if name not in session.graph.tables:
+                logger.error(f"Table '{name}' not found")
+                return dict(
+                    success=False,
+                    message=f"Table with name '{name}' not found, make sure it"
+                    " has been added to the graph before inspecting it!",
+                )
             table = session.graph[name]
 
             table_info = dict(
