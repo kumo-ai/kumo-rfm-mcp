@@ -72,7 +72,8 @@ def register_model_tools(mcp: FastMCP):
             - Filters which historical rows are used to generate features
 
         Refer to relevant resources for more information:
-        # TODO(@blaz): Add links to relevant resources
+        # kumo://docs/pql-guide
+        # kumo://docs/pql-reference
 
         Args:
             query: The predictive query to validate (e.g.,
@@ -127,7 +128,9 @@ def register_model_tools(mcp: FastMCP):
             - Filters which historical rows are used to generate features
 
         Refer to relevant resources for more information:
-        # TODO(@blaz): Add links to relevant resources
+        # kumo://docs/pql-guide
+        # kumo://docs/pql-reference
+
 
         Args:
             query: The predictive query to validate (e.g.,
@@ -198,8 +201,8 @@ def register_model_tools(mcp: FastMCP):
             - Filters which historical rows are used to generate features
 
         Refer to relevant resources for more information:
-        # TODO(@blaz): Add links to relevant query syntax resources
-        # TODO(@blaz): Add links to relevant evaluation metrics resources
+        # kumo://docs/pql-guide
+        # kumo://docs/pql-reference
 
         Args:
             query: The predictive query to validate (e.g.,
