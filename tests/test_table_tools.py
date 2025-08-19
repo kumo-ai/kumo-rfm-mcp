@@ -84,8 +84,7 @@ class TestAddTable:
         """Test adding malformed CSV fails gracefully."""
         mock_read_csv.side_effect = pd.errors.ParserError("Malformed CSV")
 
-        result = table_funcs['add_table']('tests/data/malformed.csv',
-                                          'bad_table')
+        result = table_funcs['add_table']('malformed.csv', 'bad_table')
 
         assert result['success'] is False
         assert "Malformed CSV" in result['message']
