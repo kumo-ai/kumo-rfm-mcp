@@ -112,12 +112,13 @@ def register_model_tools(mcp: FastMCP):
             )
 
     @mcp.tool()
-    async def predict(query: str,
-                      anchor_time: str = None,
-                      run_mode: str = "fast",
-                      num_neighbors: list = None,
-                      num_hops: int = 2,
-                      max_pq_iterations: int = 20) -> Dict[str, Any]:
+    async def predict(
+        query: str,
+        anchor_time: str = None,
+        run_mode: str = "fast",
+        num_neighbors: list[int] | None = None,
+        max_pq_iterations: int = 20,
+    ) -> Dict[str, Any]:
         """Executes a predictive query and returns model predictions. This tool
         runs the specified predictive query against the KumoRFM model and
         returns the predictions as tabular data. The graph needs to be
@@ -143,15 +144,11 @@ def register_model_tools(mcp: FastMCP):
                 If "entity", will use the timestamp of the entity.
             run_mode: The run mode for the query. Options: "fast", "normal",
                 "best".
-                Defaults to "fast" for quick predictions.
             num_neighbors: The number of neighbors to sample for each hop.
-                If specified, the num_hops option will be ignored.
-            num_hops: The number of hops to sample when generating the context.
-                Defaults to 2.
             max_pq_iterations: The maximum number of iterations to perform to
                 collect valid labels. It is advised to increase the number of
                 iterations in case the predictive query has strict entity
-                filters. Defaults to 20.
+                filters.
 
         Returns:
             Dictionary containing:
@@ -203,7 +200,6 @@ def register_model_tools(mcp: FastMCP):
                 anchor_time=anchor_time,
                 run_mode=run_mode,
                 num_neighbors=num_neighbors,
-                num_hops=num_hops,
                 max_pq_iterations=max_pq_iterations,
                 verbose=False)
             logger.info("Prediction completed")
@@ -224,8 +220,7 @@ def register_model_tools(mcp: FastMCP):
     async def evaluate(query: str,
                        anchor_time: str = None,
                        run_mode: str = "fast",
-                       num_neighbors: list = None,
-                       num_hops: int = 2,
+                       num_neighbors: list[int] | None = None,
                        max_pq_iterations: int = 20,
                        random_seed: int = None) -> Dict[str, Any]:
         """Evaluates a predictive query and returns performance metrics. This
@@ -254,15 +249,11 @@ def register_model_tools(mcp: FastMCP):
                 If "entity", will use the timestamp of the entity.
             run_mode: The run mode for the query. Options: "fast", "normal",
                 "best".
-                Defaults to "fast" for quick evaluation.
             num_neighbors: The number of neighbors to sample for each hop.
-                If specified, the num_hops option will be ignored.
-            num_hops: The number of hops to sample when generating the context.
-                Defaults to 2.
             max_pq_iterations: The maximum number of iterations to perform to
                 collect valid labels. It is advised to increase the number of
                 iterations in case the predictive query has strict entity
-                filters. Defaults to 20.
+                filters.
             random_seed: A manual seed for generating pseudo-random numbers.
                 If None, uses the default random seed.
 
@@ -312,7 +303,6 @@ def register_model_tools(mcp: FastMCP):
                 anchor_time=anchor_time,
                 run_mode=run_mode,
                 num_neighbors=num_neighbors,
-                num_hops=num_hops,
                 max_pq_iterations=max_pq_iterations,
                 random_seed=random_seed,
                 verbose=False)
