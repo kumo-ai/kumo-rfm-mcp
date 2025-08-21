@@ -1,8 +1,9 @@
 import logging
-from typing import Any, Dict
+from typing import Annotated, Any, Dict
 
 from fastmcp import FastMCP
 from kumoai.experimental import rfm
+from pydantic import Field
 
 from kumo_rfm_mcp import SessionManager
 
@@ -116,7 +117,14 @@ def register_model_tools(mcp: FastMCP):
         query: str,
         anchor_time: str = None,
         run_mode: str = "fast",
-        num_neighbors: list[int] | None = None,
+        num_neighbors: Annotated[
+            list[int],
+            Field(
+                min_length=1,
+                max_length=5,
+                description=("Number of neighbors to sample for each hop "
+                             "(1-5 hops max)"),
+            )] | None = None,
         max_pq_iterations: int = 20,
     ) -> Dict[str, Any]:
         """Executes a predictive query and returns model predictions. This tool
@@ -144,7 +152,9 @@ def register_model_tools(mcp: FastMCP):
                 If "entity", will use the timestamp of the entity.
             run_mode: The run mode for the query. Options: "fast", "normal",
                 "best".
-            num_neighbors: The number of neighbors to sample for each hop.
+            num_neighbors: The number of neighbors to sample for each hop. E.g.
+                [12, 24 ] means 12 neighbors for the first hop and 24 neighbors
+                for the second hop.
             max_pq_iterations: The maximum number of iterations to perform to
                 collect valid labels. It is advised to increase the number of
                 iterations in case the predictive query has strict entity
@@ -157,7 +167,16 @@ def register_model_tools(mcp: FastMCP):
             - data (dict, optional): Additional information on success
 
         Examples:
-            {
+        input: {
+            "query": "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR
+            users.user_id=1",
+            "anchor_time": "2019-01-01",
+            "run_mode": "fast",
+            "num_neighbors": [12, 24],
+            "max_pq_iterations": 20
+        }
+
+        output: {
                 "success": true,
                 "message": "Prediction completed successfully",
                 "data": {
@@ -217,12 +236,20 @@ def register_model_tools(mcp: FastMCP):
             )
 
     @mcp.tool()
-    async def evaluate(query: str,
-                       anchor_time: str = None,
-                       run_mode: str = "fast",
-                       num_neighbors: list[int] | None = None,
-                       max_pq_iterations: int = 20,
-                       random_seed: int = None) -> Dict[str, Any]:
+    async def evaluate(
+            query: str,
+            anchor_time: str = None,
+            run_mode: str = "fast",
+            num_neighbors: Annotated[
+                list[int],
+                Field(
+                    min_length=1,
+                    max_length=5,
+                    description=("Number of neighbors to sample for each hop "
+                                 "(1-5 hops max)"),
+                )] | None = None,
+            max_pq_iterations: int = 20,
+            random_seed: int = None) -> Dict[str, Any]:
         """Evaluates a predictive query and returns performance metrics. This
         tool runs the specified predictive query in evaluation mode, comparing
         predictions against known ground truth labels and returning performance
@@ -249,7 +276,9 @@ def register_model_tools(mcp: FastMCP):
                 If "entity", will use the timestamp of the entity.
             run_mode: The run mode for the query. Options: "fast", "normal",
                 "best".
-            num_neighbors: The number of neighbors to sample for each hop.
+            num_neighbors: The number of neighbors to sample for each hop. E.g.
+                [12, 24 ] means 12 neighbors for the first hop and 24 neighbors
+                for the second hop.
             max_pq_iterations: The maximum number of iterations to perform to
                 collect valid labels. It is advised to increase the number of
                 iterations in case the predictive query has strict entity
@@ -264,7 +293,17 @@ def register_model_tools(mcp: FastMCP):
             - data (dict, optional): Additional information on success
 
         Examples:
-            {
+        input: {
+            "query": "PREDICT COUNT(orders.*, 0, 30, days)>0
+            FOR users.user_id=1",
+            "anchor_time": "2019-01-01",
+            "run_mode": "fast",
+            "num_neighbors": [12, 24],
+            "max_pq_iterations": 20,
+            "random_seed": 42
+        }
+
+        output: {
                 "success": true,
                 "message": "Evaluation completed successfully",
                 "data": {
