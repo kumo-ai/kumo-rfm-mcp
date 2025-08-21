@@ -114,7 +114,7 @@ def register_model_tools(mcp: FastMCP):
     @mcp.tool()
     async def predict(query: str,
                       anchor_time: str = None,
-                      run_mode: str = "FAST",
+                      run_mode: str = "fast",
                       num_neighbors: list = None,
                       num_hops: int = 2,
                       max_pq_iterations: int = 20) -> Dict[str, Any]:
@@ -141,9 +141,9 @@ def register_model_tools(mcp: FastMCP):
             anchor_time: The anchor timestamp for the query in YYYY-MM-DD
                 format. If None, will use the maximum timestamp in the data.
                 If "entity", will use the timestamp of the entity.
-            run_mode: The run mode for the query. Options: "FAST", "NORMAL",
-                "BEST".
-                Defaults to "FAST" for quick predictions.
+            run_mode: The run mode for the query. Options: "fast", "normal",
+                "best".
+                Defaults to "fast" for quick predictions.
             num_neighbors: The number of neighbors to sample for each hop.
                 If specified, the num_hops option will be ignored.
             num_hops: The number of hops to sample when generating the context.
@@ -223,7 +223,7 @@ def register_model_tools(mcp: FastMCP):
     @mcp.tool()
     async def evaluate(query: str,
                        anchor_time: str = None,
-                       run_mode: str = "FAST",
+                       run_mode: str = "fast",
                        num_neighbors: list = None,
                        num_hops: int = 2,
                        max_pq_iterations: int = 20,
@@ -252,9 +252,9 @@ def register_model_tools(mcp: FastMCP):
             anchor_time: The anchor timestamp for the query in YYYY-MM-DD
                 format. If None, will use the maximum timestamp in the data.
                 If "entity", will use the timestamp of the entity.
-            run_mode: The run mode for the query. Options: "FAST", "NORMAL",
-                "BEST".
-                Defaults to "FAST" for quick evaluation.
+            run_mode: The run mode for the query. Options: "fast", "normal",
+                "best".
+                Defaults to "fast" for quick evaluation.
             num_neighbors: The number of neighbors to sample for each hop.
                 If specified, the num_hops option will be ignored.
             num_hops: The number of hops to sample when generating the context.
