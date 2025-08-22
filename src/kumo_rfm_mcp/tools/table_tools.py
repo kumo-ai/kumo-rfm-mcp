@@ -3,11 +3,11 @@ import logging
 import os
 from typing import Any, Dict
 
-import pandas as pd
 from fastmcp import FastMCP
 from kumoai.experimental import rfm
 
 from kumo_rfm_mcp import SessionManager
+from kumo_rfm_mcp.utils import load_dataframe
 
 logger = logging.getLogger('kumo-rfm-mcp.table_tools')
 
@@ -45,22 +45,9 @@ def register_table_tools(mcp: FastMCP):
         """
         logger.info(f"Adding table '{name}' from path '{path}'")
 
-        if not path.endswith('.csv') and not path.endswith('.parquet'):
-            logger.error(
-                f"Unsupported file format for path '{path}' - only CSV and "
-                "Parquet are supported")
-            return dict(
-                success=False,
-                message=(f"Can not read file from path '{path}'. Only "
-                         f"'*.csv' or '*.parquet' files are supported"),
-            )
-
         try:
             logger.info(f"Loading data from '{path}'")
-            if path.endswith('.csv'):
-                df = pd.read_csv(path)
-            else:
-                df = pd.read_parquet(path)
+            df = load_dataframe(path)
             logger.info(
                 f"Loaded {len(df)} rows and {len(df.columns)} columns from "
                 f"'{path}'")
@@ -329,15 +316,7 @@ def register_table_tools(mcp: FastMCP):
             time_column).
         """
         try:
-            if path.lower().endswith('.csv'):
-                df = pd.read_csv(path, nrows=num_rows)
-            elif path.lower().endswith('.parquet'):
-                df = pd.read_parquet(path)
-            else:
-                try:
-                    df = pd.read_csv(path, nrows=num_rows)
-                except Exception:
-                    df = pd.read_parquet(path)
+            df = load_dataframe(path, nrows=num_rows)
 
             table = rfm.LocalTable(df=df,
                                    name=name).infer_metadata(verbose=False)
