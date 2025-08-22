@@ -1,10 +1,12 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, Optional
 
 from kumoai.experimental import rfm
 from typing_extensions import Self
+
+from .data_models import TableSource
 
 logger = logging.getLogger('kumo-rfm-mcp.session')
 
@@ -16,9 +18,11 @@ class Session:
 
     graph: rfm.LocalGraph = rfm.LocalGraph(tables=[])
     model: Optional[rfm.KumoRFM] = None
+    catalog: Dict[str, TableSource]
 
     def __init__(self, name: str) -> None:
         self.name = name
+        self.catalog = {}
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(name={self.name})'
