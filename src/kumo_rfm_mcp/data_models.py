@@ -3,6 +3,11 @@ from typing import Annotated, Dict, List, Optional
 from pydantic import BaseModel
 
 
+class TableSource(BaseModel):
+    """Source information for loading a table."""
+    path: Annotated[str, "Path to the data file"]
+
+
 class TableMetadata(BaseModel):
     """Metadata for a single table."""
     name: Annotated[str, "Name of the table"]
