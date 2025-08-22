@@ -121,9 +121,9 @@ def register_model_tools(mcp: FastMCP):
             list[int],
             Field(
                 min_length=1,
-                max_length=5,
+                max_length=6,
                 description=("Number of neighbors to sample for each hop "
-                             "(1-5 hops max)"),
+                             "(1-6 hops max)"),
             )] | None = None,
         max_pq_iterations: int = 20,
     ) -> Dict[str, Any]:
@@ -153,7 +153,7 @@ def register_model_tools(mcp: FastMCP):
             run_mode: The run mode for the query. Options: "fast", "normal",
                 "best".
             num_neighbors: The number of neighbors to sample for each hop. E.g.
-                [12, 24 ] means 12 neighbors for the first hop and 24 neighbors
+                [12, 24] means 12 neighbors for the first hop and 24 neighbors
                 for the second hop.
             max_pq_iterations: The maximum number of iterations to perform to
                 collect valid labels. It is advised to increase the number of
@@ -244,9 +244,9 @@ def register_model_tools(mcp: FastMCP):
                 list[int],
                 Field(
                     min_length=1,
-                    max_length=5,
+                    max_length=6,
                     description=("Number of neighbors to sample for each hop "
-                                 "(1-5 hops max)"),
+                                 "(1-6 hops max)"),
                 )] | None = None,
             max_pq_iterations: int = 20,
             random_seed: int = None) -> Dict[str, Any]:
@@ -277,7 +277,7 @@ def register_model_tools(mcp: FastMCP):
             run_mode: The run mode for the query. Options: "fast", "normal",
                 "best".
             num_neighbors: The number of neighbors to sample for each hop. E.g.
-                [12, 24 ] means 12 neighbors for the first hop and 24 neighbors
+                [12, 24] means 12 neighbors for the first hop and 24 neighbors
                 for the second hop.
             max_pq_iterations: The maximum number of iterations to perform to
                 collect valid labels. It is advised to increase the number of
