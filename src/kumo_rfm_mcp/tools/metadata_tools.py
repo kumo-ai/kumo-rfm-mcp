@@ -5,9 +5,9 @@ import kumoai.experimental.rfm as rfm
 from fastmcp import FastMCP
 
 from kumo_rfm_mcp import SessionManager
-from kumo_rfm_mcp.data_models import (GraphMetadata, LinkMetadata,
-                                      TableMetadata, TableSource)
-from kumo_rfm_mcp.utils import load_dataframe
+from kumo_rfm_mcp.data_models import GraphMetadata, TableSource
+from kumo_rfm_mcp.utils import (extract_link_metadata, extract_table_metadata,
+                                load_dataframe)
 
 logger = logging.getLogger('kumo-rfm-mcp.metadata_tools')
 
@@ -29,43 +29,9 @@ def register_metadata_tools(mcp: FastMCP):
         try:
             session = SessionManager.get_default_session()
 
-            # Extract table metadata
-            tables: list[TableMetadata] = []
-            for table in session.graph.tables.values():
-                # Collect column stypes from the table metadata
-                stypes: dict[str, str] = {}
-                for column in table.columns:
-                    stypes[column.name] = str(column.stype)
-
-                # Pull path from the session catalog if available
-                path = ''
-                if hasattr(session,
-                           'catalog') and table.name in session.catalog:
-                    try:
-                        path = session.catalog[table.name].path
-                    except Exception:
-                        path = ''
-
-                tables.append(
-                    TableMetadata(
-                        name=table.name,
-                        path=path,
-                        primary_key=table._primary_key
-                        if table._primary_key else "",
-                        time_column=table._time_column
-                        if table._time_column else None,
-                        stypes=stypes,
-                    ))
-
-            # Extract link metadata
-            links: list[LinkMetadata] = []
-            for edge in session.graph.edges:
-                links.append(
-                    LinkMetadata(
-                        source_table=edge.src_table,
-                        foreign_key=edge.fkey,
-                        destination_table=edge.dst_table,
-                    ))
+            # Extract table and link metadata using utility functions
+            tables = extract_table_metadata(session)
+            links = extract_link_metadata(session)
 
             metadata = GraphMetadata(tables=tables, links=links)
 
