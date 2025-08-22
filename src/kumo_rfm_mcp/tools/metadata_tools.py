@@ -19,6 +19,9 @@ def register_metadata_tools(mcp: FastMCP):
     def inspect_metadata() -> Dict[str, Any]:
         """Inspect the current metadata from the session.
 
+        Setting up metadata is crucial for the RFM model to work correctly.
+        This tool allows you to inspect the current metadata and update it.
+
         Returns:
             Dict[str, Any]: The current metadata containing tables and links
             information.
@@ -82,6 +85,21 @@ def register_metadata_tools(mcp: FastMCP):
     @mcp.tool()
     def update_metadata(metadata: GraphMetadata) -> Dict[str, Any]:
         """Update the metadata for the current session.
+
+        Setting up metadata is crucial for the RFM model to work correctly.
+        This tool allows you to update the metadata for the current session.
+
+        Note: This tool will replace the current metadata with the new one.
+
+        <KUMO_RFM_METADATA>
+        The metadata is a JSON object that contains the following fields:
+        - tables: A list of table metadata objects.
+        - links: A list of link metadata objects.
+
+        Together these objects form a graph which is used to build the RFM
+        model.
+
+        </KUMO_RFM_METADATA>
 
         Args:
             metadata: The new metadata to set for the session.
