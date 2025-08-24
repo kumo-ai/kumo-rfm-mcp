@@ -13,7 +13,7 @@ class TableSource(BaseModel):
 class TableMetadata(BaseModel):
     """Metadata for a table."""
     name: Annotated[str, "Name of the table"]
-    path: Annotated[str, "Path to the file"]
+    path: Annotated[str, "Path to the table"]
     primary_key: Annotated[str, "Name of the primary key column"]
     time_column: Annotated[Optional[str], "Name of the time column"]
     stypes: Annotated[

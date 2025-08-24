@@ -1,6 +1,4 @@
-import glob
 import logging
-import os
 from pathlib import Path
 from typing import Any, Dict
 
@@ -8,7 +6,7 @@ import pandas as pd
 from fastmcp import FastMCP, ToolError
 from kumoai.experimental import rfm
 
-from kumo_rfm_mcp import Response, SessionManager, TableSource
+from kumo_rfm_mcp import SessionManager, TableSource
 
 logger = logging.getLogger('kumo-rfm-mcp.table_tools')
 
@@ -73,8 +71,6 @@ def register_table_tools(mcp: FastMCP):
 
         try:
             session = SessionManager.get_default_session()
-            session.catalog[name] = TableSource(path=path)
-
             logger.info(f"Creating LocalTable '{name}' with {len(df)} rows")
             table = rfm.LocalTable(df, name).infer_metadata(verbose=False)
             session.graph.add_table(table)
