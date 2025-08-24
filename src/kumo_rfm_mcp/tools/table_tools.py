@@ -298,7 +298,7 @@ def register_table_tools(mcp: FastMCP):
 
         Args:
             path: File path to inspect.
-            num_rows: Optional row limit for CSV loading.
+            num_rows: Number of rows to read.
 
         Returns:
             Each dictionary corresponds to one row in the table.

@@ -1,15 +1,7 @@
-from typing import Annotated, Generic, Optional, TypeVar
+from typing import Annotated, Optional
 
 from kumoapi.typing import Stype
 from pydantic import BaseModel
-
-T = TypeVar('T')
-
-
-class Response(BaseModel, Generic[T]):
-    success: Annotated[bool, "Whether the operation succeeded"]
-    message: Annotated[str, "Human-readable status message"]
-    data: Annotated[Optional[T], "Additional information on success"] = None
 
 
 class TableSource(BaseModel):
@@ -21,6 +13,7 @@ class TableSource(BaseModel):
 class TableMetadata(BaseModel):
     """Metadata for a table."""
     name: Annotated[str, "Name of the table"]
+    path: Annotated[str, "Path to the file"]
     primary_key: Annotated[str, "Name of the primary key column"]
     time_column: Annotated[Optional[str], "Name of the time column"]
     stypes: Annotated[
