@@ -1,20 +1,19 @@
 import glob
 import logging
-import os
+from pathlib import Path
 from typing import Any, Dict
 
-from fastmcp import FastMCP
+import pandas as pd
+from fastmcp import FastMCP, ToolError
 from kumoai.experimental import rfm
 
-from kumo_rfm_mcp import SessionManager
-from kumo_rfm_mcp.utils import load_dataframe
+from kumo_rfm_mcp import SessionManager, TableSource
 
 logger = logging.getLogger('kumo-rfm-mcp.table_tools')
 
 
 def register_table_tools(mcp: FastMCP):
     """Register all table management tools with the MCP server."""
-
     @mcp.tool()
     def add_table(path: str, name: str) -> Dict[str, Any]:
         """
@@ -250,91 +249,74 @@ def register_table_tools(mcp: FastMCP):
                 message=f"Failed to list tables. {e}",
             )
 
-    @mcp.tool()
-    def discover_tables(
-            base_dir: str,
-            include_glob: str = "*.csv,*.parquet") -> Dict[str, Any]:
-        """Discover table source files under a directory.
+    @mcp.tool(tags=['source'])
+    def discover_table_files(
+        root_dir: str,
+        recursive: bool = False,
+    ) -> list[TableSource]:
+        """Discover all table-like files (e.g., CSV, Parquet) in a directory.
 
         Args:
-            base_dir: Directory to scan.
-            include_glob: Comma-separated patterns to include.
+            root_dir: Root directory to scan.
+            recursive: Whether to scan subdirectories recursively.
 
         Returns:
-            Dictionary with discovered sources (path, size, format_guess).
+            List of table source objects for each discovered file.
+
+        Raises:
+            ToolError: If the directory does not exist.
         """
-        try:
-            patterns = [
-                p.strip() for p in include_glob.split(',') if p.strip()
-            ]
-            matches = []
-            for pattern in patterns:
-                matches.extend(
-                    glob.glob(os.path.join(base_dir, '**', pattern),
-                              recursive=True))
+        path = Path(root_dir)
 
-            sources = []
-            for path in sorted(set(matches)):
-                try:
-                    size = os.path.getsize(path)
-                except Exception:
-                    size = None
-                fmt = 'parquet' if path.lower().endswith(
-                    '.parquet') else 'csv' if path.lower().endswith(
-                        '.csv') else 'unknown'
-                sources.append(
-                    dict(
-                        path=path,
-                        filename=os.path.basename(path),
-                        size_bytes=size,
-                        format_guess=fmt,
-                    ))
+        if not path.exists() or not path.is_dir():
+            raise ToolError(f"Directory '{root_dir}' does not exist")
 
-            return dict(
-                success=True,
-                message=f"Discovered {len(sources)} table sources",
-                data=dict(sources=sources),
-            )
-        except Exception as e:
-            return dict(success=False,
-                        message=f"Failed to discover tables. {e}")
+        pattern = "**/*" if recursive else "*"
+        suffixes = {'.csv', '.parquet'}
+        files = [f for f in path.glob(pattern) if f.suffix.lower() in suffixes]
 
-    @mcp.tool()
-    def inspect_table_source(path: str,
-                             name: str,
-                             num_rows: int = 20) -> Dict[str, Any]:
-        """Inspect a source file by loading and running and performing
-        basic metadata inference.
+        return [
+            TableSource(path=str(f), bytes=f.stat().st_size)
+            for f in sorted(files)
+        ]
+
+    @mcp.tool(tags=['source'])
+    def inspect_table_file(
+        path: str,
+        num_rows: int = 20,
+    ) -> list[dict[str, Any]]:
+        """Inspect the first rows of a table-like file.
+
+        Each row in the file is represented as a dictionary mapping column
+        names to their corresponding values.
 
         Args:
             path: File path to inspect.
-            name: Desired table name for the LocalTable.
-            num_rows: Optional row limit for CSV loading.
+            num_rows: Number of rows to read.
 
         Returns:
-            Dictionary with columns and inferred metadata (stypes, primary_key,
-            time_column).
+            Each dictionary corresponds to one row in the table.
+
+        Raises:
+            ToolError: If more than 1,000 rows are requested.
+            ToolError: If the file cannot be read.
+            ToolError: If the file is not a CSV/Parquet file.
         """
-        try:
-            df = load_dataframe(path, nrows=num_rows)
+        if num_rows > 1000:
+            raise ToolError("Cannot return more than 1,000 rows")
 
-            table = rfm.LocalTable(df=df,
-                                   name=name).infer_metadata(verbose=False)
-            stypes = {c.name: str(c.stype) for c in table.columns}
+        if path.lower().endswith('.csv'):
+            try:
+                df = pd.read_csv(path, nrows=num_rows)
+            except Exception as e:
+                raise ToolError(f"Could not read file {path}: {e}") from e
+        elif path.lower().endswith('.parquet'):
+            try:
+                # TODO Read first row groups via `pyarrow` instead.
+                df = pd.read_parquet(path).head(num_rows)
+            except Exception as e:
+                raise ToolError(f"Could not read file '{path}': {e}") from e
+        else:
+            raise ToolError(f"File '{path}' is not a valid CSV/Parquet file")
 
-            return dict(
-                success=True,
-                message="Table source inspected successfully",
-                data=dict(
-                    name=name,
-                    columns=list(table._data.columns),
-                    stypes=stypes,
-                    primary_key=table._primary_key,
-                    time_column=table._time_column,
-                    preview=table._data.iloc[:num_rows].to_dict(
-                        orient='records'),
-                ),
-            )
-        except Exception as e:
-            return dict(success=False,
-                        message=f"Failed to inspect table source. {e}")
+        return df.to_dict(orient='records')
