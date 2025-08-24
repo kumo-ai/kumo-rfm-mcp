@@ -5,8 +5,9 @@ from pydantic import BaseModel
 
 
 class TableSource(BaseModel):
-    """Source information for loading a table."""
-    path: Annotated[str, "Path to the data file"]
+    """Source information of a table."""
+    path: Annotated[str, "Path to the file"]
+    bytes: Annotated[int, "Size in bytes of the file"]
 
 
 class TableMetadata(BaseModel):
