@@ -14,6 +14,7 @@ class TableMetadata(BaseModel):
     """Metadata for a table."""
     path: Annotated[str, "Path to the table"]
     name: Annotated[str, "Name of the table"]
+    num_rows: Annotated[int, "Number of rows in the table"]
     dtypes: Annotated[
         dict[str, Dtype],
         "Column names mapped to their data types",

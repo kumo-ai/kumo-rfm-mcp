@@ -35,6 +35,7 @@ def get_graph_metadata() -> GraphMetadata:
             TableMetadata(
                 path=table._path,  # type: ignore
                 name=table.name,
+                num_rows=len(table._data),
                 dtypes=dtypes,
                 stypes=stypes,
                 primary_key=table._primary_key,
