@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pandas as pd
-from fastmcp import FastMCP, ToolError
+from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
 
 from kumo_rfm_mcp import SessionManager, TableSource
