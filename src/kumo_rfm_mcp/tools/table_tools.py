@@ -62,10 +62,6 @@ def register_table_tools(mcp: FastMCP):
             logger.info(f"Creating LocalTable '{name}' with {len(df)} rows")
             table = rfm.LocalTable(df, name).infer_metadata(verbose=False)
             session.graph.add_table(table)
-            # Store source path in session catalog for metadata inspection
-            if hasattr(session, 'catalog'):
-                from kumo_rfm_mcp.data_models import TableSource
-                session.catalog[name] = TableSource(path=path)
             logger.info(f"Successfully added table '{name}' to graph")
             return dict(
                 success=True,
@@ -105,12 +101,6 @@ def register_table_tools(mcp: FastMCP):
             logger.info(f"Removing table '{name}' from graph")
             session = SessionManager.get_default_session()
             session.graph.remove_table(name)
-            # Remove from session catalog if present
-            if hasattr(session, 'catalog') and name in session.catalog:
-                try:
-                    del session.catalog[name]
-                except Exception:
-                    pass
             logger.info(f"Successfully removed table '{name}' from graph")
             return dict(
                 success=True,

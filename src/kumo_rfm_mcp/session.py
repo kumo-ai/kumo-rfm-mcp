@@ -5,8 +5,6 @@ from dataclasses import dataclass, field
 from kumoai.experimental import rfm
 from typing_extensions import Self
 
-from .data_models import TableSource
-
 logger = logging.getLogger('kumo-rfm-mcp.session')
 
 
