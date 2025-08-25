@@ -106,7 +106,8 @@ def register_graph_tools(mcp: FastMCP):
         session._model = None  # Need to reset the model if graph changes.
         graph = session.graph
 
-        for table_name, table_update in update_dict.get('tables', {}).items():
+        tables_to_update = update_dict.get('tables_to_update', {})
+        for table_name, table_update in tables_to_update.items():
             try:
                 stypes = table_update.get('stypes', {})
                 for column_name, stype in stypes.items():

@@ -82,7 +82,7 @@ class GraphMetadata(BaseModel):
 class UpdateGraphMetadata(BaseModel):
     """Metadata updates to perform for a graph holding multiple tables
     connected via foreign key-primary key relationships."""
-    tables: Annotated[
+    tables_to_update: Annotated[
         dict[str, UpdateTableMetadata],
         Field(
             default_factory=dict,
