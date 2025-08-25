@@ -1,4 +1,3 @@
-import glob
 import logging
 from pathlib import Path
 from typing import Any, Dict
@@ -44,9 +43,22 @@ def register_table_tools(mcp: FastMCP):
         """
         logger.info(f"Adding table '{name}' from path '{path}'")
 
+        if not path.endswith('.csv') and not path.endswith('.parquet'):
+            logger.error(
+                f"Unsupported file format for path '{path}' - only CSV and "
+                "Parquet are supported")
+            return dict(
+                success=False,
+                message=(f"Can not read file from path '{path}'. Only "
+                         f"'*.csv' or '*.parquet' files are supported"),
+            )
+
         try:
             logger.info(f"Loading data from '{path}'")
-            df = load_dataframe(path)
+            if path.endswith('.csv'):
+                df = pd.read_csv(path)
+            else:
+                df = pd.read_parquet(path)
             logger.info(
                 f"Loaded {len(df)} rows and {len(df.columns)} columns from "
                 f"'{path}'")
