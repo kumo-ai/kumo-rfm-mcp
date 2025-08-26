@@ -59,7 +59,7 @@ def get_graph_metadata() -> GraphMetadata:
 
 def register_graph_tools(mcp: FastMCP):
     """Register all graph management tools with the MCP server."""
-    @mcp.tool(tags=['graph'])
+    @mcp.tool()
     def inspect_graph_metadata() -> GraphMetadata:
         """Inspect the current graph metadata.
 
@@ -186,7 +186,7 @@ def register_graph_tools(mcp: FastMCP):
 
         return get_graph_metadata()
 
-    @mcp.tool(tags=['graph'])
+    @mcp.tool()
     async def suggest_links() -> dict[str, Any]:
         """
         This tool suggests links between tables based on the current metadata
@@ -194,7 +194,7 @@ def register_graph_tools(mcp: FastMCP):
         """
         raise NotImplementedError("Link inference is not yet implemented")
 
-    @mcp.tool(tags=['graph'])
+    @mcp.tool()
     async def show_graph(show_columns: bool = True) -> str:
         """Visualize the graph as a mermaid entity relationship diagram.
 

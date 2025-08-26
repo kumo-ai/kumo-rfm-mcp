@@ -13,7 +13,7 @@ logger = logging.getLogger('kumo-rfm-mcp.table_tools')
 
 def register_table_tools(mcp: FastMCP):
     """Register all table management tools with the MCP server."""
-    @mcp.tool(tags=['source'])
+    @mcp.tool()
     def discover_table_files(
         root_dir: str,
         recursive: bool = False,
@@ -44,7 +44,7 @@ def register_table_tools(mcp: FastMCP):
             for f in sorted(files)
         ]
 
-    @mcp.tool(tags=['source'])
+    @mcp.tool()
     def inspect_table_file(
         path: str,
         num_rows: int = 20,
