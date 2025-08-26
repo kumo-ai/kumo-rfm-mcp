@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from typing import Any
 
 from fastmcp import FastMCP
@@ -64,10 +65,10 @@ def register_graph_tools(mcp: FastMCP):
         model to work properly. In particular,
 
         * primary keys and time columns need to be correctly specified for each
-          table in case they exist
+          table in case they exist;
         * columns need to point to a valid semantic type that describe their
-          semantic meaning, or ``None`` if they have been discarded
-        * links need to point to valid foreign key-primary key relationships
+          semantic meaning, or ``None`` if they have been discarded;
+        * links need to point to valid foreign key-primary key relationships.
 
         Returns:
             The graph metadata.
@@ -83,10 +84,10 @@ def register_graph_tools(mcp: FastMCP):
         In particular,
 
         * primary keys and time columns need to be correctly specified for each
-          table in case they exist
+          table in case they exist;
         * columns need to point to a valid semantic type that describe their
-          semantic meaning, or ``None`` if they should be discarded
-        * links need to point to valid foreign key-primary key relationships
+          semantic meaning, or ``None`` if they should be discarded;
+        * links need to point to valid foreign key-primary key relationships.
 
         Omitted fields will be untouched.
 
@@ -157,116 +158,48 @@ def register_graph_tools(mcp: FastMCP):
         raise NotImplementedError("Link inference is not yet implemented")
 
     @mcp.tool(tags=['graph'])
-    async def visualize_graph(show_columns: bool = True) -> dict[str, Any]:
+    async def show_graph(show_columns: bool = True) -> str:
         """Visualize the graph as a mermaid entity relationship diagram.
 
-        This tool generates a mermaid diagram showing:
-        - Tables with each column's name, semantic type (stype), and metadata
-        - Primary key columns marked with "PK"
-        - Time columns marked with "time_col"
-        - Foreign key relationships between tables
-
-        Returns:
-            Dictionary containing:
-            - success (bool): True if operation succeeded
-            - message (str): Human-readable status message
-            - data (dict, optional): Contains the mermaid diagram string
-
-        Examples:
-            {
-                "success": true,
-                "message": "Graph visualization generated successfully",
-                "data": {
-                    "mermaid_diagram": "erDiagram\\n
-                    users {...}\\n    orders {...}\\n    ..."
-                }
-            }
+        Args:
+            show_columns: Whether tho show all columns in a table. If
+                ``False``, will only show the primary key, foreign key(s), and
+                time column of each table.
         """
         session = SessionManager.get_default_session()
-        try:
 
-            # Extract table and link metadata using utility functions
-            tables = extract_table_metadata(session)
-            links = extract_link_metadata(session)
+        fkey_dict = defaultdict(list)
+        for edge in session.graph.edges:
+            fkey_dict[edge.src_table].append(edge.fkey)
 
-            # Generate Mermaid diagram
-            mermaid_diagram = _generate_mermaid_diagram(tables, links)
+        lines = ["erDiagram"]
 
-            logger.info(f"Generated Mermaid diagram with {len(tables)} tables "
-                        f"and {len(links)} links")
+        for table in session.graph.tables.values():
+            feat_columns = []
+            for column in table.columns:
+                if (column.name != table._primary_key
+                        and column.name not in fkey_dict[table.name]
+                        and column.name != table._time_column):
+                    feat_columns.append(column)
 
-            return dict(
-                success=True,
-                message="Graph visualization generated successfully", data={
-                    "mermaid_diagram": mermaid_diagram,
-                    "num_tables": len(tables),
-                    "num_links": len(links)
-                })
-        except Exception as e:
-            logger.error(f"Failed to visualize graph: {e}")
-            return dict(
-                success=False,
-                message=f"Failed to visualize graph. {e}",
-            )
+            lines.append(f"{' ' * 4}{table.name} {{")
+            if pkey := table.primary_key:
+                lines.append(f"{' ' * 8}{pkey.stype} {pkey.name} PK")
+            for fkey_name in fkey_dict[table.name]:
+                fkey = table[fkey_name]
+                lines.append(f"{' ' * 8}{fkey.stype} {fkey.name} FK")
+            if time_col := table.time_column:
+                lines.append(f"{' ' * 8}{time_col.stype} {time_col.name}")
+            if show_columns:
+                for col in feat_columns:
+                    lines.append(f"{' ' * 8}{col.stype} {col.name}")
+            lines.append(f"{' ' * 4}}}")
 
+        if len(session.graph.edges) > 0:
+            lines.append("")
 
-def _generate_mermaid_diagram(tables: list[TableMetadata],
-                              links: list[LinkMetadata]) -> str:
-    """Generate a Mermaid entity relationship diagram from table
-    and link metadata.
+        for edge in session.graph.edges:
+            lines.append(f"{' ' * 4}{edge.dst_table} o|--o{{ {edge.src_table} "
+                         f": {edge.fkey}")
 
-    Each table shows columns with their semantic types and special metadata:
-    - PK: Primary key column
-    - time_col: Time column for temporal data
-
-    Args:
-        tables: List of table metadata objects
-        links: List of link metadata objects
-
-    Returns:
-        Mermaid diagram as a string
-    """
-    lines = ["erDiagram"]
-
-    # Add table definitions with detailed column information
-    for table in tables:
-        # Get column names from stypes
-        columns = list(table.stypes.keys()) if table.stypes else []
-
-        # Create table definition
-        lines.append(f"    {table.name} {{")
-
-        if not columns:
-            # Handle empty tables
-            lines.append("        string no_columns \"(empty table)\"")
-        else:
-            # Add each column with its stype and metadata
-            for column in columns:
-                column_type = table.stypes.get(column, "unknown")
-
-                # Determine metadata for this column
-                metadata_parts = []
-                if column == table.primary_key:
-                    metadata_parts.append("PK")
-                if column == table.time_column:
-                    metadata_parts.append("time_col")
-
-                # Format the column entry: column_name stype "metadata"
-                if metadata_parts:
-                    metadata_str = f" \"{', '.join(metadata_parts)}\""
-                    lines.append(
-                        f"        {column} {column_type}{metadata_str}")
-                else:
-                    lines.append(f"        {column} {column_type}")
-
-        lines.append("    }")
-
-    # Add relationships/foreign keys
-    for link in links:
-        # Use ||--o{ to represent one-to-many relationship (FK relationship)
-        relationship = (
-            f"    {link.destination_table} ||--o{{ {link.source_table} : "
-            f"\"{link.foreign_key}\"")
-        lines.append(relationship)
-
-    return "\n".join(lines)
+        return '\n'.join(lines)
