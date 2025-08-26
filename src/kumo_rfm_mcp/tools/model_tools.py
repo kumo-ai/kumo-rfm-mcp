@@ -1,8 +1,9 @@
 import logging
-from typing import Any, Dict
+from typing import Annotated, Any, Dict
 
 from fastmcp import FastMCP
 from kumoai.experimental import rfm
+from pydantic import Field
 
 from kumo_rfm_mcp import SessionManager
 
@@ -70,8 +71,8 @@ def register_model_tools(mcp: FastMCP):
         * WHERE <filters> (optional)
             - Filters which historical rows are used to generate features
 
-        Refer to relevant resources for more information:
-        # TODO(@blaz): Add links to relevant resources
+        If you don't know how to write a query, you can use the
+        ``get_docs`` tool to get documentation for the query syntax.
 
         Args:
             query: The predictive query to validate (e.g.,
@@ -111,7 +112,20 @@ def register_model_tools(mcp: FastMCP):
             )
 
     @mcp.tool()
-    async def predict(query: str) -> Dict[str, Any]:
+    async def predict(
+        query: str,
+        anchor_time: str = None,
+        run_mode: str = "fast",
+        num_neighbors: Annotated[
+            list[int],
+            Field(
+                min_length=1,
+                max_length=6,
+                description=("Number of neighbors to sample for each hop "
+                             "(1-6 hops max)"),
+            )] | None = None,
+        max_pq_iterations: int = 20,
+    ) -> Dict[str, Any]:
         """Executes a predictive query and returns model predictions. This tool
         runs the specified predictive query against the KumoRFM model and
         returns the predictions as tabular data. The graph needs to be
@@ -125,12 +139,25 @@ def register_model_tools(mcp: FastMCP):
         * WHERE <filters> (optional)
             - Filters which historical rows are used to generate features
 
-        Refer to relevant resources for more information:
-        # TODO(@blaz): Add links to relevant resources
+        If you don't know how to write a query, you can use the
+        ``get_docs`` tool to get documentation for the query syntax. You can
+        also use the ``validate_query`` tool to check if the query is valid.
 
         Args:
             query: The predictive query to validate (e.g.,
             ``"PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1"``)
+            anchor_time: The anchor timestamp for the query in YYYY-MM-DD
+                format. If None, will use the maximum timestamp in the data.
+                If "entity", will use the timestamp of the entity.
+            run_mode: The run mode for the query. Options: "fast", "normal",
+                "best".
+            num_neighbors: The number of neighbors to sample for each hop. E.g.
+                [12, 24] means 12 neighbors for the first hop and 24 neighbors
+                for the second hop.
+            max_pq_iterations: The maximum number of iterations to perform to
+                collect valid labels. It is advised to increase the number of
+                iterations in case the predictive query has strict entity
+                filters.
 
         Returns:
             Dictionary containing:
@@ -139,7 +166,16 @@ def register_model_tools(mcp: FastMCP):
             - data (dict, optional): Additional information on success
 
         Examples:
-            {
+        input: {
+            "query": "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR
+            users.user_id=1",
+            "anchor_time": "2019-01-01",
+            "run_mode": "fast",
+            "num_neighbors": [12, 24],
+            "max_pq_iterations": 20
+        }
+
+        output: {
                 "success": true,
                 "message": "Prediction completed successfully",
                 "data": {
@@ -164,8 +200,26 @@ def register_model_tools(mcp: FastMCP):
                              "'finalize_graph' first"),
                 )
 
+            # Convert anchor_time string to pandas Timestamp if provided
+            if anchor_time and anchor_time != "entity":
+                try:
+                    import pandas as pd
+                    anchor_time = pd.Timestamp(anchor_time)
+                except ValueError:
+                    return dict(
+                        success=False,
+                        message=f"Invalid anchor_time format: {anchor_time}. "
+                        f"Use YYYY-MM-DD format or 'entity'",
+                    )
+
             logger.info(f"Running prediction for query: {query}")
-            result_df = session.model.predict(query, verbose=False)
+            result_df = session.model.predict(
+                query,
+                anchor_time=anchor_time,
+                run_mode=run_mode,
+                num_neighbors=num_neighbors,
+                max_pq_iterations=max_pq_iterations,
+                verbose=False)
             logger.info("Prediction completed")
 
             return dict(
@@ -181,7 +235,20 @@ def register_model_tools(mcp: FastMCP):
             )
 
     @mcp.tool()
-    async def evaluate(query: str) -> Dict[str, Any]:
+    async def evaluate(
+            query: str,
+            anchor_time: str = None,
+            run_mode: str = "fast",
+            num_neighbors: Annotated[
+                list[int],
+                Field(
+                    min_length=1,
+                    max_length=6,
+                    description=("Number of neighbors to sample for each hop "
+                                 "(1-6 hops max)"),
+                )] | None = None,
+            max_pq_iterations: int = 20,
+            random_seed: int = None) -> Dict[str, Any]:
         """Evaluates a predictive query and returns performance metrics. This
         tool runs the specified predictive query in evaluation mode, comparing
         predictions against known ground truth labels and returning performance
@@ -196,13 +263,27 @@ def register_model_tools(mcp: FastMCP):
         * WHERE <filters> (optional)
             - Filters which historical rows are used to generate features
 
-        Refer to relevant resources for more information:
-        # TODO(@blaz): Add links to relevant query syntax resources
-        # TODO(@blaz): Add links to relevant evaluation metrics resources
+        If you don't know how to write a query, you can use the
+        ``get_docs`` tool to get documentation for the query syntax. You can
+        also use the ``validate_query`` tool to check if the query is valid.
 
         Args:
             query: The predictive query to validate (e.g.,
             ``"PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1"``)
+            anchor_time: The anchor timestamp for the query in YYYY-MM-DD
+                format. If None, will use the maximum timestamp in the data.
+                If "entity", will use the timestamp of the entity.
+            run_mode: The run mode for the query. Options: "fast", "normal",
+                "best".
+            num_neighbors: The number of neighbors to sample for each hop. E.g.
+                [12, 24] means 12 neighbors for the first hop and 24 neighbors
+                for the second hop.
+            max_pq_iterations: The maximum number of iterations to perform to
+                collect valid labels. It is advised to increase the number of
+                iterations in case the predictive query has strict entity
+                filters.
+            random_seed: A manual seed for generating pseudo-random numbers.
+                If None, uses the default random seed.
 
         Returns:
             Dictionary containing:
@@ -211,7 +292,17 @@ def register_model_tools(mcp: FastMCP):
             - data (dict, optional): Additional information on success
 
         Examples:
-            {
+        input: {
+            "query": "PREDICT COUNT(orders.*, 0, 30, days)>0
+            FOR users.user_id=1",
+            "anchor_time": "2019-01-01",
+            "run_mode": "fast",
+            "num_neighbors": [12, 24],
+            "max_pq_iterations": 20,
+            "random_seed": 42
+        }
+
+        output: {
                 "success": true,
                 "message": "Evaluation completed successfully",
                 "data": {
@@ -232,8 +323,27 @@ def register_model_tools(mcp: FastMCP):
                              "'finalize_graph' first"),
                 )
 
+            # Convert anchor_time string to pandas Timestamp if provided
+            if anchor_time and anchor_time != "entity":
+                try:
+                    import pandas as pd
+                    anchor_time = pd.Timestamp(anchor_time)
+                except ValueError:
+                    return dict(
+                        success=False,
+                        message=f"Invalid anchor_time format: {anchor_time}. "
+                        f"Use YYYY-MM-DD format or 'entity'",
+                    )
+
             logger.info(f"Running evaluation for query: {query}")
-            result_df = session.model.evaluate(query, verbose=False)
+            result_df = session.model.evaluate(
+                query,
+                anchor_time=anchor_time,
+                run_mode=run_mode,
+                num_neighbors=num_neighbors,
+                max_pq_iterations=max_pq_iterations,
+                random_seed=random_seed,
+                verbose=False)
             logger.info("Evaluation completed")
 
             return dict(
