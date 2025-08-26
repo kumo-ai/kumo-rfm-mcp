@@ -37,11 +37,13 @@ class Session:
         self.initialize()
         return self._model
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(name={self.name})'
+    def clear(self) -> Self:
+        """Clear the current session."""
+        self._graph = rfm.LocalGraph([])
+        self._model = None
 
     def initialize(self) -> Self:
-        r"""Initialize a session from environment variables."""
+        """Initialize a session from environment variables."""
         if not self.is_initialized:
             logger.info(f"Initializing '{self.name}' KumoRFM session")
 
@@ -55,6 +57,9 @@ class Session:
             self._is_initialized = True
 
         return self
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}(name={self.name})'
 
 
 class SessionManager:

@@ -120,3 +120,8 @@ class UpdateGraphMetadata(BaseModel):
         list[str],
         Field(default_factory=list, description="Tables to remove"),
     ]
+
+
+class SessionStatus(BaseModel):
+    """Status of the current session."""
+    graph: Annotated[GraphMetadata, "The metadata of the graph"]
