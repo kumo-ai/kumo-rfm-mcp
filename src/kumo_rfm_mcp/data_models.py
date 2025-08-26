@@ -1,7 +1,16 @@
-from typing import Annotated, Optional
+from typing import Annotated, Generic, Optional, TypeVar
 
 from kumoapi.typing import Dtype, Stype
 from pydantic import BaseModel, Field
+
+T = TypeVar('T')
+
+
+class Response(BaseModel, Generic[T]):
+    success: Annotated[bool, "Whether the operation succeeded"]
+    log: Annotated[Optional[str], "Human-readable log information"]
+    error: Annotated[Optional[str], "Any errors encountered"]
+    data: Annotated[Optional[T], "Output data"]
 
 
 class TableSource(BaseModel):

@@ -2,6 +2,7 @@ from collections import defaultdict
 
 import pandas as pd
 from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
 from kumoai.experimental.rfm.utils import to_dtype
 from kumoapi.typing import Dtype, Stype
@@ -88,12 +89,8 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
         update: The metadata updates to perform.
 
     Returns:
-        The graph metadata.
-
-    Raises:
-        ToolError: If table or column names do not exist.
-        ToolError: If semantic types are invalid for a column's data type.
-        ToolError: If specified links are invalid.
+        The updated graph metadata and any errors encountered during the update
+        process.
     """
     session = SessionManager.get_default_session()
     session._model = None  # Need to reset the model if graph changes.
@@ -247,8 +244,44 @@ def get_mermaid(show_columns: bool = True) -> str:
     return '\n'.join(lines)
 
 
+def materialize_graph() -> Response[None]:
+    """Materialize the graph from the current state of the graph metadata,
+    which makes it available for inference operations (e.g., ``predict`` and
+    ``evaluate``).
+
+    Any updates to the graph metadata requires re-materializing the graph
+    before the KumoRFM model can start making predictions.
+
+    Returns:
+        A response denoting whether the operation succeeded with additional log
+        information.
+    """
+    session = SessionManager.get_default_session()
+
+    if session._model is not None:
+        raise ToolError("Graph is already materialized")
+
+    logger = ProgressLogger(msg="Materialized graph")
+    session._model = rfm.KumoRFM(session.graph, verbose=logger)
+
+    try:
+        logger.info("Starting graph materialization...")
+        logger.info("KumoRFM model created successfully")
+        return dict(
+            success=True,
+            message="Successfully finalized graph",
+        )
+    except Exception as e:
+        logger.error(f"Failed to finalize graph: {e}")
+        return dict(
+            success=False,
+            message=f"Failed to finalize graph. {e}",
+        )
+
+
 def register_graph_tools(mcp: FastMCP) -> None:
     """Register all graph management tools with the MCP server."""
     mcp.tool()(inspect_graph_metadata)
     mcp.tool()(update_graph_metadata)
     mcp.tool()(get_mermaid)
+    mcp.tool()(materialize_graph)
