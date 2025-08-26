@@ -20,10 +20,9 @@ def register_model_tools(mcp: FastMCP):
         making it available for inference operations (e.g., ``predict`` and
         ``evaluate``).
 
-        The graph can be updated using the ``add_table``, ``remove_table``,
-        ``link_tables``, and ``unlink_tables`` tools, but the graph needs to be
-        finalized again before the KumoRFM model can start generating
-        predictions with the new graph state.
+        The graph can be updated using the ``update_metadata`` tool, but the
+        graph needs to be finalized again before the KumoRFM model can start
+        generating predictions with the new graph state.
 
         Returns:
             Dictionary containing:
