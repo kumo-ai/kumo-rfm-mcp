@@ -147,23 +147,15 @@ def register_graph_tools(mcp: FastMCP):
 
         return get_graph_metadata()
 
-    @mcp.tool()
-    async def suggest_links() -> Dict[str, Any]:
+    @mcp.tool(tags=['graph'])
+    async def suggest_links() -> dict[str, Any]:
         """
         This tool suggests links between tables based on the current metadata
         state.
         """
-        try:
-            raise NotImplementedError("Link inference is not yet implemented")
+        raise NotImplementedError("Link inference is not yet implemented")
 
-    @mcp.tool()
-    async def visualize_graph() -> Dict[str, Any]:
+    @mcp.tool(tags=['graph'])
+    async def visualize_graph() -> dict[str, Any]:
         """Visualizes the graph as a mermaid diagram."""
-        try:
-            raise NotImplementedError(
-                "Graph visualization is not yet implemented")
-        except Exception as e:
-            return dict(
-                success=False,
-                message=f"Failed to visualize graph. {e}",
-            )
+        raise NotImplementedError

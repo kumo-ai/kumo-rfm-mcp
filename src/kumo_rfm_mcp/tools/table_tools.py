@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
@@ -14,7 +14,7 @@ logger = logging.getLogger('kumo-rfm-mcp.table_tools')
 def register_table_tools(mcp: FastMCP):
     """Register all table management tools with the MCP server."""
     @mcp.tool()
-    def add_table(path: str, name: str) -> Dict[str, Any]:
+    def add_table(path: str, name: str) -> dict[str, Any]:
         """
         Tables are the core entities in the Kumo graph. They are the tables
         that will be used to generate predictions. Tables can be added to the
@@ -87,7 +87,7 @@ def register_table_tools(mcp: FastMCP):
             )
 
     @mcp.tool()
-    def remove_table(name: str) -> Dict[str, Any]:
+    def remove_table(name: str) -> dict[str, Any]:
         """
         Tables are the core entities in the Kumo graph. They are the tables
         that will be used to generate predictions. Tables can be removed from
