@@ -1,6 +1,5 @@
 from ._version import __version__
 from .data_models import (
-    Response,
     TableSource,
     TableMetadata,
     AddTableMetadata,
@@ -9,12 +8,12 @@ from .data_models import (
     GraphMetadata,
     UpdateGraphMetadata,
     UpdatedGraphMetadata,
+    MaterializedGraph,
 )
 from .session import Session, SessionManager
 
 __all__ = [
     '__version__',
-    'Response',
     'TableSource',
     'TableMetadata',
     'AddTableMetadata',
@@ -23,6 +22,7 @@ __all__ = [
     'GraphMetadata',
     'UpdateGraphMetadata',
     'UpdatedGraphMetadata',
+    'MaterializedGraph',
     'Session',
     'SessionManager',
 ]

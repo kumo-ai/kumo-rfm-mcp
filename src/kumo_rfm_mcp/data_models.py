@@ -1,16 +1,7 @@
-from typing import Annotated, Generic, Optional, TypeVar
+from typing import Annotated, Optional
 
 from kumoapi.typing import Dtype, Stype
 from pydantic import BaseModel, Field
-
-T = TypeVar('T')
-
-
-class Response(BaseModel, Generic[T]):
-    success: Annotated[bool, "Whether the operation succeeded"]
-    log: Annotated[Optional[str], "Human-readable log information"]
-    error: Annotated[Optional[str], "Any errors encountered"]
-    data: Annotated[Optional[T], "Output data"]
 
 
 class TableSource(BaseModel):
@@ -132,11 +123,24 @@ class UpdateGraphMetadata(BaseModel):
 
 
 class UpdatedGraphMetadata(BaseModel):
-    graph: Annotated[GraphMetadata, "The updated graph metadata"]
+    graph: Annotated[GraphMetadata, "Updated graph metadata"]
     errors: Annotated[
         list[str],
         Field(
             default_factory=list,
             description="Any errors encountered during the update process",
+        ),
+    ]
+
+
+class MaterializedGraph(BaseModel):
+    num_nodes: Annotated[int, "Number of nodes in the graph"]
+    num_edges: Annotated[int, "Number of edges in the graph"]
+    time_ranges: Annotated[
+        dict[str, str],
+        Field(
+            default_factory=dict,
+            description=("Earliest to latest timestamp for each table in the "
+                         "graph that contains a time column"),
         ),
     ]
