@@ -17,68 +17,6 @@ from kumo_rfm_mcp import (
 logger = logging.getLogger('kumo-rfm-mcp.graph_tools')
 
 
-def _generate_mermaid_diagram(tables: list[TableMetadata],
-                              links: list[LinkMetadata]) -> str:
-    """Generate a Mermaid entity relationship diagram from table
-    and link metadata.
-
-    Each table shows columns with their semantic types and special metadata:
-    - PK: Primary key column
-    - time_col: Time column for temporal data
-
-    Args:
-        tables: List of table metadata objects
-        links: List of link metadata objects
-
-    Returns:
-        Mermaid diagram as a string
-    """
-    lines = ["erDiagram"]
-
-    # Add table definitions with detailed column information
-    for table in tables:
-        # Get column names from stypes
-        columns = list(table.stypes.keys()) if table.stypes else []
-
-        # Create table definition
-        lines.append(f"    {table.name} {{")
-
-        if not columns:
-            # Handle empty tables
-            lines.append("        string no_columns \"(empty table)\"")
-        else:
-            # Add each column with its stype and metadata
-            for column in columns:
-                column_type = table.stypes.get(column, "unknown")
-
-                # Determine metadata for this column
-                metadata_parts = []
-                if column == table.primary_key:
-                    metadata_parts.append("PK")
-                if column == table.time_column:
-                    metadata_parts.append("time_col")
-
-                # Format the column entry: column_name stype "metadata"
-                if metadata_parts:
-                    metadata_str = f" \"{', '.join(metadata_parts)}\""
-                    lines.append(
-                        f"        {column} {column_type}{metadata_str}")
-                else:
-                    lines.append(f"        {column} {column_type}")
-
-        lines.append("    }")
-
-    # Add relationships/foreign keys
-    for link in links:
-        # Use ||--o{ to represent one-to-many relationship (FK relationship)
-        relationship = (
-            f"    {link.destination_table} ||--o{{ {link.source_table} : "
-            f"\"{link.foreign_key}\"")
-        lines.append(relationship)
-
-    return "\n".join(lines)
-
-
 def get_graph_metadata() -> GraphMetadata:
     session = SessionManager.get_default_session()
 
@@ -161,6 +99,7 @@ def register_graph_tools(mcp: FastMCP):
         Raises:
             ToolError: If table or column names do not exist.
             ToolError: If semantic types are invalid for a column's data type.
+            ToolError: If specified links are invalid:
         """
         # Only keep specified keys:
         update_dict = update.model_dump(exclude_unset=True)
@@ -218,10 +157,10 @@ def register_graph_tools(mcp: FastMCP):
         raise NotImplementedError("Link inference is not yet implemented")
 
     @mcp.tool(tags=['graph'])
-    async def visualize_graph() -> dict[str, Any]:
-        """Visualizes the graph as a mermaid entity relationship diagram.
+    async def visualize_graph(show_columns: bool = True) -> dict[str, Any]:
+        """Visualize the graph as a mermaid entity relationship diagram.
 
-        This tool generates a Mermaid diagram showing:
+        This tool generates a mermaid diagram showing:
         - Tables with each column's name, semantic type (stype), and metadata
         - Primary key columns marked with "PK"
         - Time columns marked with "time_col"
@@ -243,8 +182,8 @@ def register_graph_tools(mcp: FastMCP):
                 }
             }
         """
+        session = SessionManager.get_default_session()
         try:
-            session = SessionManager.get_default_session()
 
             # Extract table and link metadata using utility functions
             tables = extract_table_metadata(session)
@@ -269,3 +208,65 @@ def register_graph_tools(mcp: FastMCP):
                 success=False,
                 message=f"Failed to visualize graph. {e}",
             )
+
+
+def _generate_mermaid_diagram(tables: list[TableMetadata],
+                              links: list[LinkMetadata]) -> str:
+    """Generate a Mermaid entity relationship diagram from table
+    and link metadata.
+
+    Each table shows columns with their semantic types and special metadata:
+    - PK: Primary key column
+    - time_col: Time column for temporal data
+
+    Args:
+        tables: List of table metadata objects
+        links: List of link metadata objects
+
+    Returns:
+        Mermaid diagram as a string
+    """
+    lines = ["erDiagram"]
+
+    # Add table definitions with detailed column information
+    for table in tables:
+        # Get column names from stypes
+        columns = list(table.stypes.keys()) if table.stypes else []
+
+        # Create table definition
+        lines.append(f"    {table.name} {{")
+
+        if not columns:
+            # Handle empty tables
+            lines.append("        string no_columns \"(empty table)\"")
+        else:
+            # Add each column with its stype and metadata
+            for column in columns:
+                column_type = table.stypes.get(column, "unknown")
+
+                # Determine metadata for this column
+                metadata_parts = []
+                if column == table.primary_key:
+                    metadata_parts.append("PK")
+                if column == table.time_column:
+                    metadata_parts.append("time_col")
+
+                # Format the column entry: column_name stype "metadata"
+                if metadata_parts:
+                    metadata_str = f" \"{', '.join(metadata_parts)}\""
+                    lines.append(
+                        f"        {column} {column_type}{metadata_str}")
+                else:
+                    lines.append(f"        {column} {column_type}")
+
+        lines.append("    }")
+
+    # Add relationships/foreign keys
+    for link in links:
+        # Use ||--o{ to represent one-to-many relationship (FK relationship)
+        relationship = (
+            f"    {link.destination_table} ||--o{{ {link.source_table} : "
+            f"\"{link.foreign_key}\"")
+        lines.append(relationship)
+
+    return "\n".join(lines)
