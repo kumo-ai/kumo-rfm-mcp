@@ -100,7 +100,7 @@ def register_graph_tools(mcp: FastMCP):
         Raises:
             ToolError: If table or column names do not exist.
             ToolError: If semantic types are invalid for a column's data type.
-            ToolError: If specified links are invalid:
+            ToolError: If specified links are invalid.
         """
         # Only keep specified keys:
         update_dict = update.model_dump(exclude_unset=True)
