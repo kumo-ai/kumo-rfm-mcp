@@ -15,10 +15,7 @@ class TableSource(BaseModel):
 
 class TableMetadata(BaseModel):
     """Metadata for a table."""
-    path: Annotated[
-        str,
-        "Path to the file. Only CSV or Parquet files are supported.",
-    ]
+    path: Annotated[str, "Path to the table"]
     name: Annotated[str, "Name of the table"]
     num_rows: Annotated[int, "Number of rows in the table"]
     dtypes: Annotated[
@@ -36,7 +33,10 @@ class TableMetadata(BaseModel):
 
 class AddTableMetadata(BaseModel):
     """Metadata to add a new table."""
-    path: Annotated[str, "Path to the table"]
+    path: Annotated[
+        str,
+        "Path to the file. Only CSV or Parquet files are supported.",
+    ]
     name: Annotated[str, "Name of the table"]
     primary_key: Annotated[Optional[str], "Name of the primary key column"]
     time_column: Annotated[Optional[str], "Name of the time column"]
