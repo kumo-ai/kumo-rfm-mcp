@@ -218,7 +218,7 @@ def register_graph_tools(mcp: FastMCP):
         raise NotImplementedError("Link inference is not yet implemented")
 
     @mcp.tool(tags=['graph'])
-    async def visualize_graph() -> Dict[str, Any]:
+    async def visualize_graph() -> dict[str, Any]:
         """Visualizes the graph as a mermaid entity relationship diagram.
 
         This tool generates a Mermaid diagram showing:
@@ -256,13 +256,13 @@ def register_graph_tools(mcp: FastMCP):
             logger.info(f"Generated Mermaid diagram with {len(tables)} tables "
                         f"and {len(links)} links")
 
-            return dict(success=True,
-                        message="Graph visualization generated successfully",
-                        data={
-                            "mermaid_diagram": mermaid_diagram,
-                            "num_tables": len(tables),
-                            "num_links": len(links)
-                        })
+            return dict(
+                success=True,
+                message="Graph visualization generated successfully", data={
+                    "mermaid_diagram": mermaid_diagram,
+                    "num_tables": len(tables),
+                    "num_links": len(links)
+                })
         except Exception as e:
             logger.error(f"Failed to visualize graph: {e}")
             return dict(

@@ -44,9 +44,22 @@ def register_table_tools(mcp: FastMCP):
         """
         logger.info(f"Adding table '{name}' from path '{path}'")
 
+        if not path.endswith('.csv') and not path.endswith('.parquet'):
+            logger.error(
+                f"Unsupported file format for path '{path}' - only CSV and "
+                "Parquet are supported")
+            return dict(
+                success=False,
+                message=(f"Can not read file from path '{path}'. Only "
+                         f"'*.csv' or '*.parquet' files are supported"),
+            )
+
         try:
             logger.info(f"Loading data from '{path}'")
-            df = load_dataframe(path)
+            if path.endswith('.csv'):
+                df = pd.read_csv(path)
+            else:
+                df = pd.read_parquet(path)
             logger.info(
                 f"Loaded {len(df)} rows and {len(df.columns)} columns from "
                 f"'{path}'")
@@ -62,10 +75,6 @@ def register_table_tools(mcp: FastMCP):
             logger.info(f"Creating LocalTable '{name}' with {len(df)} rows")
             table = rfm.LocalTable(df, name).infer_metadata(verbose=False)
             session.graph.add_table(table)
-            # Store source path in session catalog for metadata inspection
-            if hasattr(session, 'catalog'):
-                from kumo_rfm_mcp.data_models import TableSource
-                session.catalog[name] = TableSource(path=path)
             logger.info(f"Successfully added table '{name}' to graph")
             return dict(
                 success=True,
@@ -105,12 +114,6 @@ def register_table_tools(mcp: FastMCP):
             logger.info(f"Removing table '{name}' from graph")
             session = SessionManager.get_default_session()
             session.graph.remove_table(name)
-            # Remove from session catalog if present
-            if hasattr(session, 'catalog') and name in session.catalog:
-                try:
-                    del session.catalog[name]
-                except Exception:
-                    pass
             logger.info(f"Successfully removed table '{name}' from graph")
             return dict(
                 success=True,
