@@ -20,7 +20,7 @@ def discover_table_files(
     Args:
         root_dir: Root directory to scan.
         recursive: Whether to scan subdirectories recursively. Use with caution
-            in large parent directories.
+            in large directories such as home folders or system directories.
 
     Returns:
         List of table source objects for each discovered file.

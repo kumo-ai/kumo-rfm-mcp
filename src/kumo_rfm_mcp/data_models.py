@@ -120,3 +120,14 @@ class UpdateGraphMetadata(BaseModel):
         list[str],
         Field(default_factory=list, description="Tables to remove"),
     ]
+
+
+class UpdatedGraphMetadata(BaseModel):
+    graph: Annotated[GraphMetadata, "The updated graph metadata"]
+    errors: Annotated[
+        list[str],
+        Field(
+            default_factory=list,
+            description="Any errors encountered during the update process",
+        ),
+    ]
