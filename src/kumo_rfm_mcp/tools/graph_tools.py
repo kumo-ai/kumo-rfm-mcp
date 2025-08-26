@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import Any
 
 import pandas as pd
 from fastmcp import FastMCP
@@ -233,9 +232,3 @@ def register_graph_tools(mcp: FastMCP) -> None:
     mcp.tool()(inspect_graph_metadata)
     mcp.tool()(update_graph_metadata)
     mcp.tool()(get_mermaid)
-
-    @mcp.tool()
-    async def suggest_links() -> dict[str, Any]:
-        """Suggest links between tables based on the current graph metadata.
-        """
-        raise NotImplementedError

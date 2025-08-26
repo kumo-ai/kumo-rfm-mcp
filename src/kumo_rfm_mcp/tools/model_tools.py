@@ -34,7 +34,6 @@ def register_model_tools(mcp: FastMCP):
                 "message": "Successfully finalized graph",
             }
         """
-        return dict(success=True)
         try:
             session = SessionManager.get_default_session()
             logger.info("Starting graph materialization...")
@@ -215,9 +214,13 @@ def register_model_tools(mcp: FastMCP):
 
             logger.info(f"Running prediction for query: {query}")
             result_df = session.model.predict(
-                query, anchor_time=anchor_time, run_mode=run_mode,
+                query,
+                anchor_time=anchor_time,
+                run_mode=run_mode,
                 num_neighbors=num_neighbors,
-                max_pq_iterations=max_pq_iterations, verbose=False)
+                max_pq_iterations=max_pq_iterations,
+                verbose=False,
+            )
             logger.info("Prediction completed")
 
             return dict(
@@ -234,16 +237,20 @@ def register_model_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def evaluate(
-            query: str, anchor_time: str = None, run_mode: str = "fast",
-            num_neighbors: Annotated[
-                list[int],
-                Field(
-                    min_length=1,
-                    max_length=6,
-                    description=("Number of neighbors to sample for each hop "
-                                 "(1-6 hops max)"),
-                )] | None = None, max_pq_iterations: int = 20,
-            random_seed: int = None) -> Dict[str, Any]:
+        query: str,
+        anchor_time: str = None,
+        run_mode: str = "fast",
+        num_neighbors: Annotated[
+            list[int],
+            Field(
+                min_length=1,
+                max_length=6,
+                description=("Number of neighbors to sample for each hop "
+                             "(1-6 hops max)"),
+            )] | None = None,
+        max_pq_iterations: int = 20,
+        random_seed: int = None,
+    ) -> Dict[str, Any]:
         """Evaluates a predictive query and returns performance metrics. This
         tool runs the specified predictive query in evaluation mode, comparing
         predictions against known ground truth labels and returning performance
@@ -332,10 +339,14 @@ def register_model_tools(mcp: FastMCP):
 
             logger.info(f"Running evaluation for query: {query}")
             result_df = session.model.evaluate(
-                query, anchor_time=anchor_time, run_mode=run_mode,
+                query,
+                anchor_time=anchor_time,
+                run_mode=run_mode,
                 num_neighbors=num_neighbors,
-                max_pq_iterations=max_pq_iterations, random_seed=random_seed,
-                verbose=False)
+                max_pq_iterations=max_pq_iterations,
+                random_seed=random_seed,
+                verbose=False,
+            )
             logger.info("Evaluation completed")
 
             return dict(
