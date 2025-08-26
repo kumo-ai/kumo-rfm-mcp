@@ -8,3 +8,5 @@ wheels/
 .env
 .mypy_cache/
 tmp/
+mcp.json
+server-info.json
