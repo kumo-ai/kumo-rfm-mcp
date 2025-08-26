@@ -2,8 +2,10 @@ import logging
 from collections import defaultdict
 from typing import Any
 
+import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from kumoai.experimental import rfm
 from kumoai.experimental.rfm.utils import to_dtype
 from kumoapi.typing import Dtype, Stype
 
@@ -102,13 +104,42 @@ def register_graph_tools(mcp: FastMCP):
             ToolError: If semantic types are invalid for a column's data type.
             ToolError: If specified links are invalid.
         """
-        # Only keep specified keys:
-        update_dict = update.model_dump(exclude_unset=True)
 
         session = SessionManager.get_default_session()
         session._model = None  # Need to reset the model if graph changes.
         graph = session.graph
 
+        for table in update.tables_to_add:
+            if table.path.lower().endswith('.csv'):
+                try:
+                    df = pd.read_csv(table.path)
+                except Exception as e:
+                    raise ToolError(
+                        f"Could not read file '{table.path}': {e}") from e
+            elif table.path.lower().endswith('.parquet'):
+                try:
+                    df = pd.read_parquet(table.path)
+                except Exception as e:
+                    raise ToolError(
+                        f"Could not read file '{table.path}': {e}") from e
+            else:
+                raise ToolError(f"File '{table.path}' is not a valid CSV or "
+                                f"Parquet file")
+
+            try:
+                local_table = rfm.LocalTable(
+                    df,
+                    table.name,
+                    primary_key=table.primary_key,
+                    time_column=table.time_column,
+                )
+                local_table._path = table.path
+                graph.add_table(local_table)
+            except Exception as e:
+                raise ToolError(str(e)) from e
+
+        # Only keep specified keys:
+        update_dict = update.model_dump(exclude_unset=True)
         tables_to_update = update_dict.get('tables_to_update', {})
         for table_name, table_update in tables_to_update.items():
             try:
@@ -127,23 +158,29 @@ def register_graph_tools(mcp: FastMCP):
             except Exception as e:
                 raise ToolError(str(e)) from e
 
-        for link in update_dict.get('links_to_remove', []):
+        for link in update.links_to_remove:
             try:
                 graph.unlink(
-                    link['source_table'],
-                    link['foreign_key'],
-                    link['destination_table'],
+                    link.source_table,
+                    link.foreign_key,
+                    link.destination_table,
                 )
             except Exception as e:
                 raise ToolError(str(e)) from e
 
-        for link in update_dict.get('links_to_add', []):
+        for link in update.links_to_add:
             try:
                 graph.link(
-                    link['source_table'],
-                    link['foreign_key'],
-                    link['destination_table'],
+                    link.source_table,
+                    link.foreign_key,
+                    link.destination_table,
                 )
+            except Exception as e:
+                raise ToolError(str(e)) from e
+
+        for table_name in update.tables_to_remove:
+            try:
+                del graph[table_name]
             except Exception as e:
                 raise ToolError(str(e)) from e
 

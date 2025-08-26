@@ -6,7 +6,10 @@ from pydantic import BaseModel, Field
 
 class TableSource(BaseModel):
     """Source information of a table."""
-    path: Annotated[str, "Path to the file"]
+    path: Annotated[
+        str,
+        "Path to the file. Only CSV or Parquet files are supported.",
+    ]
     bytes: Annotated[int, "Size in bytes of the file"]
 
 
@@ -24,6 +27,17 @@ class TableMetadata(BaseModel):
         "Column names mapped to their semantic types or `None` if they have "
         "been discarded",
     ]
+    primary_key: Annotated[Optional[str], "Name of the primary key column"]
+    time_column: Annotated[Optional[str], "Name of the time column"]
+
+
+class AddTableMetadata(BaseModel):
+    """Metadata to add a new table."""
+    path: Annotated[
+        str,
+        "Path to the file. Only CSV or Parquet files are supported.",
+    ]
+    name: Annotated[str, "Name of the table"]
     primary_key: Annotated[Optional[str], "Name of the primary key column"]
     time_column: Annotated[Optional[str], "Name of the time column"]
 
@@ -83,6 +97,10 @@ class GraphMetadata(BaseModel):
 class UpdateGraphMetadata(BaseModel):
     """Metadata updates to perform for a graph holding multiple tables
     connected via foreign key-primary key relationships."""
+    tables_to_add: Annotated[
+        list[AddTableMetadata],
+        Field(default_factory=list, description="Tables to add"),
+    ]
     tables_to_update: Annotated[
         dict[str, UpdateTableMetadata],
         Field(
@@ -97,4 +115,8 @@ class UpdateGraphMetadata(BaseModel):
     links_to_add: Annotated[
         list[LinkMetadata],
         Field(default_factory=list, description="Links to add"),
+    ]
+    tables_to_remove: Annotated[
+        list[str],
+        Field(default_factory=list, description="Tables to remove"),
     ]
