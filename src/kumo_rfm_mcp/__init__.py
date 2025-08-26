@@ -7,6 +7,7 @@ from .data_models import (
     LinkMetadata,
     GraphMetadata,
     UpdateGraphMetadata,
+    UpdatedGraphMetadata,
 )
 from .session import Session, SessionManager
 
@@ -19,6 +20,7 @@ __all__ = [
     'LinkMetadata',
     'GraphMetadata',
     'UpdateGraphMetadata',
+    'UpdatedGraphMetadata',
     'Session',
     'SessionManager',
 ]

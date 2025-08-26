@@ -2,7 +2,6 @@ from collections import defaultdict
 
 import pandas as pd
 from fastmcp import FastMCP
-from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
 from kumoai.experimental.rfm.utils import to_dtype
 from kumoapi.typing import Dtype, Stype
@@ -12,6 +11,7 @@ from kumo_rfm_mcp import (
     LinkMetadata,
     SessionManager,
     TableMetadata,
+    UpdatedGraphMetadata,
     UpdateGraphMetadata,
 )
 
@@ -46,7 +46,7 @@ def inspect_graph_metadata() -> GraphMetadata:
                 stypes[column] = None
         tables.append(
             TableMetadata(
-                path=table._path,  # type: ignore
+                path=table._path,
                 name=table.name,
                 num_rows=len(table._data),
                 dtypes=dtypes,
@@ -67,7 +67,7 @@ def inspect_graph_metadata() -> GraphMetadata:
     return GraphMetadata(tables=tables, links=links)
 
 
-def update_graph_metadata(update: UpdateGraphMetadata) -> GraphMetadata:
+def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
     """Partially update the current graph metadata.
 
     Setting up the metadata is crucial for the RFM model to work properly. In
@@ -80,6 +80,9 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> GraphMetadata:
     * links need to point to valid foreign key-primary key relationships.
 
     Omitted fields will be untouched.
+
+    For newly added tables, it is advised to double-check semantic types and
+    modify in a follow-up step if necessary.
 
     Args:
         update: The metadata updates to perform.
@@ -96,34 +99,36 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> GraphMetadata:
     session._model = None  # Need to reset the model if graph changes.
     graph = session.graph
 
+    errors: list[str] = []
     for table in update.tables_to_add:
         if table.path.lower().endswith('.csv'):
             try:
                 df = pd.read_csv(table.path)
             except Exception as e:
-                raise ToolError(
-                    f"Could not read file '{table.path}': {e}") from e
+                errors.append(f"Could not read file '{table.path}': {e}")
+                continue
         elif table.path.lower().endswith('.parquet'):
             try:
                 df = pd.read_parquet(table.path)
             except Exception as e:
-                raise ToolError(
-                    f"Could not read file '{table.path}': {e}") from e
+                errors.append(f"Could not read file '{table.path}': {e}")
+                continue
         else:
-            raise ToolError(f"File '{table.path}' is not a valid CSV or "
-                            f"Parquet file")
+            errors.append(f"'{table.path}' is not a valid CSV or Parquet file")
+            continue
 
         try:
             local_table = rfm.LocalTable(
-                df,
-                table.name,
+                df=df,
+                name=table.name,
                 primary_key=table.primary_key,
                 time_column=table.time_column,
             )
             local_table._path = table.path
             graph.add_table(local_table)
         except Exception as e:
-            raise ToolError(str(e)) from e
+            errors.append(f"Could not add table '{table.name}': {e}")
+            continue
 
     # Only keep specified keys:
     update_dict = update.model_dump(exclude_unset=True)
@@ -143,7 +148,8 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> GraphMetadata:
             if 'time_column' in table_update:
                 graph[table_name].time_column = table_update['time_column']
         except Exception as e:
-            raise ToolError(str(e)) from e
+            errors.append(f"Could not fully update table '{table_name}': {e}")
+            continue
 
     for link in update.links_to_remove:
         try:
@@ -153,7 +159,11 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> GraphMetadata:
                 link.destination_table,
             )
         except Exception as e:
-            raise ToolError(str(e)) from e
+            errors.append(f"Could not remove link from source table "
+                          f"'{link.source_table}' to destination table "
+                          f"'{link.destination_table}' via the "
+                          f"'{link.foreign_key}' column: {e}")
+            continue
 
     for link in update.links_to_add:
         try:
@@ -163,15 +173,25 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> GraphMetadata:
                 link.destination_table,
             )
         except Exception as e:
-            raise ToolError(str(e)) from e
+            errors.append(f"Could not add link from source table "
+                          f"'{link.source_table}' to destination table "
+                          f"'{link.destination_table}' via the "
+                          f"'{link.foreign_key}' column: {e}")
+            continue
 
     for table_name in update.tables_to_remove:
         try:
             del graph[table_name]
         except Exception as e:
-            raise ToolError(str(e)) from e
+            errors.append(f"Could not remove table '{table.name}': {e}")
+            continue
 
-    return inspect_graph_metadata()
+    try:
+        graph.validate()
+    except Exception as e:
+        errors.append(f"Final graph validation failed: {e}")
+
+    return UpdatedGraphMetadata(graph=inspect_graph_metadata(), errors=errors)
 
 
 def get_mermaid(show_columns: bool = True) -> str:
