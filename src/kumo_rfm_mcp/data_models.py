@@ -123,11 +123,24 @@ class UpdateGraphMetadata(BaseModel):
 
 
 class UpdatedGraphMetadata(BaseModel):
-    graph: Annotated[GraphMetadata, "The updated graph metadata"]
+    graph: Annotated[GraphMetadata, "Updated graph metadata"]
     errors: Annotated[
         list[str],
         Field(
             default_factory=list,
             description="Any errors encountered during the update process",
+        ),
+    ]
+
+
+class MaterializedGraph(BaseModel):
+    num_nodes: Annotated[int, "Number of nodes in the graph"]
+    num_edges: Annotated[int, "Number of edges in the graph"]
+    time_ranges: Annotated[
+        dict[str, str],
+        Field(
+            default_factory=dict,
+            description=("Earliest to latest timestamp for each table in the "
+                         "graph that contains a time column"),
         ),
     ]

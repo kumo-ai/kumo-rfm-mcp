@@ -8,6 +8,7 @@ from .data_models import (
     GraphMetadata,
     UpdateGraphMetadata,
     UpdatedGraphMetadata,
+    MaterializedGraph,
 )
 from .session import Session, SessionManager
 
@@ -21,6 +22,7 @@ __all__ = [
     'GraphMetadata',
     'UpdateGraphMetadata',
     'UpdatedGraphMetadata',
+    'MaterializedGraph',
     'Session',
     'SessionManager',
 ]

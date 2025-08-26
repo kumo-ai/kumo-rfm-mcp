@@ -9,6 +9,7 @@ from kumoapi.typing import Dtype, Stype
 from kumo_rfm_mcp import (
     GraphMetadata,
     LinkMetadata,
+    MaterializedGraph,
     SessionManager,
     TableMetadata,
     UpdatedGraphMetadata,
@@ -84,16 +85,15 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
     For newly added tables, it is advised to double-check semantic types and
     modify in a follow-up step if necessary.
 
+    Note that all operations can be performed in a batch at once, *e.g.*, one
+    can add new tables and directly link them to together.
+
     Args:
         update: The metadata updates to perform.
 
     Returns:
-        The graph metadata.
-
-    Raises:
-        ToolError: If table or column names do not exist.
-        ToolError: If semantic types are invalid for a column's data type.
-        ToolError: If specified links are invalid.
+        The updated graph metadata with any errors encountered during the
+        update process.
     """
     session = SessionManager.get_default_session()
     session._model = None  # Need to reset the model if graph changes.
@@ -247,8 +247,52 @@ def get_mermaid(show_columns: bool = True) -> str:
     return '\n'.join(lines)
 
 
+def materialize_graph() -> MaterializedGraph:
+    """Materialize the graph based on the current state of the graph metadata
+    to make it available for inference operations (e.g., ``predict`` and
+    ``evaluate``).
+
+    Any updates to the graph metadata require re-materializing the graph before
+    the KumoRFM model can start making predictions again.
+
+    Returns:
+        Information about the materialized graph.
+    """
+    session = SessionManager.get_default_session()
+
+    if session._model is not None:
+        raise ToolError("Graph is already materialized")
+
+    try:
+        model = rfm.KumoRFM(session.graph, verbose=False)
+    except Exception as e:
+        raise ToolError(f"Failed to materialize graph: {e}")
+
+    session._model = model
+
+    num_nodes = sum(len(df) for df in model._graph_store.df_dict.values())
+    num_edges = sum(len(row) for row in model._graph_store.row_dict.values())
+    time_ranges = {}
+    for table in session.graph.tables.values():
+        if table._time_column is None:
+            continue
+        time = model._graph_store.df_dict[table.name][table._time_column]
+        if table.name in model._graph_store.mask_dict.keys():
+            time = time[model._graph_store.mask_dict[table.name]]
+        if len(time) == 0:
+            continue
+        time_ranges[table.name] = f"{time.min()} - {time.max()}"
+
+    return MaterializedGraph(
+        num_nodes=num_nodes,
+        num_edges=num_edges,
+        time_ranges=time_ranges,
+    )
+
+
 def register_graph_tools(mcp: FastMCP) -> None:
     """Register all graph management tools with the MCP server."""
     mcp.tool()(inspect_graph_metadata)
     mcp.tool()(update_graph_metadata)
     mcp.tool()(get_mermaid)
+    mcp.tool()(materialize_graph)

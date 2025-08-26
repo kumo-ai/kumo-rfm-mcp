@@ -13,44 +13,6 @@ logger = logging.getLogger('kumo-rfm-mcp.model_tools')
 def register_model_tools(mcp: FastMCP):
     """Register all model tools with the MCP server."""
     @mcp.tool()
-    async def finalize_graph() -> Dict[str, Any]:
-        """
-        This tool creates a KumoRFM model from the **current graph state**,
-        making it available for inference operations (e.g., ``predict`` and
-        ``evaluate``).
-
-        The graph can be updated using the ``update_metadata`` tool, but the
-        graph needs to be finalized again before the KumoRFM model can start
-        generating predictions with the new graph state.
-
-        Returns:
-            Dictionary containing:
-            - success (bool): ``True`` if operation succeeded
-            - message (str): Human-readable status message
-
-        Examples:
-            {
-                "success": true,
-                "message": "Successfully finalized graph",
-            }
-        """
-        try:
-            session = SessionManager.get_default_session()
-            logger.info("Starting graph materialization...")
-            session.model = rfm.KumoRFM(session.graph, verbose=False)
-            logger.info("KumoRFM model created successfully")
-            return dict(
-                success=True,
-                message="Successfully finalized graph",
-            )
-        except Exception as e:
-            logger.error(f"Failed to finalize graph: {e}")
-            return dict(
-                success=False,
-                message=f"Failed to finalize graph. {e}",
-            )
-
-    @mcp.tool()
     async def validate_query(query: str) -> Dict[str, Any]:
         """Validates a predictive query string against the current finalized
         graph structure.
