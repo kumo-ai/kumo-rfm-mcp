@@ -44,6 +44,8 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
     "ruff",
 ]
 

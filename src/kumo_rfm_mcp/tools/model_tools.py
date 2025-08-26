@@ -12,7 +12,6 @@ logger = logging.getLogger('kumo-rfm-mcp.model_tools')
 
 def register_model_tools(mcp: FastMCP):
     """Register all model tools with the MCP server."""
-
     @mcp.tool()
     async def finalize_graph() -> Dict[str, Any]:
         """
@@ -71,8 +70,9 @@ def register_model_tools(mcp: FastMCP):
         * WHERE <filters> (optional)
             - Filters which historical rows are used to generate features
 
-        If you don't know how to write a query, you can use the
-        ``get_docs`` tool to get documentation for the query syntax.
+        Refer to relevant resources for more information:
+        # kumo://docs/pql-guide
+        # kumo://docs/pql-reference
 
         Args:
             query: The predictive query to validate (e.g.,
@@ -139,9 +139,9 @@ def register_model_tools(mcp: FastMCP):
         * WHERE <filters> (optional)
             - Filters which historical rows are used to generate features
 
-        If you don't know how to write a query, you can use the
-        ``get_docs`` tool to get documentation for the query syntax. You can
-        also use the ``validate_query`` tool to check if the query is valid.
+        Refer to relevant resources for more information:
+        # kumo://docs/pql-guide
+        # kumo://docs/pql-reference
 
         Args:
             query: The predictive query to validate (e.g.,
@@ -219,7 +219,8 @@ def register_model_tools(mcp: FastMCP):
                 run_mode=run_mode,
                 num_neighbors=num_neighbors,
                 max_pq_iterations=max_pq_iterations,
-                verbose=False)
+                verbose=False,
+            )
             logger.info("Prediction completed")
 
             return dict(
@@ -236,19 +237,20 @@ def register_model_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def evaluate(
-            query: str,
-            anchor_time: str = None,
-            run_mode: str = "fast",
-            num_neighbors: Annotated[
-                list[int],
-                Field(
-                    min_length=1,
-                    max_length=6,
-                    description=("Number of neighbors to sample for each hop "
-                                 "(1-6 hops max)"),
-                )] | None = None,
-            max_pq_iterations: int = 20,
-            random_seed: int = None) -> Dict[str, Any]:
+        query: str,
+        anchor_time: str = None,
+        run_mode: str = "fast",
+        num_neighbors: Annotated[
+            list[int],
+            Field(
+                min_length=1,
+                max_length=6,
+                description=("Number of neighbors to sample for each hop "
+                             "(1-6 hops max)"),
+            )] | None = None,
+        max_pq_iterations: int = 20,
+        random_seed: int = None,
+    ) -> Dict[str, Any]:
         """Evaluates a predictive query and returns performance metrics. This
         tool runs the specified predictive query in evaluation mode, comparing
         predictions against known ground truth labels and returning performance
@@ -263,9 +265,9 @@ def register_model_tools(mcp: FastMCP):
         * WHERE <filters> (optional)
             - Filters which historical rows are used to generate features
 
-        If you don't know how to write a query, you can use the
-        ``get_docs`` tool to get documentation for the query syntax. You can
-        also use the ``validate_query`` tool to check if the query is valid.
+        Refer to relevant resources for more information:
+        # kumo://docs/pql-guide
+        # kumo://docs/pql-reference
 
         Args:
             query: The predictive query to validate (e.g.,
@@ -343,7 +345,8 @@ def register_model_tools(mcp: FastMCP):
                 num_neighbors=num_neighbors,
                 max_pq_iterations=max_pq_iterations,
                 random_seed=random_seed,
-                verbose=False)
+                verbose=False,
+            )
             logger.info("Evaluation completed")
 
             return dict(
