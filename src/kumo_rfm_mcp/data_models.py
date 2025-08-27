@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated, Any
 
 from kumoapi.typing import Dtype, Stype
 from pydantic import BaseModel, Field
@@ -27,8 +27,8 @@ class TableMetadata(BaseModel):
         "Column names mapped to their semantic types or `None` if they have "
         "been discarded",
     ]
-    primary_key: Annotated[Optional[str], "Name of the primary key column"]
-    time_column: Annotated[Optional[str], "Name of the time column"]
+    primary_key: Annotated[str | None, "Name of the primary key column"]
+    time_column: Annotated[str | None, "Name of the time column"]
 
 
 class AddTableMetadata(BaseModel):
@@ -38,8 +38,8 @@ class AddTableMetadata(BaseModel):
         "Path to the file. Only CSV or Parquet files are supported.",
     ]
     name: Annotated[str, "Name of the table"]
-    primary_key: Annotated[Optional[str], "Name of the primary key column"]
-    time_column: Annotated[Optional[str], "Name of the time column"]
+    primary_key: Annotated[str | None, "Name of the primary key column"]
+    time_column: Annotated[str | None, "Name of the time column"]
 
 
 class UpdateTableMetadata(BaseModel):
@@ -54,7 +54,7 @@ class UpdateTableMetadata(BaseModel):
         ),
     ]
     primary_key: Annotated[
-        Optional[str],
+        str | None,
         Field(
             default=None,
             description=("Update the primary key column. Set to `None` if the "
@@ -63,7 +63,7 @@ class UpdateTableMetadata(BaseModel):
         ),
     ]
     time_column: Annotated[
-        Optional[str],
+        str | None,
         Field(
             default=None,
             description=("Update the time column. Set to `None` if the time "
@@ -123,6 +123,8 @@ class UpdateGraphMetadata(BaseModel):
 
 
 class UpdatedGraphMetadata(BaseModel):
+    """Updated metadata of a graph holding multiple tables connected via "
+    "foreign key-primary key relationships."""
     graph: Annotated[GraphMetadata, "Updated graph metadata"]
     errors: Annotated[
         list[str],
@@ -134,6 +136,7 @@ class UpdatedGraphMetadata(BaseModel):
 
 
 class MaterializedGraph(BaseModel):
+    """Information about the materialized graph."""
     num_nodes: Annotated[int, "Number of nodes in the graph"]
     num_edges: Annotated[int, "Number of edges in the graph"]
     time_ranges: Annotated[
@@ -142,5 +145,27 @@ class MaterializedGraph(BaseModel):
             default_factory=dict,
             description=("Earliest to latest timestamp for each table in the "
                          "graph that contains a time column"),
+        ),
+    ]
+
+
+class PredictResponse(BaseModel):
+    predictions: Annotated[
+        list[dict[str, Any]],
+        Field(
+            default_factory=list,
+            description=(
+                "The predictions, where each row holds information about the "
+                "entity, the anchor time, and the prediction"),
+        ),
+    ]
+
+
+class EvaluateResponse(BaseModel):
+    metrics: Annotated[
+        dict[str, float | None],
+        Field(
+            default_factory=dict,
+            description=("The metric value for every metric"),
         ),
     ]
