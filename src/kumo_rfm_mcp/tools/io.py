@@ -78,8 +78,8 @@ async def inspect_table_files(
     return {path: preview for path, preview in zip(paths, previews)}
 
 
-def register_table_tools(mcp: FastMCP) -> None:
-    """Register all table management tools to the MCP server."""
+def register_io_tools(mcp: FastMCP) -> None:
+    """Register all I/O tools to the MCP server."""
     mcp.tool(annotations=dict(
         title="Finding table-like files",
         readOnlyHint=True,

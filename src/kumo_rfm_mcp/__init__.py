@@ -1,5 +1,5 @@
 from ._version import __version__
-from .data_models import (
+from .config import (
     TableSource,
     TableSourcePreview,
     TableMetadata,
