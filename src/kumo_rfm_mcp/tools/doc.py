@@ -6,8 +6,8 @@ from fastmcp import FastMCP
 logger = logging.getLogger('kumo-rfm-mcp.docs_tools')
 
 
-def register_docs_tools(mcp: FastMCP):
-    """Register all documentation tools with the MCP server."""
+def register_docs_tools(mcp: FastMCP) -> None:
+    """Register all documentation tools to the MCP server."""
     @mcp.tool()
     async def get_docs(resource_uri: str) -> dict[str, Any]:
         """Gets documentation by URI.

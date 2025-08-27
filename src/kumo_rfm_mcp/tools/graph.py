@@ -293,7 +293,7 @@ async def materialize_graph() -> MaterializedGraph:
 
 
 def register_graph_tools(mcp: FastMCP) -> None:
-    """Register all graph management tools to the MCP server."""
+    """Register all graph tools to the MCP server."""
     mcp.tool(annotations=dict(
         title="Inspecting graph metadata",
         readOnlyHint=True,

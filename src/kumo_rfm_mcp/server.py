@@ -20,7 +20,7 @@ mcp = FastMCP(
 
 # Tools ######################################################################
 tools.register_docs_tools(mcp)
-tools.register_table_tools(mcp)
+tools.register_io_tools(mcp)
 tools.register_graph_tools(mcp)
 tools.register_model_tools(mcp)
 
