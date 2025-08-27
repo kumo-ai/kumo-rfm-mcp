@@ -3,7 +3,6 @@ from collections import defaultdict
 import pandas as pd
 from fastmcp import FastMCP
 from kumoai.experimental import rfm
-from kumoai.experimental.rfm.utils import to_dtype
 from kumoapi.typing import Dtype, Stype
 
 from kumo_rfm_mcp import (
@@ -43,7 +42,7 @@ def inspect_graph_metadata() -> GraphMetadata:
                 dtypes[column] = table[column].dtype
                 stypes[column] = table[column].stype
             else:
-                dtypes[column] = to_dtype(table._data[column])
+                dtypes[column] = rfm.utils.to_dtype(table._data[column])
                 stypes[column] = None
         tables.append(
             TableMetadata(
@@ -291,7 +290,7 @@ def materialize_graph() -> MaterializedGraph:
 
 
 def register_graph_tools(mcp: FastMCP) -> None:
-    """Register all graph management tools with the MCP server."""
+    """Register all graph management tools to the MCP server."""
     mcp.tool()(inspect_graph_metadata)
     mcp.tool()(update_graph_metadata)
     mcp.tool()(get_mermaid)
