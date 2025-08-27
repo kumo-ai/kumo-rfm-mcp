@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 from typing import Any
 
@@ -7,8 +6,6 @@ from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 
 from kumo_rfm_mcp import TableSource
-
-logger = logging.getLogger('kumo-rfm-mcp.table_tools')
 
 
 def discover_table_files(
@@ -85,6 +82,6 @@ def inspect_table_file(
 
 
 def register_table_tools(mcp: FastMCP) -> None:
-    """Register all table management tools with the MCP server."""
+    """Register all table management tools to the MCP server."""
     mcp.tool()(discover_table_files)
     mcp.tool()(inspect_table_file)

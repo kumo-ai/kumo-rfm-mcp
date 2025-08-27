@@ -31,7 +31,7 @@ class Session:
         return self._graph
 
     @property
-    def model(self) -> rfm.KumoRFM | None:
+    def model(self) -> rfm.KumoRFM:
         if self._model is None:
             raise ToolError("Graph is not yet materialized")
         self.initialize()
