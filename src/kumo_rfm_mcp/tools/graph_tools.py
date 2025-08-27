@@ -2,7 +2,6 @@ from collections import defaultdict
 
 import pandas as pd
 from fastmcp import FastMCP
-from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
 from kumoapi.typing import Dtype, Stype
 
