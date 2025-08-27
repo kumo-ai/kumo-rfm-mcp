@@ -166,6 +166,6 @@ class EvaluateResponse(BaseModel):
         dict[str, float | None],
         Field(
             default_factory=dict,
-            description=("The metric value for every metric"),
+            description="The metric value for every metric",
         ),
     ]
