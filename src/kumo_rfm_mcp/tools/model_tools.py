@@ -149,8 +149,8 @@ async def evaluate(
 
     Note that the specific entities defined in the predictive query will be
     ignored. Instead, a number of entities with known historical ground-truth
-    labels will be sampled to evaluate and to judge the quality of the
-    predictions.
+    labels will be sampled for evaluation and to judge the quality of the
+    predictive query.
 
     The graph needs to be materialized before the KumoRFM model can start
     evaluating.
