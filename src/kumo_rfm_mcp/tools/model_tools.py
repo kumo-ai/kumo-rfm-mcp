@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from typing import Annotated, Literal
 
@@ -50,7 +51,7 @@ metrics_doc = (
     "of metrics depending on the given predictive query.")
 
 
-def predict(
+async def predict(
     query: Annotated[str, query_doc],
     anchor_time: Annotated[
         datetime | Literal['entity'] | None,
@@ -96,22 +97,25 @@ def predict(
     if anchor_time is not None and anchor_time != "entity":
         anchor_time = pd.Timestamp(anchor_time)
 
-    try:
-        df = model.predict(
-            query,
-            anchor_time=anchor_time,
-            run_mode=run_mode,
-            num_neighbors=num_neighbors,
-            max_pq_iterations=max_pq_iterations,
-            verbose=False,
-        )
-    except Exception as e:
-        raise ToolError(f"Prediction failed: {e}") from e
+    def _predict() -> PredictResponse:
+        try:
+            df = model.predict(
+                query,
+                anchor_time=anchor_time,
+                run_mode=run_mode,
+                num_neighbors=num_neighbors,
+                max_pq_iterations=max_pq_iterations,
+                verbose=False,
+            )
+        except Exception as e:
+            raise ToolError(f"Prediction failed: {e}") from e
 
-    return PredictResponse(predictions=df.to_dict(orient='records'))
+        return PredictResponse(predictions=df.to_dict(orient='records'))
+
+    return await asyncio.to_thread(_predict)
 
 
-def evaluate(
+async def evaluate(
     query: Annotated[str, query_doc],
     metrics: Annotated[
         list[str] | None,
@@ -163,20 +167,24 @@ def evaluate(
     if anchor_time is not None and anchor_time != "entity":
         anchor_time = pd.Timestamp(anchor_time)
 
-    try:
-        df = model.evaluate(
-            query,
-            metrics=metrics,
-            anchor_time=anchor_time,
-            run_mode=run_mode,
-            num_neighbors=num_neighbors,
-            max_pq_iterations=max_pq_iterations,
-            verbose=False,
-        )
-    except Exception as e:
-        raise ToolError(f"Evaluation failed: {e}") from e
+    def _evaluate() -> EvaluateResponse:
+        try:
+            df = model.evaluate(
+                query,
+                metrics=metrics,
+                anchor_time=anchor_time,
+                run_mode=run_mode,
+                num_neighbors=num_neighbors,
+                max_pq_iterations=max_pq_iterations,
+                verbose=False,
+            )
+        except Exception as e:
+            raise ToolError(f"Evaluation failed: {e}") from e
 
-    return df.set_index('metric')['value'].to_dict()
+        metric_dict = df.set_index('metric')['value'].to_dict()
+        return EvaluateResponse(metrics=metric_dict)
+
+    return await asyncio.to_thread(_evaluate)
 
 
 def register_model_tools(mcp: FastMCP):
