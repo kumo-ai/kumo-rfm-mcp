@@ -181,5 +181,18 @@ def evaluate(
 
 def register_model_tools(mcp: FastMCP):
     """Register all model tools to the MCP server."""
-    mcp.tool()(predict)
-    mcp.tool()(evaluate)
+    mcp.tool(annotations=dict(
+        title="Executing a predictive query",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ))(predict)
+
+    mcp.tool(annotations=dict(
+        title="Evaluating a predictive query",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ))(evaluate)

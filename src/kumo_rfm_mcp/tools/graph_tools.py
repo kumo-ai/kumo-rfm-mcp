@@ -285,7 +285,34 @@ def materialize_graph() -> MaterializedGraph:
 
 def register_graph_tools(mcp: FastMCP) -> None:
     """Register all graph management tools to the MCP server."""
-    mcp.tool()(inspect_graph_metadata)
-    mcp.tool()(update_graph_metadata)
-    mcp.tool()(get_mermaid)
-    mcp.tool()(materialize_graph)
+    mcp.tool(annotations=dict(
+        title="Inspecting graph metadata",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ))(inspect_graph_metadata)
+
+    mcp.tool(annotations=dict(
+        title="Updating graph metadata",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
+    ))(update_graph_metadata)
+
+    mcp.tool(annotations=dict(
+        title="Generating mermaid diagram",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ))(get_mermaid)
+
+    mcp.tool(annotations=dict(
+        title="Materializing graph",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
+    ))(materialize_graph)

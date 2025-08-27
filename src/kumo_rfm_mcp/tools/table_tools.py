@@ -72,5 +72,18 @@ def inspect_table_file(
 
 def register_table_tools(mcp: FastMCP) -> None:
     """Register all table management tools to the MCP server."""
-    mcp.tool()(discover_table_files)
-    mcp.tool()(inspect_table_file)
+    mcp.tool(annotations=dict(
+        title="Discovering table-like files",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ))(discover_table_files)
+
+    mcp.tool(annotations=dict(
+        title="Inspecting table-like file",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ))(inspect_table_file)
