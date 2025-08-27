@@ -172,6 +172,15 @@ class PredictResponse(BaseModel):
                 "entity, the anchor time, and the prediction"),
         ),
     ]
+    logs: Annotated[
+        list[str],
+        Field(
+            default_factory=list,
+            description=("Prediction-specific log messages such as number of "
+                         "context examples, the underlying task type and the "
+                         "label distribution"),
+        ),
+    ]
 
 
 class EvaluateResponse(BaseModel):
@@ -180,5 +189,14 @@ class EvaluateResponse(BaseModel):
         Field(
             default_factory=dict,
             description="The metric value for every metric",
+        ),
+    ]
+    logs: Annotated[
+        list[str],
+        Field(
+            default_factory=list,
+            description=("Evaluation-specific log messages such as number of "
+                         "context and test examples, the underlying task type "
+                         "and the label distribution"),
         ),
     ]

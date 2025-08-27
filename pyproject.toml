@@ -59,7 +59,7 @@ packages = ["src/kumo_rfm_mcp"]
 path = "src/kumo_rfm_mcp/_version.py"
 
 [project.urls]
-Homepage = "https://github.com/kumo-ai/kumo-rfm-mcp"
+Homepage = "https://kumorfm.ai"
 Repository = "https://github.com/kumo-ai/kumo-rfm-mcp.git"
 Issues = "https://github.com/kumo-ai/kumo-rfm-mcp/issues"
 

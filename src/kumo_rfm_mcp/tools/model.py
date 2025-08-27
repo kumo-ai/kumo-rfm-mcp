@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from kumoai.utils import ProgressLogger
 from pydantic import Field
 
 from kumo_rfm_mcp import EvaluateResponse, PredictResponse, SessionManager
@@ -99,18 +100,22 @@ async def predict(
 
     def _predict() -> PredictResponse:
         try:
+            logger = ProgressLogger(query)
             df = model.predict(
                 query,
                 anchor_time=anchor_time,
                 run_mode=run_mode,
                 num_neighbors=num_neighbors,
                 max_pq_iterations=max_pq_iterations,
-                verbose=False,
+                verbose=logger,
             )
         except Exception as e:
             raise ToolError(f"Prediction failed: {e}") from e
 
-        return PredictResponse(predictions=df.to_dict(orient='records'))
+        return PredictResponse(
+            predictions=df.to_dict(orient='records'),
+            logs=logger.logs + [f'Duration: {logger.duration:2f}s'],
+        )
 
     return await asyncio.to_thread(_predict)
 
@@ -174,6 +179,7 @@ async def evaluate(
 
     def _evaluate() -> EvaluateResponse:
         try:
+            logger = ProgressLogger(query)
             df = model.evaluate(
                 query,
                 metrics=metrics,
@@ -181,13 +187,16 @@ async def evaluate(
                 run_mode=run_mode,
                 num_neighbors=num_neighbors,
                 max_pq_iterations=max_pq_iterations,
-                verbose=False,
+                verbose=logger,
             )
         except Exception as e:
             raise ToolError(f"Evaluation failed: {e}") from e
 
         metric_dict = df.set_index('metric')['value'].to_dict()
-        return EvaluateResponse(metrics=metric_dict)
+        return EvaluateResponse(
+            metrics=metric_dict,
+            logs=logger.logs + [f'Duration: {logger.duration:2f}s'],
+        )
 
     return await asyncio.to_thread(_evaluate)
 
