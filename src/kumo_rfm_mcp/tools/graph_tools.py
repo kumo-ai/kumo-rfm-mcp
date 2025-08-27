@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 from typing import Annotated
 
@@ -17,6 +18,8 @@ from kumo_rfm_mcp import (
     UpdatedGraphMetadata,
     UpdateGraphMetadata,
 )
+
+_materialize_lock = asyncio.Lock()
 
 
 def inspect_graph_metadata() -> GraphMetadata:
@@ -243,7 +246,7 @@ def get_mermaid(
     return '\n'.join(lines)
 
 
-def materialize_graph() -> MaterializedGraph:
+async def materialize_graph() -> MaterializedGraph:
     """Materialize the graph based on the current state of the graph metadata
     to make it available for inference operations (e.g., ``predict`` and
     ``evaluate``).
@@ -253,34 +256,40 @@ def materialize_graph() -> MaterializedGraph:
     """
     session = SessionManager.get_default_session()
 
-    if session._model is not None:
-        raise ToolError("Graph is already materialized")
+    def _materialize_graph() -> tuple[rfm.KumoRFM, MaterializedGraph]:
+        try:
+            model = rfm.KumoRFM(session.graph, verbose=False)
+        except Exception as e:
+            raise ToolError(f"Failed to materialize graph: {e}")
 
-    try:
-        model = rfm.KumoRFM(session.graph, verbose=False)
-    except Exception as e:
-        raise ToolError(f"Failed to materialize graph: {e}")
+        store = model._graph_store
+        num_nodes = sum(len(df) for df in store.df_dict.values())
+        num_edges = sum(len(row) for row in store.row_dict.values())
+        time_ranges = {}
+        for table in session.graph.tables.values():
+            if table._time_column is None:
+                continue
+            time = store.df_dict[table.name][table._time_column]
+            if table.name in store.mask_dict.keys():
+                time = time[store.mask_dict[table.name]]
+            if len(time) == 0:
+                continue
+            time_ranges[table.name] = f"{time.min()} - {time.max()}"
 
-    session._model = model
+        graph = MaterializedGraph(
+            num_nodes=num_nodes,
+            num_edges=num_edges,
+            time_ranges=time_ranges,
+        )
 
-    num_nodes = sum(len(df) for df in model._graph_store.df_dict.values())
-    num_edges = sum(len(row) for row in model._graph_store.row_dict.values())
-    time_ranges = {}
-    for table in session.graph.tables.values():
-        if table._time_column is None:
-            continue
-        time = model._graph_store.df_dict[table.name][table._time_column]
-        if table.name in model._graph_store.mask_dict.keys():
-            time = time[model._graph_store.mask_dict[table.name]]
-        if len(time) == 0:
-            continue
-        time_ranges[table.name] = f"{time.min()} - {time.max()}"
+        return model, graph
 
-    return MaterializedGraph(
-        num_nodes=num_nodes,
-        num_edges=num_edges,
-        time_ranges=time_ranges,
-    )
+    async with _materialize_lock:
+        if session._model is not None:
+            raise ToolError("Graph is already materialized")
+        session._model, graph = await asyncio.to_thread(_materialize_graph)
+
+    return graph
 
 
 def register_graph_tools(mcp: FastMCP) -> None:

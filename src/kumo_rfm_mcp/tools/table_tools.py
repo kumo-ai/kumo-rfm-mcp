@@ -1,15 +1,16 @@
+import asyncio
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated
 
 import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import Field
 
-from kumo_rfm_mcp import TableSource
+from kumo_rfm_mcp import TableSource, TableSourcePreview
 
 
-def discover_table_files(
+async def find_table_files(
     path: Annotated[Path, "Root directory to scan"],
     recursive: Annotated[
         bool,
@@ -21,69 +22,76 @@ def discover_table_files(
         ),
     ],
 ) -> list[TableSource]:
-    """Discover all table-like files (e.g., CSV, Parquet) in a directory."""
+    """Finds all table-like files (e.g., CSV, Parquet) in a directory."""
     path = path.expanduser()
 
     if not path.exists() or not path.is_dir():
         raise ToolError(f"Directory '{path}' does not exist")
 
-    pattern = "**/*" if recursive else "*"
-    suffixes = {'.csv', '.parquet'}
-    files = [f for f in path.glob(pattern) if f.suffix.lower() in suffixes]
+    def _find_table_files():
+        pattern = "**/*" if recursive else "*"
+        suffixes = {'.csv', '.parquet'}
+        files = [f for f in path.glob(pattern) if f.suffix.lower() in suffixes]
+        return [
+            TableSource(path=str(f), bytes=f.stat().st_size)
+            for f in sorted(files)
+        ]
 
-    return [
-        TableSource(path=str(f), bytes=f.stat().st_size) for f in sorted(files)
-    ]
+    return await asyncio.to_thread(_find_table_files)
 
 
-def inspect_table_file(
-    path: Annotated[Path, "File path to inspect"],
+async def inspect_table_files(
+    paths: Annotated[list[Path], "File paths to inspect"],
     num_rows: Annotated[
         int,
         Field(
             default=20,
             ge=1,
             le=1000,
-            description="Number of rows to read",
+            description="Number of rows to read per file",
         ),
     ],
-) -> list[dict[str, Any]]:
-    """Inspect the first rows of a table-like file.
+) -> dict[Path, TableSourcePreview]:
+    """Inspect the first rows of table-like files.
 
-    Each row in the file is represented as a dictionary mapping column
+    Each row in a file is represented as a dictionary mapping column
     names to their corresponding values.
     """
-    if path.suffix.lower() == '.csv':
-        try:
-            df = pd.read_csv(path, nrows=num_rows)
-        except Exception as e:
-            raise ToolError(f"Could not read file '{path}': {e}") from e
-    elif path.suffix.lower() == '.parquet':
-        try:
-            # TODO Read first row groups via `pyarrow` instead.
-            df = pd.read_parquet(path).head(num_rows)
-        except Exception as e:
-            raise ToolError(f"Could not read file '{path}': {e}") from e
-    else:
-        raise ToolError(f"'{path}' is not a valid CSV or Parquet file")
+    def read_file(path: Path) -> TableSourcePreview:
+        if path.suffix.lower() not in {'.csv', '.parquet'}:
+            raise ToolError(f"'{path}' is not a valid CSV or Parquet file")
 
-    return df.to_dict(orient='records')
+        try:
+            if path.suffix.lower() == '.csv':
+                df = pd.read_csv(path, nrows=num_rows)
+            else:
+                assert path.suffix.lower() == '.parquet'
+                # TODO Read first row groups via `pyarrow` instead.
+                df = pd.read_parquet(path).head(num_rows)
+        except Exception as e:
+            raise ToolError(f"Could not read file '{path}': {e}") from e
+
+        return TableSourcePreview(rows=df.to_dict(orient='records'))
+
+    tasks = [asyncio.to_thread(read_file, path) for path in paths]
+    previews = await asyncio.gather(*tasks)
+    return {path: preview for path, preview in zip(paths, previews)}
 
 
 def register_table_tools(mcp: FastMCP) -> None:
     """Register all table management tools to the MCP server."""
     mcp.tool(annotations=dict(
-        title="Discovering table-like files",
+        title="Finding table-like files",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
         openWorldHint=False,
-    ))(discover_table_files)
+    ))(find_table_files)
 
     mcp.tool(annotations=dict(
-        title="Inspecting table-like file",
+        title="Inspecting table-like files",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
         openWorldHint=False,
-    ))(inspect_table_file)
+    ))(inspect_table_files)
