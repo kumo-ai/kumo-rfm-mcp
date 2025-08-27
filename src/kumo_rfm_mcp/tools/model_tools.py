@@ -147,8 +147,13 @@ async def evaluate(
     compares predictions against known ground-truth labels from historical
     examples.
 
+    Note that the specific entities defined in the predictive query will be
+    ignored. Instead, a number of entities with known historical ground-truth
+    labels will be sampled to evaluate and to judge the quality of the
+    predictions.
+
     The graph needs to be materialized before the KumoRFM model can start
-    generating predictions.
+    evaluating.
 
     The query syntax should always follow the format:
     * PREDICT <target_expression>
@@ -187,7 +192,7 @@ async def evaluate(
     return await asyncio.to_thread(_evaluate)
 
 
-def register_model_tools(mcp: FastMCP):
+def register_model_tools(mcp: FastMCP) -> None:
     """Register all model tools to the MCP server."""
     mcp.tool(annotations=dict(
         title="Executing a predictive query",
