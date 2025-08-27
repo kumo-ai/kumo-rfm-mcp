@@ -1,9 +1,12 @@
 from collections import defaultdict
+from typing import Annotated
 
 import pandas as pd
 from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
 from kumoapi.typing import Dtype, Stype
+from pydantic import Field
 
 from kumo_rfm_mcp import (
     GraphMetadata,
@@ -27,9 +30,6 @@ def inspect_graph_metadata() -> GraphMetadata:
     * columns need to point to a valid semantic type that describe their
       semantic meaning, or ``None`` if they have been discarded;
     * links need to point to valid foreign key-primary key relationships.
-
-    Returns:
-        The graph metadata.
     """
     session = SessionManager.get_default_session()
 
@@ -86,13 +86,6 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
 
     Note that all operations can be performed in a batch at once, *e.g.*, one
     can add new tables and directly link them to together.
-
-    Args:
-        update: The metadata updates to perform.
-
-    Returns:
-        The updated graph metadata with any errors encountered during the
-        update process.
     """
     session = SessionManager.get_default_session()
     session._model = None  # Need to reset the model if graph changes.
@@ -193,19 +186,23 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
     return UpdatedGraphMetadata(graph=inspect_graph_metadata(), errors=errors)
 
 
-def get_mermaid(show_columns: bool = True) -> str:
+def get_mermaid(
+    show_columns: Annotated[
+        bool,
+        Field(
+            default=True,
+            description=("Controls whether all columns of a table are shown. "
+                         "If `False`, only the primary key, foreign keys and "
+                         "time column are displayed. Setting this to `False` "
+                         "is recommended for feature-rich tables to avoid "
+                         "cluttering the diagram with less relevant details."),
+        ),
+    ],
+) -> str:
     """Return the graph as a Mermaid entity relationship diagram.
 
-    The returned Mermaid markup can be used to input into an artififact to
-    render it visually on the client side.
-
-    Args:
-        show_columns: Whether tho show all columns in a table. If ``False``,
-            will only show the primary key, foreign key(s), and time column of
-            each table.
-
-    Returns:
-        The raw Mermaid markup as string.
+    The returned Mermaid markup can be used to input into an artifact to render
+    it visually on the client side.
     """
     session = SessionManager.get_default_session()
 
@@ -253,9 +250,6 @@ def materialize_graph() -> MaterializedGraph:
 
     Any updates to the graph metadata require re-materializing the graph before
     the KumoRFM model can start making predictions again.
-
-    Returns:
-        Information about the materialized graph.
     """
     session = SessionManager.get_default_session()
 
