@@ -13,6 +13,19 @@ class TableSource(BaseModel):
     bytes: Annotated[int, "Size in bytes of the file"]
 
 
+class TableSourcePreview(BaseModel):
+    """Preview of the first rows of a table-like file."""
+    rows: Annotated[
+        list[dict[str, Any]],
+        Field(
+            default_factory=list,
+            description=("Each row in the table source is represented as a "
+                         "dictionary mapping column names to their "
+                         "corresponding values."),
+        ),
+    ]
+
+
 class TableMetadata(BaseModel):
     """Metadata for a table."""
     path: Annotated[str, "Path to the table"]
