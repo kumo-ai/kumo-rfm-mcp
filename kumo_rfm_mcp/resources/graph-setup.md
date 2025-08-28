@@ -53,6 +53,9 @@ It is used to prevent temporal leakage during subgraph sampling, i.e. for a give
 Time column data must obey to datetime format to be correctly parsed by `pandas.to_datetime`.
 Each table can have at most one time column.
 A time column may not exist for all tables, but will be required when predicting future aggregates over fact tables, e.g., the count of all orders in the next seven days.
+The system will only keep rows with non-N/A timestamps.
+In case there exists multiple time columns in the table, pick the column as time column that most likely refers to the create time of the event.
+For example, `create_time` should be preferred over `update_time`.
 
 ## Graph Schema
 
