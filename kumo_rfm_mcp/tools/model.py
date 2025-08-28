@@ -81,8 +81,8 @@ async def predict(
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start generating predictions.
 
-    Before executing predictive queries, please first read the documentation
-    from 'kumo://docs/predictive-query'.
+    Before executing predictive queries, please first read the documentation at
+    'kumo://docs/predictive-query'.
     """
     model = SessionManager.get_default_session().model
 
@@ -144,15 +144,15 @@ async def evaluate(
     examples.
 
     Note that the specific entities defined in the predictive query will be
-    ignored. Instead, a number of entities with known historical ground-truth
-    labels will be sampled for evaluation and to judge the quality of the
-    predictive query.
+    ignored. Instead, a number of test entities with known historical
+    ground-truth labels will be sampled for evaluation to judge the quality of
+    the predictive query.
 
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start evaluating.
 
-    Before executing predictive queries, please first read the documentation
-    from 'kumo://docs/predictive-query'.
+    Before executing predictive queries, please first read the documentation at
+    'kumo://docs/predictive-query'.
     """
     model = SessionManager.get_default_session().model
 
