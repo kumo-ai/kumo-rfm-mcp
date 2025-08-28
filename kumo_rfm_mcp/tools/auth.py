@@ -15,8 +15,8 @@ async def authenticate(
 
     Authenticating is needed once before predicting or evaluating with the
     KumoRFM model. If the 'KUMO_API_KEY' environment variable is not set,
-    initiate an OAuth2 authentication flow by opening a browser window for user
-    login. Sets the 'KUMO_API_KEY' environment variable upon successful
+    initiates an OAuth2 authentication flow by opening a browser window for
+    user login. Sets the 'KUMO_API_KEY' environment variable upon successful
     authentication.
     """
     session = SessionManager.get_default_session()

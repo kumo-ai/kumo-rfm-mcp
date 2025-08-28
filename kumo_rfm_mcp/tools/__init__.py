@@ -1,4 +1,4 @@
-from .doc import register_docs_tools
+from .docs import register_docs_tools
 from .auth import register_auth_tools
 from .io import register_io_tools
 from .graph import register_graph_tools
