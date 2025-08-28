@@ -1,214 +1,228 @@
-## Understanding PQL
-A Predictive Query is a declarative syntax used to define a predictive modeling task in Kumo.
-It specifies the target variable to predict and the data context for training.
+# Predictive Query
 
-The query syntax should always follow the format:
-* PREDICT <target_expression>
-  - Declares the value or aggregate the model should predict
-* FOR <entity_specification>
-  - Specifies the single ID or list of IDs to predict for
-* WHERE <filters> (optional)
-  - Filters which historical entities are used as training examples
+The Predictive Query Language (PQL) is a querying language that allows to define relational machine learning tasks.
+PQL lets you define predictive problems by specifying:
 
-## Basic Query Structure
-The basic structure of a Predictive Query is:
-```{pql}
+1. **The target expression:** Declares the value or aggregate the model should predict
+1. **The entity specification:** Specified the single ID or list of IDs to predict for
+1. **Optional entity filters:** Filters which historical entities are used as in-context learning examples
+
+The basic structure of a predictive query is:
+
+```
 PREDICT <target_expression> FOR <entity_specification> WHERE <optional_filters>
 ```
-- `target_expression`: Declares the value or aggregate the model should predict
-- `entity_specification`: Specifies the single ID or list of IDs to predict for
-- `optional_filters`: Filters which entities are included in the context of the prediction
 
-## How target expression works
+In general, follow these give steps to author a predictive query:
+
+1. **Choose your entity** - a table and its primary key you predict for.
+1. **Define the target** - a raw column or an aggregation over a future window.
+1. **Pin the entity list** - pass a single ID or multiple IDs to make predictions for.
+1. **Refine the context** - filters to restrict which historical rowas are used as in-context learning examples.
+1. **Run & fetch** - run `predict` or `evaluate` on top.
+
+## Entity Specification
+
+Entities for each query can be specified in one of two ways:
+
+- By specifying a single entity ID:
+  ```
+  PREDICT ... FOR users.user_id=1
+  ```
+- By specifying a tuple of entity ids
+  ```
+  PREDICT ... FOR users.user_id IN (1, 2, 3)
+  ```
+
+Note that the entity table needs a primary key to uniquely define the set of IDs to predict for.
+Up to 1000 IDs can be passed at once.
+
+The data type of the primary key in the entity table denotes how entity IDs should be passed.
+For string-based IDs, use `users.user_id='1'` or `users.user_id IN ('1', '2')`.
+For numerical IDs, use `users.user_id=1` or `users.user_id IN (1, 2)`.
+
+## Target Expression
+
 The target expression is the value or aggregate the model should predict.
 It can be a single value, an aggregate, or a combination of both.
-The target expression can be a single value (column name) or an aggregation
-All components of the target expression must be fully qualified by table name and column name, e.g., `transactions.is_fraudulent` or `COUNT(orders.*, 0, 30, days) > 0`, or `users.is_active`, etc.
-If the target is a single value, it has to appear in the same table as the entity we are predicting for.
-For example, if we are predicting if a transaction is fraudulent, the target should be part of the `transactions` table.
-```{pql}
-PREDICT transactions.is_fraudulent FOR transactions.transaction_id=1
+All components of the target expression must be fully qualified by table name and column name.
+We differentiate between two types of queries: static and temporal queries.
+
+### Static Predictive Queries
+
+Static predictive queries are used to impute missing values from an entity table.
+That is, the target column has to appear in the same table as the entity we are predicting for.
+KumoRFM will then mask out the target column and predict the value from related in-context examples.
+
+For example, we can predict the age of users via
+
+```
+PREDICT users.age FOR users.user_id=1
 ```
 
-If the target is an aggregation, we have to aggregate over a column that appears in a table which is **connected** to the entity we are predicting for.
-For example, if we are predicting the average order value for a user, we can write:
-```{pql}
-PREDICT AVG(orders.amount, 0, 30, days) FOR users.user_id=1
+We can impute missing values for all `"numerical"` and `"categorical"` columns.
+For `"numerical"` columns, the predictive query is interpreted as a regression task.
+For `"categorical"` columns, the predictive query is interpreted as a multi-class classification task.
+For binary classification tasks, you can add **conditions** to the target expression:
+
 ```
-Here, `orders` is a table that is connected to `users` through a foreign key (i.e. `users.user_id = orders.user_id`).
-
-Many aggregation operations are supported, e.g. `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, but all target expressions with aggregations need to happen over a table that is connected to the entity we are predicting for.
-
-IMPORTANT: Only numerical and categorical columns are valid target columns, except for LIST_DISTINCT() aggregation, where only foreign key targets are supported.
-
-## How entity specification works
-entities for each query can be specified in one of two ways:
-- By specifying a single entity id
-```{pql}
-PREDICT transactions.is_fraudulent FOR transactions.transaction_id=1
-```
-- By specifying a tuple of entity ids
-```{pql}
-PREDICT MAX(orders.amount, 0, 7, hours) FOR users.user_id IN (1, 2, 3)
+PREDICT users.age > 40 FOR users.user_id=1
 ```
 
-## How filters work
-KumoRFM makes its entity-specific predictions based on context examples, collected from the database.
-Entity filters can be used to provide more control over KumoRFM context examples.
+The following boolean operators are supported:
+
+- `=`: `<expression> = <value>` - can be applied to any column type
+- `!=`: `<expression> != <value>`, can be applied to any column type
+- `<`: `<expression> < <value>` - can be applied to numerical and temporal columns only
+- `<=`: `<expression> <= <value>` - can be applied to numerical and temporal columns only
+- `>`: `<expression> > <value>` - can be applied to numerical and temporal columns only
+- `>=`: `<expression> >= <value>` - can be applied to numerical and temporal columns only
+- `IN`: `<expression> IN (<value_1>, <value_2>, <value_3>)` - can be applied to any column type
+- `IS NOT NULL`: `<expression> IS NOT NULL`, can be applied to any column type
+- `IS NULL`: `<expression> IS NULL` - can be applied to any column type
+
+Multiple conditions can be combined via `AND` and/or `OR` logical operations to form complex predictive queries, e.g.:
+
+```
+PREDICT users.age>40 OR users.location='US' FOR users.user_id=1
+```
+
+The following logical operations are supported:
+
+- `AND`: `<boolean_expression_A> AND <boolean_expression_B>`
+- `OR`: `<boolean_expression_A> OR <boolean_expression_B>`
+- `NOT`: `NOT <boolean_expression>`
+
+Use parentheses to group logical operations and control their order.
+
+### Temporal Predictive Queries
+
+Temporal predictive queries predict some aggregation of values over time (e.g., purchases each customer will make over the next 7 days).
+The target table needs to be directly connected to the entity table via a foreign key-primary key relationship.
+
+Aggregations are defined via aggregation operators over a **relative** period of time.
+You can specify an aggregation operator and the column representing the value you want to aggregate.
+For example:
+
+```
+PREDICT SUM(transactions.price, 0, 30, days) for users.user_id=1
+```
+
+Here, `transactions` is a table that is connected to `users` through a foreign key (`transactions.user_id <> users.user_id`).
+
+Within the aggregation function inputs, the start (`0`) and end (`30`) parameters refer to the time period you want to aggregate across.
+For example, a value of `10` for start and `30` for end implies that you want to aggregate from 10 days later (excluding the 10th day) to 30 days later (including the 30th day).
+The time unit of the aggregation defaults to `days` if none is specified.
+
+The following time units are supported: `seconds`, `minutes`, `hours`, `days`, `weeks`, `months`
+When using aggregation in a target expression, both start and end values should be non-negative, and end values should be greater than start values.
+
+Similar to static predictive queries, you can add conditions and logical operations to temporal predictive queries to create binary classification tasks:
+
+```
+PREDICT SUM(transactions.price, 0, 30, days)=0 for users.user_id=1
+```
+
+When using logical operations, you can also aggregate from multiple different target tables.
+
+```
+PREDICT COUNT(session.*, 0, 7)>10 OR SUM(transaction.value, 0, 5)>100 FOR user.user_id=1
+```
+
+#### Aggregation Operators
+
+The following aggregation operators are supported:
+
+- `SUM` - can be applied to any numerical column
+- `AVG` - can be applied to any numerical column
+- `MIN` - can be applied to any numerical column
+- `MAX` - can be applied to any numerical column
+- `COUNT` - can be applied to any column type. Use `*` as column name to count the number of events.
+- `LIST_DISTINCT` - can be applied to any foreign key column
+
+Specifically, the `LIST_DISTINCT` syntax can be used to formulate recommendation tasks, which ask for predicting the next items an entity will relate to, e.g., views, orders, likes, etc.
+As such, its target column needs to refer to a foreign key column, e.g., `item_id` in the `orders` table.
+
+The `LIST_DISTINCT` operator additionally requires a specification about how many top-k predictions to retrieve.
+Up to 20 predictions are supported.
+
+```
+PREDICT LIST_DISTINCT(orders.item_id, 0, 7, days) RANK TOP 10 FOR users.user_id=1
+```
+
+#### Target Filters
+
+Target filters allow you to further conextualize your predictive query by dropping certain target rows that do not meet a specified condition.
+By using a `WHERE` clause, you can drop target rows from your aggregation.
+For example, the following is an example of using the `WHERE` operator within an aggregation for target filters:
+
+```
+PREDICT COUNT(transactions.* WHERE transactions.price > 10, 0, 7, days) FOR users.user_id=1
+```
+
+Target filters can reference any column within the target table, and can be extended via logical operations.
+
+## Entity Filters
+
+KumoRFM makes entity-specific predictions based on in-context examples, collected from a historical snapshot of the relational data.
+Entity filters can be used to provide more control over how KumoRFM collects in-context examples.
 For example, to exclude `users` without recent activity from the context, we can write:
-```{pql}
-PREDICT COUNT(orders.*, 0, 30, days) > 0
-FOR users.user_id=1
-WHERE COUNT(orders.*, -30, 0, days) > 0
 ```
-This limits the context examples to predicting churn for active users, limiting the context to examples relevant to your case and improving the performance.
+PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 WHERE COUNT(orders.*, -30, 0, days) > 0
+```
+This limits the in-context examples to predicting churn for active users only.
 These filters are NOT applied to the provided entity list.
 
-## Task Types
-The task type is determined by the structure of the query, it is automatically inferred from the query.
-Common task types are:
-- Regression -> output: Continuous real number -> example: ```{pql}PREDICT customers.age FOR customers.customer_id=1```
-- Binary Classification -> output: True or False -> example: ```{pql}PREDICT fraud_reports.is_fraud FOR transactions.id WHERE transactions.type = "bank transfer"=1```
-- Multiclass + Multilabel Classification -> output: Class label -> example: ```{pql}PREDICT FIRST(purchases.type, 0, 7) FOR users.user_id=1```
-- Link Prediction -> output: List of items -> example: ```{pql}PREDICT LIST_DISTINCT(transactions.article_id, 0, 7) RANK TOP 10 FOR customers.customer_id=1```
+Both static and temporal filters can be used as entity filters.
+If you use temporal filters, then the start and end parameters need to be backwards looking, e.g., `start < 0` and `end <= 0`.
+Still, end values need to be greater than start values.
 
-## Static vs Temporal Tasks
-Static queries that don’t involve making predictions over some window of time do not require a time column in the target table(s).
-In contrast, temporal queries predict some aggregation of values over time (e.g., “purchases each customer will make over the next 7 days”) are more complex.
-
-Example of a temporal query:
-```{pql}
-PREDICT SUM(transactions.price, 0, 30, days)
-FOR customers.customer_id=1432
-```
-
-## Primary Commands
-- `ASSUMING` : Specifies the context of the prediction
-- `FOR` : Specifies the entity to predict for
-- `PREDICT` : Specifies the target to predict
-- `WHERE` : Specifies the filters to apply to the prediction
-
-### ASSUMING
-ASSUMING <aggregation_function>(<fact_table>.<column_name>, <start>, <end>) <comparison_operator> <constant> (Optional)
-
-To investigate hypothetical scenarios and evaluate impact of your actions or decisions, you can use the `ASSUMING` keyword.
+For forward looking entity filters and to investigate hypothetical scenarios and evaluate impact of your actions or decisions, you can use the `ASSUMING` keyword instead.
 For example, you may want to investigate how much a user will spend if you give them a certain coupon or notification.
 `ASSUMING` keyword is followed by a future-looking assumption, which will be assumed to be true during predictions.
 
-```{pql}
-ASSUMING <aggregation_function>(<fact_table>.<column_name>, <start>, <end>, <time_unit>) <comparison_operator> <constant>
-ASSUMING COUNT(NOTIFICATIONS.*, 0, 7, days) > 2
-ASSUMING LIST_DISTINCT(COUPONS.type, 0, 3, hours) CONTAINS '50 percent off'
-ASSUMING COUNT(NOTIFICATIONS.*, 0, 7, days) > 5 AND SUM(NOTIFICATIONS.LENGTH, 0, 7, hours) > 10
+```
+PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 ASSUMING COUNT(notifications.*, 0, 7, days)>0
 ```
 
-## FOR
-After specifying the prediction target, PQs are completed when you include the next required component, the FOR clause to specify the entity you want to make predictions for.
-FOR <entity_specification>
-```{pql}
-FOR users.user_id=1
-FOR users.user_id IN (1, 2, 3)
-```
+## Task Types
 
-## PREDICT
-A PQ always starts with the PREDICT clause that defines a required specification of a <target_expression> to predict.
-PREDICT <target_expression>
-```{pql}
-PREDICT <Aggregation_Function>(<target_table>.<column_name>, <start>, <end>, <time_unit>)
-PREDICT SUM(PURCHASES.amount, 0, 30, days)
-PREDICT LIST_DISTINCT(PURCHASES.item_category, 0, 14, days)
+The predictive query uniquely determines the underlying machine learning task type.
+The following machine learning tasks are supported:
 
-PREDICT <target_table>.<column_name>
-PREDICT CUSTOMERS.industry
-```
+- **Binary classification:** Conditioned static target column or aggregate
+- **Multi-class classification:** Categorical static target column
+- **Regression:** Numerical static target column or aggregate
+- **Recommendation/temporal link prediction:** Distinct list of foreign key IDs
 
-## WHERE
-The WHERE clause filters data before running predictions, allowing you to exclude irrelevant entities or targets from aggregation. Filters can be static (based on direct column values) or temporal (using aggregations over time).
+## Examples
 
-### Temporal Filters
-Temporal filters apply conditions based on past activity within a specified time window.
-```{pql}
-FOR EACH user.user_id WHERE COUNT(views.id, -30, 0) > 0
-FOR EACH user.user_id WHERE LIST_DISTINCT(purchases.item_category, -90, 0) CONTAINS 'Food'
-FOR EACH user.user_id WHERE LAST(status.status, -1, 0) = 'ACTIVE'
-FOR EACH user.user_id WHERE COUNT(transactions.*, -INF, 0) > 0
-```
-
-### Static Filters
-Static filters apply conditions based on direct column values.
-```{pql}
-FOR EACH user.user_id WHERE user.country = 'US'
-FOR EACH user.user_id WHERE user.industry = 'Food'
-```
-
-### Inline and Nested WHERE Filters
-
-### Using WHERE Within an Aggregation
-```{pql}
-PREDICT COUNT(transaction.* WHERE transaction.value > 10, 0, 7)
-FOR user.user_id=1 WHERE COUNT(transaction.*, -7, 0) > 0
-```
-
-### Nested Temporal Filters
-```{pql}
-PREDICT COUNT(transaction.* WHERE transaction.value > 10, 0, 7)
-FOR user.user_id=1 WHERE COUNT(transaction.*, -7, 0) > 0
-```
-
-### Multiple Target Tables
-```{pql}
-PREDICT COUNT(session.*, 0, 7) > 10 OR SUM(transaction.value, 0, 5) > 100
-FOR user.user_id=1
-```
-
-### Invalid Example (Mixing Static & Temporal)
-```{pql}
-PREDICT COUNT(session.*, 0, 7) > 10 OR SUM(transaction.value, 0, 5) > 100
-FOR user.user_id=1
-```
-
-### Filtering by Specific Date/Time
-```{pql}
-WHERE customers.date_joined < 2022-01-01 12:45:30
-```
-
-## Aggregation Operators
-Aggregation operators always apply in the same way:
-```{pql}
-OPERATOR(<table>.<column>, <start>, <end>, <unit>)
-```
-Supported aggregation operators are: AVG, COUNT, LIST_DISTINCT, MAX, MIN, SUM
-
-## Boolean Operators
-- !=: <expression> != <value>, can be applied to any column type
-- <: <expression> < <value>, can be applied to numerical and temporal columns only
-- <=: <expression> <= <value>, can be applied to numerical and temporal columns only
-- =: <expression> = <value>, can be applied to any column type
-- >: <expression> > <value>, can be applied to numerical and temporal columns only
-- >=: <expression> >= <value>, can be applied to numerical and temporal columns only
-- AND: <expression_A> AND <expression_B>, each expression must itself be a filter operation
-- OR: <expression_A> OR <expression_B>, each expression must itself be a filter operation
-- NOT: NOT <expression>, works on all fields and targets
-- IN: <expression> IN (<value_1>, <value_2>, <value_3>), can be applied to any column type
-- IS NOT NULL: <expression> IS NOT NULL, can be applied to any column type
-- IS NULL: <expression> IS NULL, can be applied to any column type
-
-1. "Recommend movies to users"
+1. **Recommend movies to users:**
+   ```
    PREDICT LIST_DISTINCT(ratings.movie_id, 0, 14, days)
-   RANK TOP 25 FOR users.user_id=9987
+   RANK TOP 20 FOR users.user_id=9987
+   ```
 
-2. "Predict inactive users"
+2. **Predict inactive users:**
+   ```
    PREDICT COUNT(sessions.*, 0, 14)=0 FOR users.user_id=9987
    WHERE COUNT(sessions.*,-7,0)>0
+   ```
 
-3. "Predict 5-star reviews"
-   PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0,30) > 0
+3. **Predict 5-star reviews:**
+   ```
+   PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0,30)>0
    FOR products.product_id=123456
+   ```
 
-4. "Predict customer churn"
-   PREDICT COUNT(transactions.price, 0, 90) > 0
+4. **Predict customer churn:**
+   ```
+   PREDICT COUNT(transactions.price, 0, 90)>0
    FOR customers.customer_id=123456 WHERE SUM(transactions.price, -60, 0) > 0.05
+   ```
 
-5. "Find top articles"
-   PREDICT LIST_DISTINCT(transactions.article_id, 0,90)
-   RANK TOP 25 FOR customers.customer_id=123456
+5. **Find next best articles:**
+   ```
+   PREDICT LIST_DISTINCT(transactions.article_id, 0, 90)
+   RANK TOP 20 FOR customers.customer_id=123456
+   ```
