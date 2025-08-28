@@ -190,6 +190,7 @@ For example:
 PREDICT COUNT(transactions.* WHERE transactions.price > 10, 0, 7, days) FOR users.user_id=1
 ```
 
+Note that the `WHERE` clause of target filters need to be part of the aggregation input.
 Target filters must be static and thus can ONLY reference columns within the target table being aggregated.
 Cross-table references, subqueries, and joins are NOT supported.
 Do not make syntax up that is not listed in this document.
