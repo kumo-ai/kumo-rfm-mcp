@@ -20,6 +20,7 @@ mcp = FastMCP(
 
 # Tools ######################################################################
 tools.register_docs_tools(mcp)
+tools.register_auth_tools(mcp)
 tools.register_io_tools(mcp)
 tools.register_graph_tools(mcp)
 tools.register_model_tools(mcp)
@@ -30,16 +31,15 @@ resources.register_docs_resources(mcp)
 resources.register_examples_resources(mcp)
 
 
-def main():
+def main() -> None:
     """Main entry point for the CLI command."""
     try:
-        logger.info("Starting KumoRFM MCP Server...")
         mcp.run(transport='stdio')
     except KeyboardInterrupt:
         logger.info("Server shutdown requested by user")
         sys.exit(0)
     except Exception as e:
-        logger.error(f"Failed to start KumoRFM MCP Server: {e}")
+        logger.error(f"Failed to start KumoRFM MCP server: {e}")
         sys.exit(1)
 
 
