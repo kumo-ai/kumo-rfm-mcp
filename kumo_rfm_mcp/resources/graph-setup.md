@@ -24,7 +24,7 @@ The following semantic types are available:
 | ------- | ----------- | -------------------- | ------- |
 | `"numerical"` | Numerical values (e.g., `price`, `age`) | `int`, `float` | `25`, `3.14`, `-10` |
 | `"categorical"` | Discrete categories with limited cardinality | `int`, `float`, `string` | Color: `"red"`, `"blue"`, `"green"` (one cell may only have one category) |
-| `"multicategorical"` | Multiple categories in a single cell | `string`, `stringlist`, `intlist`, `floatlist` | `"Action|Drama|Comedy"`, `["Action", "Drama", "Comedy"]` |
+| `"multicategorical"` | Multiple categories in a single cell | `string`, `stringlist`, `intlist`, `floatlist` | `"Action\|Drama\|Comedy"`, `["Action", "Drama", "Comedy"]` |
 | `"ID"` | An identifier, e.g., primary keys or foreign keys | `int`, `float`, `string` | `123`, `PRD-8729453` |
 | `"text"` | Natural language text | `string` | Descriptions of products |
 | `"timestamp"` | Specific point in time | `date`, `string` | `"2025-07-11"`, `"2023-02-12 09:47:58"` |
@@ -34,7 +34,7 @@ Upon table registration, semantic types of columns are estimated based on simple
 For example, low cardinality columns may be mistakenly treated as `"categorical"` rather than `"numerical"`.
 You can use your world knowledge and common sense to analyze and correct such mistakes.
 
-If certain columns should be discarded, e.g., in case they have such high cardinality to render model generalization infeasible, a semantic type of `None` can be used to discard the column from being encoded.
+If certain columns should be discarded, e.g., in case they have such high cardinality to make proper model generalization infeasible, a semantic type of `None` can be used to discard the column from being encoded.
 
 ### Primary key
 
@@ -49,10 +49,10 @@ A primary key may not exist for all tables, but will be required whenever tables
 ### Time column
 
 A time column indicates the timestamp column that record when the event occured.
-It is used to prevent temporal leakage during subgraph sampling, *i.e.* for a given anchor time only events are preserved with timestamp less than or equal to the given anchor time.
+It is used to prevent temporal leakage during subgraph sampling, i.e. for a given anchor time only events are preserved with timestamp less than or equal to the given anchor time.
 Time column data must obey to datetime format to be correctly parsed by `pandas.to_datetime`.
 Each table can have at most one time column.
-A time column may not exist for all tables, but will be required when predicting future aggregates over fact tables, *e.g.*, the count of all orders in the next seven days.
+A time column may not exist for all tables, but will be required when predicting future aggregates over fact tables, e.g., the count of all orders in the next seven days.
 
 ## Graph Schema
 
