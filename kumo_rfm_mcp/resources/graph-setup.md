@@ -1,178 +1,83 @@
-Each table can have at most one primary key and at most one time column, but it can contain many foreign keys (primary keys of other tables).
+# Graph Setup
 
-## Primary Key
-- Each table can have at most one primary key
-- Primary keys should be stable (not change over time)
-- Recommended types: integers, UUIDs, or stable strings
-- The primary key is used to identify entities in the graph
+This guide outlines the data requirements and best practices for setting up graphs from relational data in KumoRFM.
 
-## Foreign Keys
-- Each table can have many foreign keys
-- Foreign keys are used to link tables together
-- Foreign keys are used to filter temporal predictions
-- Foreign keys are used to aggregate temporal data
-- Foreign keys are used to join temporal data with other tables
-- Foreign keys are used to filter temporal data
-- Foreign keys are primary keys of other tables
+KumoRFM operates on relational data organized as inter-connected tables forming a graph structure. The foundation of this process starts with a set of CSV or Parquet files, which are registered as table schemas and assembled into a graph schema.
 
-## Time Column
-- Each table can have at most one time column
-- The time column is used to track the time of events in the table
-- The time column is used to filter temporal predictions
-- The time column is used to aggregate temporal data
-- The time column is used to join temporal data with other tables
-- The time column is used to filter temporal data
+## Table Schema
 
-## General Guidelines
-What makes a good table:
-- Unique primary key: Non-null, no duplicates, uniquely identifies each row, preferably stored as integer
-- Consistent naming: Foreign keys match their referenced primary key names
-- Single time column: One temporal column when temporal data is available
+A table schema is defined by three concepts:
 
-## What is a graph in KumoRFM?
-A graph is a collection of tables and their relationships.
+* **Semantic types (`stypes`):** Semantic types denote the semantic meaning of columns in a table and how they should be processed within the model
+* **Primary key (`primary_key`):** A unique identifier for the table
+* **Time column (`time_column`):** The column that denotes the create time of rows
 
-## Adding tables to the graph
-To add a table to the graph, you can use the `add_table` method. The table will be added to the graph with no links.
+### Semantic Types
 
-## Inferring links between tables
-To infer links between tables, you can use the `infer_links` method. This will infer links between tables based on foreign keys.
+The semantic type of a column will determine how it will be encoded downstream.
+Correctly setting each column's semantic type is critical for model performance.
+For instance, for missing value imputation queries, the semantic type determines whether the task is treated as regression (`stype="numerical"`) or as classification (`stype="categorical"`).
 
-## Adding links between tables
-To add a link between tables, you can use the `add_link` method.
+The following semantic types are available:
 
-## Finalizing the graph
-To finalize the graph, you can use the `finalize_graph` method. This will finalize the graph and make it ready for predictions.
+| `stype` | Explanation | Supported data types | Example |
+| ------- | ----------- | -------------------- | ------- |
+| `"numerical"` | Numerical values (e.g., `price`, `age`) | `int`, `float` | `25`, `3.14`, `-10` |
+| `"categorical"` | Discrete categories with limited cardinality | `int`, `float`, `string` | Color: `"red"`, `"blue"`, `"green"` (one cell may only have one category) |
+| `"multicategorical"` | Multiple categories in a single cell | `string`, `stringlist`, `intlist`, `floatlist` | `"Action|Drama|Comedy"`, `["Action", "Drama", "Comedy"]` |
+| `"ID"` | An identifier, e.g., primary keys or foreign keys | `int`, `float`, `string` | `123`, `PRD-8729453` |
+| `"text"` | Natural language text | `string` | Descriptions of products |
+| `"timestamp"` | Specific point in time | `date`, `string` | `"2025-07-11"`, `"2023-02-12 09:47:58"` |
+| `"sequence"` | Custom embeddings or sequential data | `floatlist`, `intlist` | `[0.25, -0.75, 0.50, ...]` |
 
-## One-to-One Relationships
-- Direct foreign key reference
-- Consider table consolidation when appropriate
+Upon table registration, semantic types of columns are estimated based on simple heuristics (e.g., data types, cardinality), but may not be ideal.
+For example, low cardinality columns may be mistakenly treated as `"categorical"` rather than `"numerical"`.
+You can use your world knowledge and common sense to analyze and correct such mistakes.
 
-## One to Many Relationships
-- Foreign key in the "many" table
-- Most common relationship pattern
-- Properly indexed foreign keys
-- Crucial for aggregations in both static and temporal predictions
+If certain columns should be discarded, e.g., in case they have such high cardinality to render model generalization infeasible, a semantic type of `None` can be used to discard the column from being encoded.
 
-## Many to Many Relationships
-- Use junction/bridge tables
-- Junction table naming conventions
-- Include additional relationship metadata when needed
+### Primary key
 
-## Best Practices
-- Meaningful links: Edges should represent meaningful relationships between tables, not just technical connections
-- Entities are well-defined: Each table should represent either a single entity or a single event, not a mix of both
-- Includes prediction ready structure: graph structure imposes limitations on the queries that can be defined with PQL (see query reference), so make sure that PQL queries you want to run are possible with the graph structure you have built
+The primary key is a unique identifier of each row in a table.
+Each table can have at most one primary key.
+If there are duplicated primary keys, the system will only keep the first one.
+A primary key can be used later to link tables through foreign key-primary key relationships.
+However, a primary key does not need to necessarily link to other tables.
+Setting a primary key will automatically assing the semantic type `"ID"` to this column.
+A primary key may not exist for all tables, but will be required whenever tables need to be linked together or whenever the table is used as the entity in a predictive query.
 
-## Working around limitations
-1. Multiple entities in a single table
+### Time column
 
-Tables that mix data from multiple entities should be split for better graph structure. Think about each table as representing a single entity type or event. Here’s an example:
-```{python}
-# Original table mixing transaction, bank, and user data
-mixed_data = pd.DataFrame({
-    'transaction_id': [1, 2, 3],
-    'bank_id': [101, 102, 101],
-    'user_id': [201, 202, 203],
-    'transaction_amount': [100.0, 250.0, 75.0],
-    'transaction_type': ['deposit', 'withdrawal', 'transfer'],
-    'bank_name': ['Chase', 'Wells Fargo', 'Chase'],
-    'bank_routing': ['123456', '789012', '123456'],
-    'user_name': ['Alice', 'Bob', 'Charlie'],
-    'user_email': ['alice@email.com', 'bob@email.com', 'charlie@email.com']
-})
+A time column indicates the timestamp column that record when the event occured.
+It is used to prevent temporal leakage during subgraph sampling, *i.e.* for a given anchor time only events are preserved with timestamp less than or equal to the given anchor time.
+Time column data must obey to datetime format to be correctly parsed by `pandas.to_datetime`.
+Each table can have at most one time column.
+A time column may not exist for all tables, but will be required when predicting future aggregates over fact tables, *e.g.*, the count of all orders in the next seven days.
 
-# Split into three entity-focused tables
+## Graph Schema
 
-# 1. Transactions table (transaction-specific data)
-transactions = mixed_data[['transaction_id', 'bank_id', 'user_id', 'transaction_amount', 'transaction_type']].copy()
+Links between tables are defined via foreign key-primary key relationships, describing many-to-one relations.
+Links are the crucial bit that transform individual tables into a connected relational structure, enabling KumoRFM to understand and leverage relationships in your data.
+However, it is also possible to use KumoRFM in single table settings or within multiple disjoint graph schemas registered within the same graph.
 
-# 2. Banks table (bank-specific data)
-banks = mixed_data[['bank_id', 'bank_name', 'bank_routing']].drop_duplicates()
+A link is defined by a source table (`source_table`), the foreign key column in the source table (`foreign_key`), and a destination table (`destination_table`) holding a primary key.
+For example, the `orders` source table may hold a foreign key `user_id` to link to the destination table `users`, holding a unique identifier for each user.
+Often times, links can be naturally inferred by inspecting the table schemas and relying on name matching to find meaningful connections.
+However, this may not always be the case.
+You can use your world knowledge and common sense to analyze meaningful connections between tables.
 
-# 3. Users table (user-specific data)
-users = mixed_data[['user_id', 'user_name', 'user_email']].drop_duplicates()
+Note that KumoRFM only supports foreign key-primary key links.
+In order to connect primary keys to primary keys, you have to remove the primary key in one of the tables.
 
-# Create graph with proper entity relationships
-graph = rfm.LocalGraph.from_data({
-    'transactions': transactions,
-    'banks': banks,
-    'users': users
-})
-# Result: transactions.bank_id -> banks.bank_id and transactions.user_id -> users.user_id
-```
+## Graph Visualization
 
-2. Many-to-many relationships
-KumoRFM only supports primary-foreign key relationships (one-to-many). Many-to-many relationships require a junction table to break them into two one-to-many relationships:
-```{python}
-# Problem: Table with many-to-many data stored as lists/comma-separated values
-user_skills_combined = pd.DataFrame({
-    'user_id': [1, 2, 3],
-    'user_name': ['Alice', 'Bob', 'Charlie'],
-    'skills': [['Python', 'SQL'], ['SQL', 'Machine Learning'], ['Python', 'Machine Learning']],
-    'proficiency_levels': [['expert', 'beginner'], ['intermediate', 'advanced'], ['expert', 'expert']]
-})
+You can visualize the graph at any given point in time by rendering it as a Mermaid entity relationship diagram via the `get_mermaid` tool.
+Based on the number of columns in each table, it is recommended to set `show_columns` to `False` to avoid cluttering the diagram with less relevant details.
 
-# This structure cannot create proper foreign key relationships in KumoRFM
+## Graph Materialization
 
-# Solution: Normalize into three tables with junction table
+Once a graph is set up, you can materialize the graph to make it ready for model inference operations via the `materialize_graph` tool.
+This step creates the relational entity graph, which converts each row into a node, and each primary-foreign ky link into an edge.
+Most importantly, it converts the relational data into a data structure from which it can efficiently perform graph traversal and sample subgraphs, which are later used as inputs into the model.
 
-# 1. Users table (entity table)
-users = user_skills_combined[['user_id', 'user_name']].copy()
-
-# 2. Skills table (entity table)
-all_skills = []
-for skill_list in user_skills_combined['skills']:
-    all_skills.extend(skill_list)
-unique_skills = list(set(all_skills))
-
-skills = pd.DataFrame({
-    'skill_id': range(1, len(unique_skills) + 1),
-    'skill_name': unique_skills
-})
-
-# 3. Junction table (breaks many-to-many into two one-to-many)
-user_skills_records = []
-for _, row in user_skills_combined.iterrows():
-    for skill, proficiency in zip(row['skills'], row['proficiency_levels']):
-        skill_id = skills[skills['skill_name'] == skill]['skill_id'].iloc[0]
-        user_skills_records.append({
-            'user_skill_id': len(user_skills_records) + 1,
-            'user_id': row['user_id'],
-            'skill_id': skill_id,
-            'proficiency_level': proficiency
-        })
-
-user_skills = pd.DataFrame(user_skills_records)
-
-# Create graph with proper one-to-many relationships
-graph = rfm.LocalGraph.from_data({
-    'users': users,
-    'skills': skills,
-    'user_skills': user_skills
-})
-# Result: user_skills.user_id -> users.user_id and user_skills.skill_id -> skills.skill_id
-```
-
-## Summary
-Following these best practices will help ensure your KumoRFM datasets are well-structured, validated, and optimized for performance:
-
-### Table Design:
-- One entity or event per table
-- Single time column per table
-- Unique primary keys with consistent naming
-- Junction tables for many-to-many relationships
-
-### Data Preparation:
-- Set proper pandas dtypes before creating tables
-- Use meaningful semantic types (ID, categorical, text, numerical)
-- Validate metadata and semantic types before proceeding
-
-### Graph Structure:
-- Design meaningful entity relationships
-- Consider PQL query requirements in your structure
-- Ensure single connected component
-
-## Test with validation workflow
-
-These patterns will help you create robust, queryable datasets that work effectively with KumoRFM’s predictive capabilities.
+Any updates to the graph schema will require re-materializing the graph before the KumoRFM model can start making predictions again.
