@@ -228,12 +228,12 @@ Do not make syntax up that is not listed in this document.
 
 In case there is no event for a given entity within the requested time window, predictive query behaves differently depending on the aggregation operator and whether it has a neutral element.
 
-**Zero-Valued Aggregations**: For `SUM` and `COUNT` operations, entities with no activity will return zero values and be included as in-context learning examples:
+**Zero-Valued Aggregations**: For `SUM` and `COUNT` operations, entities with no activity will return zero values and will be included as in-context learning examples.
 
-**Undefined Aggregations**: For `AVG`, `MIN`, `MAX`, and `LIST_DISTINCT` operations, inactive entities produce undefined results and are excluded from in-context learning:
+**Undefined Aggregations**: For `AVG`, `MIN`, `MAX`, and `LIST_DISTINCT` operations, inactive entities produce undefined results and are excluded from in-context learning.
 
-**Important:** Please make sure that treating inactive entities as zero is desirable.
-Often times, you may want to use temporal entity filters in these cases to prevent learning from irrelevant and outdated examples.
+**Important:** Make sure that treating inactive entities as zero is desirable.
+It is strongly advised to use temporal entity filters in zero-valued aggregations such as `SUM` and `COUNT` to prevent learning from irrelevant and outdated examples.
 
 ## Task Types
 
