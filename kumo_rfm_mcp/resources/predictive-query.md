@@ -129,7 +129,7 @@ When using logical operations, you can also aggregate from multiple different ta
 PREDICT COUNT(session.*, 0, 7)>10 OR SUM(transaction.value, 0, 5)>100 FOR user.user_id=1
 ```
 
-### Aggregation Operators
+#### Aggregation Operators
 
 The following aggregation operators are supported:
 
