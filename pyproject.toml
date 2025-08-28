@@ -53,10 +53,10 @@ dev = [
 kumo-rfm-mcp = "kumo_rfm_mcp.server:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/kumo_rfm_mcp"]
+packages = ["kumo_rfm_mcp"]
 
 [tool.hatch.version]
-path = "src/kumo_rfm_mcp/_version.py"
+path = "kumo_rfm_mcp/_version.py"
 
 [project.urls]
 Homepage = "https://kumorfm.ai"
@@ -82,7 +82,7 @@ addopts=[
 testpaths=["test"]
 
 [tool.mypy]
-files=["src", "test"]
+files=["kumo_rfm_mcp", "test"]
 python_version="3.10"
 install_types=true
 non_interactive=true

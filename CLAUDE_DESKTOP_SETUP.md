@@ -50,7 +50,7 @@ For local development, you can point to your development version:
   "mcpServers": {
     "kumo-rfm-dev": {
       "command": "python",
-      "args": ["/path/to/kumo-rfm-mcp/src/kumo_rfm_mcp/server.py"],
+      "args": ["/path/to/kumo-rfm-mcp/kumo_rfm_mcp/server.py"],
       "env": {
         "KUMO_API_KEY": "your_api_key_here",
         "KUMO_API_URL": "https://kumorfm.ai/api"

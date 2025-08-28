@@ -41,7 +41,7 @@ jobs:
             if [[ ${{ inputs.switch-from-rc-to-final }} == true ]]; then
               echo "create-final-from-rc=true" >> $GITHUB_OUTPUT
             else
-              is_rc=$(python -c 'exec(input()); print("rc" in __version__)' < src/kumo_rfm_mcp/_version.py)
+              is_rc=$(python -c 'exec(input()); print("rc" in __version__)' < kumo_rfm_mcp/_version.py)
               if [[ $is_rc == "True" ]]; then
                 echo "create-rc-from-rc=true" >> $GITHUB_OUTPUT
               else
@@ -65,14 +65,14 @@ jobs:
           # - version_dev: X.Y.0.dev0
           # - version_rc: X.Y.0rc1
           # - version_final: X.Y.0
-          version_dev=$(python -c 'exec(input()); print(__version__)' < src/kumo_rfm_mcp/_version.py)  # X.Y.0.dev0
+          version_dev=$(python -c 'exec(input()); print(__version__)' < kumo_rfm_mcp/_version.py)  # X.Y.0.dev0
           version_rc=$(npx semver --coerce $version_dev)rc1  # X.Y.0.dev0 -> X.Y.0rc1
           version_final=$(npx semver --coerce $version_dev)  # X.Y.0.dev0 -> X.Y.0
 
-          # Update the version in src/kumo_rfm_mcp/_version.py
-          echo "__version__ = '$version_rc'" > src/kumo_rfm_mcp/_version.py
+          # Update the version in kumo_rfm_mcp/_version.py
+          echo "__version__ = '$version_rc'" > kumo_rfm_mcp/_version.py
           git diff --color=always
-          git add src/kumo_rfm_mcp/_version.py
+          git add kumo_rfm_mcp/_version.py
           git commit -m "Update version from $version_dev to $version_rc (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
 
           # Create a release tag:
@@ -82,12 +82,12 @@ jobs:
           # starts diverging from main:
           git checkout -b v${version_final//.0}
 
-          # Update the version in src/kumo_rfm_mcp/_version.py again in main (vX.Y.0rc1 -> vX.{Y+1}.0.dev0)
+          # Update the version in kumo_rfm_mcp/_version.py again in main (vX.Y.0rc1 -> vX.{Y+1}.0.dev0)
           git checkout ${{ github.ref_name }}  # This is normally main, but it's set to ref_name for dry-run.
           version_dev_new=$(npx semver -i minor $version_final).dev0  # X.Y.0 -> X.{Y+1}.0.dev0
-          echo "__version__ = '$version_dev_new'" > src/kumo_rfm_mcp/_version.py
+          echo "__version__ = '$version_dev_new'" > kumo_rfm_mcp/_version.py
           git diff --color=always
-          git add src/kumo_rfm_mcp/_version.py
+          git add kumo_rfm_mcp/_version.py
           git commit -m "Update version from $version_rc to $version_dev_new (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
 
           # Push updated main branch, the new vX.Y branch, and vX.Y.0rc1 tag
@@ -101,15 +101,15 @@ jobs:
           # - version_rc: X.Y.0rcN
           # - version_rc_new: X.Y.0rc{N+1}
           # - version_final: X.Y.0
-          version_rc=$(python -c 'exec(input()); print(__version__)' < src/kumo_rfm_mcp/_version.py)  # X.Y.0rcN
+          version_rc=$(python -c 'exec(input()); print(__version__)' < kumo_rfm_mcp/_version.py)  # X.Y.0rcN
           version_final=$(npx semver --coerce $version_rc)  # X.Y.0rcN -> X.Y.0
           n=${version_rc##*rc}  # N
           version_rc_new=${version_final}rc$((n + 1))  # X.Y.0rc{N+1}
 
-          # Update the version in src/kumo_rfm_mcp/_version.py
-          echo "__version__ = '$version_rc_new'" > src/kumo_rfm_mcp/_version.py
+          # Update the version in kumo_rfm_mcp/_version.py
+          echo "__version__ = '$version_rc_new'" > kumo_rfm_mcp/_version.py
           git diff --color=always
-          git add src/kumo_rfm_mcp/_version.py
+          git add kumo_rfm_mcp/_version.py
           git commit -m "Update version from $version_rc to $version_rc_new (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
 
           # Create a release tag:
@@ -124,13 +124,13 @@ jobs:
           # Get the final release version:
           # - version_rc: X.Y.0rcN
           # - version_final: X.Y.0
-          version_rc=$(python -c 'exec(input()); print(__version__)' < src/kumo_rfm_mcp/_version.py)  # X.Y.0rcN
+          version_rc=$(python -c 'exec(input()); print(__version__)' < kumo_rfm_mcp/_version.py)  # X.Y.0rcN
           version_final=$(npx semver --coerce $version_rc)  # X.Y.0rcN -> X.Y.0
 
-          # Update the version in src/kumo_rfm_mcp/_version.py
-          echo "__version__ = '$version_final'" > src/kumo_rfm_mcp/_version.py
+          # Update the version in kumo_rfm_mcp/_version.py
+          echo "__version__ = '$version_final'" > kumo_rfm_mcp/_version.py
           git diff --color=always
-          git add src/kumo_rfm_mcp/_version.py
+          git add kumo_rfm_mcp/_version.py
           git commit -m "Update version from $version_rc to $version_final (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
 
           # Create a release tag:
@@ -145,14 +145,14 @@ jobs:
           # Get the next patch release version:
           # - version_final: X.Y.Z
           # - version_final_new: X.Y.{Z+1}
-          version_final=$(python -c 'exec(input()); print(__version__)' < src/kumo_rfm_mcp/_version.py)
+          version_final=$(python -c 'exec(input()); print(__version__)' < kumo_rfm_mcp/_version.py)
           version_final=$(npx semver --coerce $version_final)  # X.Y.Z -> X.Y.Z (just in case)
           version_final_new=$(npx semver -i patch $version_final)  # X.Y.Z -> X.Y.{Z+1}
 
-          # Update the version in src/kumo_rfm_mcp/_version.py:
-          echo "__version__ = '$version_final_new'" > src/kumo_rfm_mcp/_version.py
+          # Update the version in kumo_rfm_mcp/_version.py:
+          echo "__version__ = '$version_final_new'" > kumo_rfm_mcp/_version.py
           git diff --color=always
-          git add src/kumo_rfm_mcp/_version.py
+          git add kumo_rfm_mcp/_version.py
           git commit -m "Update version from $version_final to $version_final_new (https://github.com/kumo-ai/kumo/actions/runs/${{ github.run_id }})"
 
           # Create a release tag:
