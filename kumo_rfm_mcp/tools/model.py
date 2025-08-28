@@ -78,8 +78,8 @@ async def predict(
 ) -> PredictResponse:
     """Execute a predictive query and returns model predictions.
 
-    The graph needs to be materialized before the KumoRFM model can start
-    generating predictions.
+    The graph needs to be materialized and the session needs to be
+    authenticated before the KumoRFM model can start generating predictions.
 
     The query syntax should always follow the format:
     * PREDICT <target_expression>
@@ -157,8 +157,8 @@ async def evaluate(
     labels will be sampled for evaluation and to judge the quality of the
     predictive query.
 
-    The graph needs to be materialized before the KumoRFM model can start
-    evaluating.
+    The graph needs to be materialized and the session needs to be
+    authenticated before the KumoRFM model can start evaluating.
 
     The query syntax should always follow the format:
     * PREDICT <target_expression>

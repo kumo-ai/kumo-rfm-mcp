@@ -1,12 +1,9 @@
-import logging
 import os
 from dataclasses import dataclass, field
 
 from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
 from typing_extensions import Self
-
-logger = logging.getLogger('kumo-rfm-mcp.session')
 
 
 @dataclass(init=False, repr=False)
@@ -41,17 +38,17 @@ class Session:
         """Clear the current session."""
         self._graph = rfm.LocalGraph([])
         self._model = None
+        return self
 
     def initialize(self) -> Self:
         """Initialize a session from environment variables."""
         if not self.is_initialized:
-            logger.info(f"Initializing '{self.name}' KumoRFM session")
-
-            api_key = os.getenv('KUMO_API_KEY')
-            if not api_key:
+            if os.getenv('KUMO_API_KEY') is None:
                 raise ToolError("Missing required environment variable "
                                 "'KUMO_API_KEY'. Please set your API key via "
-                                "`export KUMO_API_KEY='your-api-key'`.")
+                                "`export KUMO_API_KEY='your-api-key'` or "
+                                "call the 'authenticate' tool to "
+                                "automatically generate an API key.")
 
             rfm.init()
             self._is_initialized = True
