@@ -61,7 +61,8 @@ def register_docs_tools(mcp: FastMCP) -> None:
         adjusting the `anchor_time` to denote the point in time for when a
         prediction should be made.
 
-        See the 'kumo://docs/predictive-query' resource for more information.
+        Important: Before executing or suggesting any predictive queries,
+        read the documentation first at 'kumo://docs/predictive-query'.
         """
         resources = await mcp.get_resources()
         if resource_uri not in resources:
