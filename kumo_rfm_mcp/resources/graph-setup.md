@@ -8,9 +8,9 @@ KumoRFM operates on relational data organized as inter-connected tables forming 
 
 A table schema is defined by three concepts:
 
-* **Semantic types (`stypes`):** Semantic types denote the semantic meaning of columns in a table and how they should be processed within the model
-* **Primary key (`primary_key`):** A unique identifier for the table
-* **Time column (`time_column`):** The column that denotes the create time of rows
+- **Semantic types (`stypes`):** Semantic types denote the semantic meaning of columns in a table and how they should be processed within the model
+- **Primary key (`primary_key`):** A unique identifier for the table
+- **Time column (`time_column`):** The column that denotes the create time of rows
 
 ### Semantic Types
 
@@ -20,15 +20,15 @@ For instance, for missing value imputation queries, the semantic type determines
 
 The following semantic types are available:
 
-| `stype` | Explanation | Supported data types | Example |
-| ------- | ----------- | -------------------- | ------- |
-| `"numerical"` | Numerical values (e.g., `price`, `age`) | `int`, `float` | `25`, `3.14`, `-10` |
-| `"categorical"` | Discrete categories with limited cardinality | `int`, `float`, `string` | Color: `"red"`, `"blue"`, `"green"` (one cell may only have one category) |
-| `"multicategorical"` | Multiple categories in a single cell | `string`, `stringlist`, `intlist`, `floatlist` | `"Action\|Drama\|Comedy"`, `["Action", "Drama", "Comedy"]` |
-| `"ID"` | An identifier, e.g., primary keys or foreign keys | `int`, `float`, `string` | `123`, `PRD-8729453` |
-| `"text"` | Natural language text | `string` | Descriptions of products |
-| `"timestamp"` | Specific point in time | `date`, `string` | `"2025-07-11"`, `"2023-02-12 09:47:58"` |
-| `"sequence"` | Custom embeddings or sequential data | `floatlist`, `intlist` | `[0.25, -0.75, 0.50, ...]` |
+| `stype`              | Explanation                                       | Supported data types                           | Example                                                                   |
+| -------------------- | ------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
+| `"numerical"`        | Numerical values (e.g., `price`, `age`)           | `int`, `float`                                 | `25`, `3.14`, `-10`                                                       |
+| `"categorical"`      | Discrete categories with limited cardinality      | `int`, `float`, `string`                       | Color: `"red"`, `"blue"`, `"green"` (one cell may only have one category) |
+| `"multicategorical"` | Multiple categories in a single cell              | `string`, `stringlist`, `intlist`, `floatlist` | `"Action\|Drama\|Comedy"`, `["Action", "Drama", "Comedy"]`                |
+| `"ID"`               | An identifier, e.g., primary keys or foreign keys | `int`, `float`, `string`                       | `123`, `PRD-8729453`                                                      |
+| `"text"`             | Natural language text                             | `string`                                       | Descriptions of products                                                  |
+| `"timestamp"`        | Specific point in time                            | `date`, `string`                               | `"2025-07-11"`, `"2023-02-12 09:47:58"`                                   |
+| `"sequence"`         | Custom embeddings or sequential data              | `floatlist`, `intlist`                         | `[0.25, -0.75, 0.50, ...]`                                                |
 
 Upon table registration, semantic types of columns are estimated based on simple heuristics (e.g., data types, cardinality), but may not be ideal.
 For example, low cardinality columns may be mistakenly treated as `"categorical"` rather than `"numerical"`.
