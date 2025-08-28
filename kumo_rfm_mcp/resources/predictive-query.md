@@ -13,13 +13,23 @@ The basic structure of a predictive query is:
 PREDICT <target_expression> FOR <entity_specification> WHERE <optional_filters>
 ```
 
-In general, follow these give steps to author a predictive query:
+All references to columns within predictive queries must be fully qualified by table name and column name as `<table_name>.<column_name>`.
+
+In general, follow these given steps to author a predictive query:
 
 1. **Choose your entity** - a table and its primary key you predict for.
 1. **Define the target** - a raw column or an aggregation over a future window.
 1. **Pin the entity list** - pass a single ID or multiple IDs to make predictions for.
-1. **Refine the context** - filters to restrict which historical rowas are used as in-context learning examples.
+1. **Refine the context** - if necessary, restrict which historical rows are used as in-context learning examples.
 1. **Run & fetch** - run `predict` or `evaluate` on top.
+
+A predictive query uniquely defines a predictive machine learning task.
+As such, it also defines the procedure on how to obtain ground-truth labels from historical snapshots of the data, which are used to generate context labels to perform in-context learning within KumoRFM.
+
+**Important:** PQL is not SQL.
+Standard SQL operations such as `JOIN`, `SELECT`, `UNION`, `GROUP BY`, and subqueries are not supported in PQL.
+PQL uses a simpler, more constrained syntax designed specifically for defining predictive machine learning tasks.
+Do not make syntax up that is not listed in this document.
 
 ## Entity Specification
 
@@ -29,12 +39,12 @@ Entities for each query can be specified in one of two ways:
   ```
   PREDICT ... FOR users.user_id=1
   ```
-- By specifying a tuple of entity ids
+- By specifying a tuple of entity IDs:
   ```
   PREDICT ... FOR users.user_id IN (1, 2, 3)
   ```
 
-Note that the entity table needs a primary key to uniquely define the set of IDs to predict for.
+Note that the entity table needs a primary key to uniquely determine the set of IDs to predict for.
 Up to 1000 IDs can be passed at once.
 
 The data type of the primary key in the entity table denotes how entity IDs should be passed.
@@ -44,14 +54,13 @@ For numerical IDs, use `users.user_id=1` or `users.user_id IN (1, 2)`.
 ## Target Expression
 
 The target expression is the value or aggregate the model should predict.
-It can be a single value, an aggregate, or a combination of both.
-All components of the target expression must be fully qualified by table name and column name.
+It can be a single value, an aggregate, a condition, or a set of logical operations.
 We differentiate between two types of queries: static and temporal queries.
 
 ### Static Predictive Queries
 
 Static predictive queries are used to impute missing values from an entity table.
-That is, the target column has to appear in the same table as the entity we are predicting for.
+That is, the target column has to appear in the same table as the entity we are making a prediction for.
 KumoRFM will then mask out the target column and predict the value from related in-context examples.
 
 For example, we can predict the age of users via
@@ -81,10 +90,17 @@ The following boolean operators are supported:
 - `IS NOT NULL`: `<expression> IS NOT NULL`, can be applied to any column type
 - `IS NULL`: `<expression> IS NULL` - can be applied to any column type
 
-Multiple conditions can be combined via `AND` and/or `OR` logical operations to form complex predictive queries, e.g.:
+When using boolean conditions, the value format must match the column's data type:
 
 ```
-PREDICT users.age>40 OR users.location='US' FOR users.user_id=1
+PREDICT users.location='US' FOR users.user_id=1
+PREDICT users.birthday>1990-01-01 FOR users.user_id=1
+```
+
+Multiple conditions can be logically combined via `AND`, `OR` and `NOT` to form complex predictive queries, e.g.:
+
+```
+PREDICT (users.age>40 OR users.location='US') AND (NOT users.gender='male') FOR users.user_id=1
 ```
 
 The following logical operations are supported:
@@ -100,22 +116,29 @@ Use parentheses to group logical operations and control their order.
 Temporal predictive queries predict some aggregation of values over time (e.g., purchases each customer will make over the next 7 days).
 The target table needs to be directly connected to the entity table via a foreign key-primary key relationship.
 
-Aggregations are defined via aggregation operators over a **relative** period of time.
-You can specify an aggregation operator and the column representing the value you want to aggregate.
+An aggregation is defined by an aggregation operator over a **relative** period of time.
+You can specify an aggregation operator and the column in the target table representing the value you want to aggregate.
+The syntax is as follows:
+
+```
+<aggr>(<target_table>.<target_column>, <start_offset>, <end_offset>, <time_unit>)
+```
+
 For example:
 
 ```
-PREDICT SUM(transactions.price, 0, 30, days) for users.user_id=1
+PREDICT SUM(orders.price, 0, 30, days) for users.user_id=1
 ```
 
-Here, `transactions` is a table that is connected to `users` through a foreign key (`transactions.user_id <> users.user_id`).
-
-Within the aggregation function inputs, the start (`0`) and end (`30`) parameters refer to the time period you want to aggregate across.
-For example, a value of `10` for start and `30` for end implies that you want to aggregate from 10 days later (excluding the 10th day) to 30 days later (including the 30th day).
+Here, `orders` is a table that is connected to `users` via a foreign key-primary key relationship (`orders.user_id <> users.user_id`).
+Within the aggregation function inputs, the `<start_offset>` (`0` in the example) and `<end_offset>` (`30` in the example) parameters refer to the time period you want to aggregate across, relative to a given anchor time.
+As such, the example query can be understood as: "Predict the sum of prices of all the orders a user will do in the next 30 days".
+Note that by default, the anchor time is set to the maximum timestamp present in your relational data, but can be fully customized in `predict` and `evaluate` tools.
+Both `<start_offset>` and `<end_offset>` should be non-negative, and `<end_offset>` values should be strictly greater than `<start_offset>`.
+Note that `<start_offset>` is not limited to `0`.
+For example, a `<start_offset>` value of `10` and an `<end_offset>` value of `30` implies that you want to aggregate from 10 days later (excluding the 10th day) to 30 days later (including the 30th day).
+The following values for `<time_unit>` are supported: `seconds`, `minutes`, `hours`, `days`, `weeks`, `months`
 The time unit of the aggregation defaults to `days` if none is specified.
-
-The following time units are supported: `seconds`, `minutes`, `hours`, `days`, `weeks`, `months`
-When using aggregation in a target expression, both start and end values should be non-negative, and end values should be greater than start values.
 
 Similar to static predictive queries, you can add conditions and logical operations to temporal predictive queries to create binary classification tasks:
 
@@ -123,7 +146,7 @@ Similar to static predictive queries, you can add conditions and logical operati
 PREDICT SUM(transactions.price, 0, 30, days)=0 for users.user_id=1
 ```
 
-When using logical operations, you can also aggregate from multiple different target tables.
+When using logical operations, it is allowed to aggregate from multiple different target tables:
 
 ```
 PREDICT COUNT(session.*, 0, 7)>10 OR SUM(transaction.value, 0, 5)>100 FOR user.user_id=1
@@ -133,18 +156,25 @@ PREDICT COUNT(session.*, 0, 7)>10 OR SUM(transaction.value, 0, 5)>100 FOR user.u
 
 The following aggregation operators are supported:
 
-- `SUM` - can be applied to any numerical column
-- `AVG` - can be applied to any numerical column
-- `MIN` - can be applied to any numerical column
-- `MAX` - can be applied to any numerical column
-- `COUNT` - can be applied to any column type. Use `*` as column name to count the number of events.
-- `LIST_DISTINCT` - can be applied to any foreign key column
+- `SUM`: Calculates the total of values in a numerical column
+- `AVG`: Calculates the average of values in a numerical column
+- `MIN`: Finds the minimum value in a numerical column
+- `MAX`: Finds the maximum value in a numerical column
+- `COUNT`: Counts the number of rows/events. Use `COUNT(<target_table>.*, ...)` to count all events, or `COUNT(<target_table>.<target_column>, ...)` to count non-null values in any column type
+- `LIST_DISTINCT`: Returns a distinct list of unique values from a foreign key column (used for recommendations)
 
-Specifically, the `LIST_DISTINCT` syntax can be used to formulate recommendation tasks, which ask for predicting the next items an entity will relate to, e.g., views, orders, likes, etc.
-As such, its target column needs to refer to a foreign key column, e.g., `item_id` in the `orders` table.
+The `LIST_DISTINCT` operator is specifically designed for recommendation tasks.
+It predicts which foreign key values an entity will interact with in the future.
+The basic syntax is:
 
-The `LIST_DISTINCT` operator additionally requires a specification about how many top-k predictions to retrieve.
-Up to 20 predictions are supported.
+```
+LIST_DISTINCT(<target_table>.<foreign_key>, <start_offset>, <end_offset>, <time_unit>) RANK TOP k FOR ...
+```
+
+`LIST_DISTINCT` aggregations must be applied to foreign key columns (not regular columns).
+They cannot be combined with conditions or logical operations.
+They also must include `RANK TOP k` to specify how many recommendations to return, where `k` can range from 1 to 20 (maximum 20 recommendations per query).
+For example:
 
 ```
 PREDICT LIST_DISTINCT(orders.item_id, 0, 7, days) RANK TOP 10 FOR users.user_id=1
@@ -152,34 +182,38 @@ PREDICT LIST_DISTINCT(orders.item_id, 0, 7, days) RANK TOP 10 FOR users.user_id=
 
 #### Target Filters
 
-Target filters allow you to further conextualize your predictive query by dropping certain target rows that do not meet a specified condition.
-By using a `WHERE` clause, you can drop target rows from your aggregation.
-For example, the following is an example of using the `WHERE` operator within an aggregation for target filters:
+Target filters allow you to further conextualize your predictive query by dropping certain target rows that do not meet a specific condition.
+By using a `WHERE` clause within the target expression (valid for all aggregation types), you can drop rows from being aggregated.
+For example:
 
 ```
 PREDICT COUNT(transactions.* WHERE transactions.price > 10, 0, 7, days) FOR users.user_id=1
 ```
 
-Target filters can reference any column within the target table, and can be extended via logical operations.
+Target filters must be static and thus can ONLY reference columns within the target table being aggregated.
+Cross-table references, subqueries, and joins are NOT supported.
 
 ## Entity Filters
 
 KumoRFM makes entity-specific predictions based on in-context examples, collected from a historical snapshot of the relational data.
 Entity filters can be used to provide more control over how KumoRFM collects in-context examples.
 For example, to exclude `users` without recent activity from the context, we can write:
+
 ```
 PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 WHERE COUNT(orders.*, -30, 0, days) > 0
 ```
-This limits the in-context examples to predicting churn for active users only.
-These filters are NOT applied to the provided entity list.
+
+This limits the in-context examples for predicting churn to active users only.
+Note that these filters are NOT applied to the provided entity list.
 
 Both static and temporal filters can be used as entity filters.
-If you use temporal filters, then the start and end parameters need to be backwards looking, e.g., `start < 0` and `end <= 0`.
-Still, end values need to be greater than start values.
+If you use temporal entity filters, the `<start_offset>` and `<end_offset>` parameters need to be backward looking, i.e. `<start_offset> < 0` and `<end_offset> <= 0`.
+Still, `<end_offset>` values need to be strictly greater than `<start_offset>` values.
+For temporal entity filters, `<start_offset>` can also be defined as `-INF` to include all historical data from the beginning of the dataset.
 
-For forward looking entity filters and to investigate hypothetical scenarios and evaluate impact of your actions or decisions, you can use the `ASSUMING` keyword instead.
+In order to to investigate hypothetical scenarios and to evaluate impact of your actions or decisions, you can use the `ASSUMING` keyword (instead of `WHERE`) to write forward looking entity filters.
 For example, you may want to investigate how much a user will spend if you give them a certain coupon or notification.
-`ASSUMING` keyword is followed by a future-looking assumption, which will be assumed to be true during predictions.
+`ASSUMING` keyword is followed by a future-looking assumption, which will be assumed to be true for the entity IDs we predict for.
 
 ```
 PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 ASSUMING COUNT(notifications.*, 0, 7, days)>0
@@ -187,41 +221,46 @@ PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 ASSUMING COUNT(notifi
 
 ## Task Types
 
-The predictive query uniquely determines the underlying machine learning task type.
+The predictive query uniquely determines the underlying machine learning task type based on your query structure and the underlying graph schema.
 The following machine learning tasks are supported:
 
-- **Binary classification:** Conditioned static target column or aggregate
-- **Multi-class classification:** Categorical static target column
-- **Regression:** Numerical static target column or aggregate
-- **Recommendation/temporal link prediction:** Distinct list of foreign key IDs
+- **Binary classification:** When your target expression includes a condition that results in true/false
+- **Multi-class classification:** When predicting a categorical column with multiple possible values
+- **Regression:** When predicting a numerical value
+- **Recommendation/temporal link prediction:** When predicting a ranked list of items using `LIST_DISTINCT`
+
+Note that you don't need to specify the task type.
+PQL automatically detects it based on whether you're predicting a condition (binary), categories (multi-class), numbers (regression), or ranked lists (recommendation).
 
 ## Examples
 
 1. **Recommend movies to users:**
+
    ```
-   PREDICT LIST_DISTINCT(ratings.movie_id, 0, 14, days)
-   RANK TOP 20 FOR users.user_id=9987
+   PREDICT LIST_DISTINCT(ratings.movie_id, 0, 14, days) RANK TOP 20 FOR users.user_id=9987
    ```
 
-2. **Predict inactive users:**
+1. **Predict inactive users:**
+
    ```
-   PREDICT COUNT(sessions.*, 0, 14)=0 FOR users.user_id=9987
-   WHERE COUNT(sessions.*,-7,0)>0
+   PREDICT COUNT(sessions.*, 0, 14)=0 FOR users.user_id=9987 WHERE COUNT(sessions.*,-7,0)>0
    ```
 
-3. **Predict 5-star reviews:**
+1. **Predict 5-star reviews:**
+
    ```
-   PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0,30)>0
-   FOR products.product_id=123456
+   PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0, 30)>0 FOR products.product_id=123456
    ```
 
-4. **Predict customer churn:**
+1. **Predict customer churn:**
+
    ```
-   PREDICT COUNT(transactions.price, 0, 90)>0
-   FOR customers.customer_id=123456 WHERE SUM(transactions.price, -60, 0) > 0.05
+   PREDICT COUNT(transactions.price, 0, 3, months)>0
+   FOR customers.customer_id=123456 WHERE SUM(transactions.price, -2, 0, months)>0.05
    ```
 
-5. **Find next best articles:**
+1. **Find next best articles:**
+
    ```
    PREDICT LIST_DISTINCT(transactions.article_id, 0, 90)
    RANK TOP 20 FOR customers.customer_id=123456
