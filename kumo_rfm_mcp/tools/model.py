@@ -81,8 +81,8 @@ async def predict(
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start generating predictions.
 
-    Before executing predictive queries, please first read the documentation at
-    'kumo://docs/predictive-query'.
+    Important: Before executing or suggesting any predictive queries,
+    read the documentation first at 'kumo://docs/predictive-query'.
     """
     model = SessionManager.get_default_session().model
 
@@ -151,8 +151,8 @@ async def evaluate(
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start evaluating.
 
-    Before executing predictive queries, please first read the documentation at
-    'kumo://docs/predictive-query'.
+    Important: Before executing or suggesting any predictive queries,
+    read the documentation first at 'kumo://docs/predictive-query'.
     """
     model = SessionManager.get_default_session().model
 

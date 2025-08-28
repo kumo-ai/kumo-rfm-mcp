@@ -9,7 +9,7 @@ from fastmcp.resources import FileResource
 def register_docs_tools(mcp: FastMCP) -> None:
     """Register all documentation tools to the MCP server."""
     @mcp.tool(annotations=dict(
-        title="Getting documentation",
+        title="Reading documentation",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=False,
@@ -48,7 +48,8 @@ def register_docs_tools(mcp: FastMCP) -> None:
         ID, text, timestamp, sequence, etc) that denotes the semantic meaning
         of the column and how it should be processed within the model.
 
-        See the 'kumo://docs/graph-setup' resource for more information.
+        **Important:** Before creating and updating graphs, read the
+        documentation first at 'kumo://docs/graph-setup'.
 
         After a graph is set up and materialized, KumoRFM can generate
         predictions (e.g., missing value imputation, temporal forecasts) and
@@ -61,7 +62,8 @@ def register_docs_tools(mcp: FastMCP) -> None:
         adjusting the `anchor_time` to denote the point in time for when a
         prediction should be made.
 
-        See the 'kumo://docs/predictive-query' resource for more information.
+        Important: Before executing or suggesting any predictive queries,
+        read the documentation first at 'kumo://docs/predictive-query'.
         """
         resources = await mcp.get_resources()
         if resource_uri not in resources:
