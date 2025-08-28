@@ -1,30 +1,37 @@
-## What is KumoRFM?
-KumoRFM is a foundational relational model (RFM) that can be used to generate
-predictions from relational data without training (do not confuse with "Recency, Frequency, Monetary (RFM) analysis").
-The model uses a graph representation of the relational data and a PQL query (Predictive Query Language) to generate predictions.
+# Overview of KumoRFM
 
-## Available Documentation
+KumoRFM is a pre-trained Relational Foundation Model (RFM) that generates training-free predictions on any relational multi-table data by interpreting the data as a (temporal) heterogeneous graph.
+It can be queried via the Predictive Query Language (PQL).
 
-### PQL Reference
-- **kumo://docs/pql-guide** - Complete PQL grammar reference
-- **kumo://docs/pql-reference** - All keywords and operators in PQL
+Internal note: It is NOT related to "Recency, Frequency, Monetary" analysis.
 
-### Data Preparation
-- **kumo://docs/table-guide** - Table
-- **kumo://docs/graph-guide** - Foreign key patterns and many-to-many handling
-- **kumo://docs/data-guide** - CSV format requirements and data quality checks
+Internally, KumoRFM utilizes in-context learning to transfer patterns from historical examples to new unseen examples.
+Specifically, it constructs training/in-context subgraphs with known ground-truth labels and relates them to unseen subgraphs.
 
-### Examples
-- **kumo://examples/e-commerce** - E-commerce predictive query examples
+KumoRFM can discover table-like files (e.g., CSV, Parquet), inspect them, and structure them into a graph via foreign key-primary key relationships.
+A time column in a table dictates the create time of a row, which is used downstream to receive and order historical interactions and prevent temporal leakage.
+Each column within a table is assigned a semantic type (`"numerical"`, `"categorical"`, `"multicategorical"`, `"ID"`, `"text"`, `"timestamp"`, `"sequence"`, etc) that denotes the semantic meaning of the column and how it should be processed within the model.
+
+See the `kumo://docs/graph-setup` resource for more information.
+
+After a graph is set up and materialized, KumoRFM can generate predictions (e.g., missing value imputation, temporal forecasts) and evaluations by querying the graph via the Predictive Query Language (PQL), a declarative language to formulate machine learning tasks.
+Understanding PQL and how it maps to a machine learning task is critical to achieve good model predictions.
+Besides PQL, various other options exist to tune model output, e.g., optimizing the `run_mode` of the model, specifying how subgraphs are formed via `num_neighbors`, or adjusting the `anchor_time` to denote the point in time for when a prediction should be made.
+
+See the `kumo://docs/predictive-query` resource for more information.
 
 ## Getting Started
-1. Add tables to the graph using `add_table`
-2. Link tables using `infer_links` or `add_link`
-3. Finalize the graph using `finalize_graph`
-4. Generate predictions using `predict` or `evaluate`
+
+1. Finding, inspecting and understanding table-like files via `find_table_files` and `inspect_table_files` tools
+1. Constructing and updating the graph schema via `update_graph_metadata` by adding/updating and removing tables and their schema, and inter-connecting them via foreign key-primary key relationshsips
+1. Visualizing the graph schema as a Mermaid entity relationship diagram via `get_mermaid`
+1. Materializing the graph to make it available for inference operations; This step is necessary to efficiently form subgraphs around entities at any given point in time
+1. Predicting and evaluating predictive queries on top of the materialized graph to obtain insights for the future
 
 ## Quick Access
+
 Use the `get_docs` tool to access any resource:
 ```
-get_docs("kumo://docs/pql-syntax")
-get_docs("kumo://examples/e-commerce")
+get_docs('kumo://docs/graph-setup')
+get_docs('kumo://docs/predictive-query")
+```
