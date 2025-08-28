@@ -72,6 +72,11 @@ You can use your world knowledge and common sense to analyze meaningful connecti
 Note that KumoRFM only supports foreign key-primary key links.
 In order to connect primary keys to primary keys, you have to remove the primary key in one of the tables.
 
+## Graph Updates
+
+You can use the `update_graph_metadata` tool to perform partial graph schema updates by registering new tables, changing their semantic types, and linking them together.
+Note that all operations can be performed in a batch at once, e.g., one can add new tables and directly link them to together.
+
 ## Graph Visualization
 
 You can visualize the graph at any given point in time by rendering it as a Mermaid entity relationship diagram via the `get_mermaid` tool.
