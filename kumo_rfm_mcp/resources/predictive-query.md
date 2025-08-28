@@ -160,19 +160,20 @@ The following aggregation operators are supported:
 - `AVG`: Calculates the average of values in a numerical column
 - `MIN`: Finds the minimum value in a numerical column
 - `MAX`: Finds the maximum value in a numerical column
-- `COUNT`: Counts the number of rows/events. Use `COUNT(table.*, ...)` to count all events, or `COUNT(table_name.column_name, ...)` to count non-null values in any column type
-- `LIST_DISTINCT`: Returns a list of unique values from a foreign key column (used for recommendations)
+- `COUNT`: Counts the number of rows/events. Use `COUNT(<target_table>.*, ...)` to count all events, or `COUNT(<target_table>.<target_column>, ...)` to count non-null values in any column type
+- `LIST_DISTINCT`: Returns a distinct list of unique values from a foreign key column (used for recommendations)
 
 The `LIST_DISTINCT` operator is specifically designed for recommendation tasks.
-It predicts which (foreign key values an entity will interact with in the future.
+It predicts which foreign key values an entity will interact with in the future.
 The basic syntax is:
 
 ```
 LIST_DISTINCT(<target_table>.<foreign_key>, <start_offset>, <end_offset>, <time_unit>) RANK TOP k FOR ...
 ```
 
-`LIST_DISTINCT` aggregations must be applied to a foreign key columns (not regular columns).
-It also must include `RANK TOP k` to specify how many recommendations to return, where `k` can range from 1 to 20 (maximum 20 recommendations per query).
+`LIST_DISTINCT` aggregations must be applied to foreign key columns (not regular columns).
+They cannot be combined with conditions or logical operations.
+They also must include `RANK TOP k` to specify how many recommendations to return, where `k` can range from 1 to 20 (maximum 20 recommendations per query).
 For example:
 
 ```
@@ -197,18 +198,20 @@ Cross-table references, subqueries, and joins are NOT supported.
 KumoRFM makes entity-specific predictions based on in-context examples, collected from a historical snapshot of the relational data.
 Entity filters can be used to provide more control over how KumoRFM collects in-context examples.
 For example, to exclude `users` without recent activity from the context, we can write:
+
 ```
 PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 WHERE COUNT(orders.*, -30, 0, days) > 0
 ```
+
 This limits the in-context examples for predicting churn to active users only.
 Note that these filters are NOT applied to the provided entity list.
 
 Both static and temporal filters can be used as entity filters.
-If you use temporal entity filters, the `<start_offset>` and `end_offset>` parameters need to be backwards looking, i.e. `<start_offset> < 0` and `<end_offset> <= 0`.
-Still, end values need to be greater than start values.
-For temporal entity filters, `<start_offset>` can also be `-INF` to include all historical data from the beginning of the dataset.
+If you use temporal entity filters, the `<start_offset>` and `<end_offset>` parameters need to be backward looking, i.e. `<start_offset> < 0` and `<end_offset> <= 0`.
+Still, `<end_offset>` values need to be strictly greater than `<start_offset>` values.
+For temporal entity filters, `<start_offset>` can also be defined as `-INF` to include all historical data from the beginning of the dataset.
 
-In order to to investigate hypothetical scenarios and to evaluate impact of your actions or decisions, you can use the `ASSUMING` keyword to write forward looking entity filters.
+In order to to investigate hypothetical scenarios and to evaluate impact of your actions or decisions, you can use the `ASSUMING` keyword (instead of `WHERE`) to write forward looking entity filters.
 For example, you may want to investigate how much a user will spend if you give them a certain coupon or notification.
 `ASSUMING` keyword is followed by a future-looking assumption, which will be assumed to be true for the entity IDs we predict for.
 
@@ -227,35 +230,37 @@ The following machine learning tasks are supported:
 - **Recommendation/temporal link prediction:** When predicting a ranked list of items using `LIST_DISTINCT`
 
 Note that you don't need to specify the task type.
-PQL automatically detects it based on whether you're predicting a condition (binary), categories (multi-class), numbers (regression), or ranked list (recommendation).
+PQL automatically detects it based on whether you're predicting a condition (binary), categories (multi-class), numbers (regression), or ranked lists (recommendation).
 
 ## Examples
 
 1. **Recommend movies to users:**
+
    ```
-   PREDICT LIST_DISTINCT(ratings.movie_id, 0, 14, days)
-   RANK TOP 20 FOR users.user_id=9987
+   PREDICT LIST_DISTINCT(ratings.movie_id, 0, 14, days) RANK TOP 20 FOR users.user_id=9987
    ```
 
-2. **Predict inactive users:**
+1. **Predict inactive users:**
+
    ```
-   PREDICT COUNT(sessions.*, 0, 14)=0 FOR users.user_id=9987
-   WHERE COUNT(sessions.*,-7,0)>0
+   PREDICT COUNT(sessions.*, 0, 14)=0 FOR users.user_id=9987 WHERE COUNT(sessions.*,-7,0)>0
    ```
 
-3. **Predict 5-star reviews:**
+1. **Predict 5-star reviews:**
+
    ```
-   PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0,30)>0
-   FOR products.product_id=123456
+   PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0, 30)>0 FOR products.product_id=123456
    ```
 
-4. **Predict customer churn:**
+1. **Predict customer churn:**
+
    ```
-   PREDICT COUNT(transactions.price, 0, 90)>0
-   FOR customers.customer_id=123456 WHERE SUM(transactions.price, -60, 0) > 0.05
+   PREDICT COUNT(transactions.price, 0, 3, months)>0
+   FOR customers.customer_id=123456 WHERE SUM(transactions.price, -2, 0, months)>0.05
    ```
 
-5. **Find next best articles:**
+1. **Find next best articles:**
+
    ```
    PREDICT LIST_DISTINCT(transactions.article_id, 0, 90)
    RANK TOP 20 FOR customers.customer_id=123456
