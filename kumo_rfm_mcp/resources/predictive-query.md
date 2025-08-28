@@ -3,9 +3,9 @@
 The Predictive Query Language (PQL) is a querying language that allows to define relational machine learning tasks.
 PQL lets you define predictive problems by specifying:
 
-1. The target expression: Declares the value or aggregate the model should predict
-1. The entity specification: Specified the single ID or list of IDs to predict for
-1. Optional entity filters: Filters which historical entities are used as in-context learning examples
+1. **The target expression:** Declares the value or aggregate the model should predict
+1. **The entity specification:** Specified the single ID or list of IDs to predict for
+1. **Optional entity filters:** Filters which historical entities are used as in-context learning examples
 
 The basic structure of a predictive query is:
 
@@ -15,24 +15,24 @@ PREDICT <target_expression> FOR <entity_specification> WHERE <optional_filters>
 
 In general, follow these give steps to author a predictive query:
 
-1. Choose your entity - a table and its primary key you predict for.
-1. Define the target - a raw column or an aggregation over a future window.
-1. Pin the entity list - pass a single ID or multiple IDs to make predictions for.
-1. Refine the context - filters to restrict which historical rowas are used as in-context learning examples.
-1. Run & fetch: Run `predict` or `evaluate` on top.
+1. **Choose your entity** - a table and its primary key you predict for.
+1. **Define the target** - a raw column or an aggregation over a future window.
+1. **Pin the entity list** - pass a single ID or multiple IDs to make predictions for.
+1. **Refine the context** - filters to restrict which historical rowas are used as in-context learning examples.
+1. **Run & fetch** - run `predict` or `evaluate` on top.
 
 ## Entity Specification
 
 Entities for each query can be specified in one of two ways:
 
 - By specifying a single entity ID:
-```
-PREDICT ... FOR users.user_id=1
-```
+  ```
+  PREDICT ... FOR users.user_id=1
+  ```
 - By specifying a tuple of entity ids
-```
-PREDICT ... FOR users.user_id IN (1, 2, 3)
-```
+  ```
+  PREDICT ... FOR users.user_id IN (1, 2, 3)
+  ```
 
 Note that the entity table needs a primary key to uniquely define the set of IDs to predict for.
 Up to 1000 IDs can be passed at once.
@@ -84,7 +84,7 @@ The following boolean operators are supported:
 Multiple conditions can be combined via `AND` and/or `OR` logical operations to form complex predictive queries, e.g.:
 
 ```
-PREDICT users.age>40 OR users.age<=20 FOR users.user_id=1
+PREDICT users.age>40 OR users.location='US' FOR users.user_id=1
 ```
 
 The following logical operations are supported:
@@ -138,7 +138,7 @@ The following aggregation operators are supported:
 - `MIN` - can be applied to any numerical column
 - `MAX` - can be applied to any numerical column
 - `COUNT` - can be applied to any column type. Use `*` as column name to count the number of events.
-- `LIST_DISTINCT` - can be applied on foreign key columns
+- `LIST_DISTINCT` - can be applied to any foreign key column
 
 Specifically, the `LIST_DISTINCT` syntax can be used to formulate recommendation tasks, which ask for predicting the next items an entity will relate to, e.g., views, orders, likes, etc.
 As such, its target column needs to refer to a foreign key column, e.g., `item_id` in the `orders` table.
@@ -190,38 +190,38 @@ PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 ASSUMING COUNT(notifi
 The predictive query uniquely determines the underlying machine learning task type.
 The following machine learning tasks are supported:
 
-- binary classification: Conditioned static target column or aggregate
-- multi-class classification: Categorical static target column
-- regression: Numerical static target column or aggregate
-- recommendation/temporal link prediction: Distinct list of foreign key IDs
+- **Binary classification:** Conditioned static target column or aggregate
+- **Multi-class classification:** Categorical static target column
+- **Regression:** Numerical static target column or aggregate
+- **Recommendation/temporal link prediction:** Distinct list of foreign key IDs
 
 ## Examples
 
-1. Recommend movies to users:
+1. **Recommend movies to users:**
    ```
    PREDICT LIST_DISTINCT(ratings.movie_id, 0, 14, days)
    RANK TOP 20 FOR users.user_id=9987
    ```
 
-2. Predict inactive users:
+2. **Predict inactive users:**
    ```
    PREDICT COUNT(sessions.*, 0, 14)=0 FOR users.user_id=9987
    WHERE COUNT(sessions.*,-7,0)>0
    ```
 
-3. Predict 5-star reviews:
+3. **Predict 5-star reviews:**
    ```
    PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0,30)>0
    FOR products.product_id=123456
    ```
 
-4. Predict customer churn:
+4. **Predict customer churn:**
    ```
    PREDICT COUNT(transactions.price, 0, 90)>0
    FOR customers.customer_id=123456 WHERE SUM(transactions.price, -60, 0) > 0.05
    ```
 
-5. Find next best articles:
+5. **Find next best articles:**
    ```
    PREDICT LIST_DISTINCT(transactions.article_id, 0, 90)
    RANK TOP 20 FOR customers.customer_id=123456
