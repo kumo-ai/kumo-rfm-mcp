@@ -1,14 +1,3 @@
-from fastmcp import FastMCP
-
-
-def register_overview_resources(mcp: FastMCP):
-    """Register all overview resources with the MCP server."""
-
-    @mcp.resource("kumo://docs/overview")
-    async def get_overview() -> str:
-        """Overview of KumoRFM MCP server."""
-        return """# KumoRFM MCP Server Overview
-
 ## What is KumoRFM?
 KumoRFM is a foundational relational model (RFM) that can be used to generate
 predictions from relational data without training (do not confuse with "Recency, Frequency, Monetary (RFM) analysis").
@@ -39,4 +28,3 @@ Use the `get_docs` tool to access any resource:
 ```
 get_docs("kumo://docs/pql-syntax")
 get_docs("kumo://examples/e-commerce")
-"""  # noqa: E501

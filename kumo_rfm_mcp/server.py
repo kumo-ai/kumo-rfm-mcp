@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import logging
 import sys
+from pathlib import Path
 
 from fastmcp import FastMCP
+from fastmcp.resources import FileResource
 
 import kumo_rfm_mcp
-from kumo_rfm_mcp import resources, tools
+from kumo_rfm_mcp import tools
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,7 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger('kumo-rfm-mcp')
 
 mcp = FastMCP(
-    name='KumoRFM',
+    name='KumoRFM (Relational Foundation Model)',
     version=kumo_rfm_mcp.__version__,
 )
 
@@ -26,9 +28,33 @@ tools.register_graph_tools(mcp)
 tools.register_model_tools(mcp)
 
 # Resources ##################################################################
-resources.register_overview_resources(mcp)
-resources.register_docs_resources(mcp)
-resources.register_examples_resources(mcp)
+mcp.add_resource(
+    FileResource(
+        uri="kumo://docs/overview",
+        path=Path(__file__).parent / 'resources' / 'overview.md',
+        name="Overview of KumoRFM",
+        description="Overview of KumoRFM (Relational Foundation Model)",
+        mime_type="text/markdown",
+        tags={"documentation"},
+    ))
+mcp.add_resource(
+    FileResource(
+        uri="kumo://docs/graph-setup",
+        path=Path(__file__).parent / 'resources' / 'graph-setup.md',
+        name="Graph Setup",
+        description="How to set up graphs in KumoRFM",
+        mime_type="text/markdown",
+        tags={"documentation"},
+    ))
+mcp.add_resource(
+    FileResource(
+        uri="kumo://docs/predictive-query",
+        path=Path(__file__).parent / 'resources' / 'predictive-query.md',
+        name="Predictive Query",
+        description="How to query and generate predictions in KumoRFM",
+        mime_type="text/markdown",
+        tags={"documentation"},
+    ))
 
 
 def main() -> None:

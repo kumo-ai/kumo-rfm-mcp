@@ -81,17 +81,8 @@ async def predict(
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start generating predictions.
 
-    The query syntax should always follow the format:
-    * PREDICT <target_expression>
-      - Declares the value or aggregate the model should predict
-    * FOR <entity_specification>
-      - Specifies the single ID or list of IDs to predict for
-    * WHERE <filters> (optional)
-      - Filters which historical entities are used as training examples
-
-    Refer to relevant resources for more information:
-    # kumo://docs/pql-guide
-    # kumo://docs/pql-reference
+    Before executing predictive queries, please first read the documentation
+    from 'kumo://docs/predictive-query'.
     """
     model = SessionManager.get_default_session().model
 
@@ -160,17 +151,8 @@ async def evaluate(
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start evaluating.
 
-    The query syntax should always follow the format:
-    * PREDICT <target_expression>
-      - Declares the value or aggregate the model should predict
-    * FOR <entity_specification>
-      - Specifies the single ID or list of IDs to predict for
-    * WHERE <filters> (optional)
-      - Filters which historical entities are used as training examples
-
-    Refer to relevant resources for more information:
-    # kumo://docs/pql-guide
-    # kumo://docs/pql-reference
+    Before executing predictive queries, please first read the documentation
+    from 'kumo://docs/predictive-query'.
     """
     model = SessionManager.get_default_session().model
 

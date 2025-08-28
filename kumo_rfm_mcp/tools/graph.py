@@ -89,6 +89,9 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
 
     Note that all operations can be performed in a batch at once, *e.g.*, one
     can add new tables and directly link them to together.
+
+    Before setting up graphs, please first read the documentation from
+    'kumo://docs/graph-setup'.
     """
     session = SessionManager.get_default_session()
     session._model = None  # Need to reset the model if graph changes.
