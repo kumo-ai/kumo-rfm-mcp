@@ -232,7 +232,7 @@ In case there is no event for a given entity within the requested time window, p
 
 **Undefined Aggregations**: For `AVG`, `MIN`, `MAX`, and `LIST_DISTINCT` operations, inactive entities produce undefined results and are excluded from in-context learning:
 
-Please make sure that treating inactive entities as zero is desirable.
+**Important:** Please make sure that treating inactive entities as zero is desirable.
 Often times, you may want to use temporal entity filters in these cases to prevent learning from irrelevant and outdated examples.
 
 ## Task Types
