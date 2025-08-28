@@ -1,9 +1,9 @@
 # Overview of KumoRFM
 
-KumoRFM is a pre-trained Relational Foundation Model (RFM) that generates training-free predictions on any relational multi-table data by interpreting the data as a (temporal) heterogeneous graph.
-It can be queried via the Predictive Query Language (PQL).
+KumoRFM is a **pre-trained Relational Foundation Model (RFM)** that generates training-free predictions on any relational multi-table data by interpreting the data as a (temporal) heterogeneous graph.
+It can be queried via the **Predictive Query Language (PQL)**.
 
-Internal note: It is NOT related to "Recency, Frequency, Monetary" analysis.
+**Internal note:** It is NOT related to "Recency, Frequency, Monetary" analysis.
 
 Internally, KumoRFM utilizes in-context learning to transfer patterns from historical examples to new unseen examples.
 Specifically, it constructs training/in-context subgraphs with known ground-truth labels and relates them to unseen subgraphs.
