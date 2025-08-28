@@ -143,7 +143,7 @@ The following aggregation operators are supported:
 Specifically, the `LIST_DISTINCT` syntax can be used to formulate recommendation tasks, which ask for predicting the next items an entity will relate to, e.g., views, orders, likes, etc.
 As such, its target column needs to refer to a foreign key column, e.g., `item_id` in the `orders` table.
 
-The `LIST_DISTINCT` additionally requires a specification about how many top-k predictions to retrieve.
+The `LIST_DISTINCT` operator additionally requires a specification about how many top-k predictions to retrieve.
 Up to 20 predictions are supported.
 
 ```
