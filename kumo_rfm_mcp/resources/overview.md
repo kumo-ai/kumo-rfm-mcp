@@ -25,8 +25,8 @@ See the `kumo://docs/predictive-query` resource for more information.
 1. Finding, inspecting and understanding table-like files via `find_table_files` and `inspect_table_files` tools
 1. Constructing and updating the graph schema via `update_graph_metadata` by adding/updating and removing tables and their schema, and inter-connecting them via foreign key-primary key relationshsips
 1. Visualizing the graph schema as a Mermaid entity relationship diagram via `get_mermaid`
-1. Materializing the graph to make it available for inference operations; This step is necessary to efficiently form subgraphs around entities at any given point in time
-1. Predicting and evaluating predictive queries on top of the materialized graph to obtain insights for the future
+1. Materializing the graph via `materialize_graph` to make it available for inference operations; This step is necessary to efficiently form subgraphs around entities at any given point in time
+1. Predicting and evaluating predictive queries on top of the materialized graph via `predict` and `evaluate` to obtain valuable insights for the future
 
 ## Quick Access
 
