@@ -31,6 +31,7 @@ See the `kumo://docs/predictive-query` resource for more information.
 ## Quick Access
 
 Use the `get_docs` tool to access any resource:
+
 ```
 get_docs('kumo://docs/graph-setup')
 get_docs('kumo://docs/predictive-query")
