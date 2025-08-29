@@ -17,6 +17,11 @@ logger = logging.getLogger('kumo-rfm-mcp')
 
 mcp = FastMCP(
     name='KumoRFM (Relational Foundation Model)',
+    instructions=("KumoRFM is a pre-trained Relational Foundation Model (RFM) "
+                  "that generates training-free predictions on any relational "
+                  "multi-table data by interpreting the data as a (temporal) "
+                  "heterogeneous graph. It can be queried via the Predictive "
+                  "Query Language (PQL)."),
     version=kumo_rfm_mcp.__version__,
 )
 

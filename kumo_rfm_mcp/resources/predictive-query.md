@@ -163,6 +163,8 @@ The following aggregation operators are supported:
 - `COUNT`: Counts the number of rows/events. Use `COUNT(<target_table>.*, ...)` to count all events, or `COUNT(<target_table>.<target_column>, ...)` to count non-null values in any column type
 - `LIST_DISTINCT`: Returns a distinct list of unique values from a foreign key column (used for recommendations)
 
+##### Recommendation Use-Cases
+
 The `LIST_DISTINCT` operator is specifically designed for recommendation tasks.
 It predicts which foreign key values an entity will interact with in the future.
 The basic syntax is:
@@ -179,6 +181,17 @@ For example:
 ```
 PREDICT LIST_DISTINCT(orders.item_id, 0, 7, days) RANK TOP 10 FOR users.user_id=1
 ```
+
+##### Handling Inactive Entities in Temporal Aggregations
+
+In case there is no event for a given entity within the requested time window, predictive query behaves differently depending on the aggregation operator and whether it has a neutral element.
+
+**Zero-Valued Aggregations**: For `SUM` and `COUNT` operations, entities with no activity will return zero values and will be included as in-context learning examples.
+
+**Undefined Aggregations**: For `AVG`, `MIN`, `MAX`, and `LIST_DISTINCT` operations, inactive entities produce undefined results and are excluded from in-context learning.
+
+**Important:** Make sure that treating inactive entities as zero is desirable.
+It is strongly advised to use temporal entity filters in zero-valued aggregations such as `SUM` and `COUNT` to prevent learning from irrelevant and outdated examples (see below).
 
 #### Target Filters
 
@@ -224,17 +237,6 @@ PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 ASSUMING COUNT(notifi
 Standard SQL operations such as `JOIN`, `SELECT`, `UNION`, `GROUP BY`, and subqueries are not supported in PQL.
 Do not make syntax up that is not listed in this document.
 
-### Handling Inactive Entities in Temporal Aggregations
-
-In case there is no event for a given entity within the requested time window, predictive query behaves differently depending on the aggregation operator and whether it has a neutral element.
-
-**Zero-Valued Aggregations**: For `SUM` and `COUNT` operations, entities with no activity will return zero values and will be included as in-context learning examples.
-
-**Undefined Aggregations**: For `AVG`, `MIN`, `MAX`, and `LIST_DISTINCT` operations, inactive entities produce undefined results and are excluded from in-context learning.
-
-**Important:** Make sure that treating inactive entities as zero is desirable.
-It is strongly advised to use temporal entity filters in zero-valued aggregations such as `SUM` and `COUNT` to prevent learning from irrelevant and outdated examples.
-
 ## Task Types
 
 The predictive query uniquely determines the underlying machine learning task type based on your query structure and the underlying graph schema.
@@ -247,6 +249,23 @@ The following machine learning tasks are supported:
 
 Note that you don't need to specify the task type.
 PQL automatically detects it based on whether you're predicting a condition (binary), categories (multi-class), numbers (regression), or ranked lists (recommendation).
+
+## Best-Practices
+
+- Use target filters to filter which events to aggregate
+- Use entity filter to filter which historical examples to learn from
+- Make sure to include temporal entity filters in zero-valued aggregations such as `SUM` or `COUNT`
+- Ensure value formats match column data types in conditions (e.g., `'US'` for strings, `1990-01-01` for dates)
+- It might be non-trivial to pick appropriate `<start_offset>` and `<end_offset>` values.
+  Choose meaningful time windows that align with domain knowledge and account for event frequency.
+  For example, in an e-commerce dataset, predicting churn based on the next seven days might be unrealistic.
+  Play around with different time windows and see how it affects the prediction.
+- When running a predictive query via `predict` or `evaluate` tools, use `run_mode="fast"` for initial exploration, reserve `run_mode="best"` for final production queries
+- The entity IDs in the `evaluate` tool have no impact on the output metrics.
+  Instead, a number of test entities with known historical ground-truth labels will be sampled for evaluation.
+- Choose anchor times that represent realistic prediction scenarios.
+  Use `anchor_time='entity'` for static predictions to prevent temporal leakage if entities denote temporal facts.
+- Tune the `max_pq_iterations` argument if you see that the model fails to find sufficient number of in-context examples w.r.t. the `run_mode`, i.e. 1000 for `'fast'`, 5000 for `'normal'` and 10000 for `'best'`
 
 ## Examples
 
