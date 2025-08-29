@@ -30,6 +30,7 @@ As such, it also defines the procedure on how to obtain ground-truth labels from
 **Important:** PQL is not SQL.
 Standard SQL operations such as `JOIN`, `SELECT`, `UNION`, `GROUP BY`, and subqueries are not supported in PQL.
 PQL uses a simpler, more constrained syntax designed specifically for defining predictive machine learning tasks.
+PQL also doesn't support arithmetic operations like `+` or `-`.
 Do not make syntax up that is not listed in this document.
 
 ## Entity Specification
@@ -90,6 +91,8 @@ The following boolean operators are supported:
 - `>=`: `<expression> >= <value>` - can be applied to numerical and temporal columns only
 - `IN`: `<expression> IN (<value_1>, <value_2>, <value_3>)` - can be applied to any column type
 
+The `<value>` needs to be constant value.
+It cannot be modeled as a target expression.
 When using boolean conditions, the value format must match the column's data type:
 
 ```
