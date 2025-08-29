@@ -119,8 +119,8 @@ async def predict(
     CLASS) pair, where 'CLASS' holds the recommended item and 'SCORE' holds its
     likelihood.
 
-    Before executing predictive queries, please first read the documentation at
-    'kumo://docs/predictive-query'.
+    Important: Before executing or suggesting any predictive queries,
+    read the documentation first at 'kumo://docs/predictive-query'.
     """
     model = SessionManager.get_default_session().model
 
@@ -189,8 +189,11 @@ async def evaluate(
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start evaluating.
 
-    Before executing predictive queries, please first read the documentation at
-    'kumo://docs/predictive-query'.
+    Take the label distribution of the predictive query in the output logs into
+    account when analyzing the returned metrics.
+
+    Important: Before executing or suggesting any predictive queries,
+    read the documentation first at 'kumo://docs/predictive-query'.
     """
     model = SessionManager.get_default_session().model
 
