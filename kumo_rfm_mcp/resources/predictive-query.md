@@ -163,7 +163,7 @@ The following aggregation operators are supported:
 - `COUNT`: Counts the number of rows/events. Use `COUNT(<target_table>.*, ...)` to count all events, or `COUNT(<target_table>.<target_column>, ...)` to count non-null values in any column type
 - `LIST_DISTINCT`: Returns a distinct list of unique values from a foreign key column (used for recommendations)
 
-##### Recommendation Use-Cases
+##### Recommendation Tasks
 
 The `LIST_DISTINCT` operator is specifically designed for recommendation tasks.
 It predicts which foreign key values an entity will interact with in the future.
