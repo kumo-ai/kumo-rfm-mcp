@@ -315,10 +315,12 @@ async def lookup_table_rows(
 
     In contrast to the 'inspect_table_files' tool, this tool can be used to
     query specific rows in a registered table in the graph.
-    It can be useful to query entity information about the entities you have
+    It should not be used to understand and analyze table schema.
+
+    Use this tool to query feature information about the entities you have just
     made a prediction for.
-    It can be used to query the recommended items in recommendation tasks to
-    make the recommendations more meaningful.
+    It can be also used to query information about the recommended items in
+    recommendation tasks to make the recommendations more meaningful.
 
     The table to read from needs to have a primary key, and the graph has to be
     materialized.
