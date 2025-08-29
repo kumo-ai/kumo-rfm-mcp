@@ -49,7 +49,15 @@ max_pq_iterations_doc = (
     "and 10000 for 'best'.")
 metrics_doc = (
     "The metrics to use for evaluation. If `None`, will use a pre-selection "
-    "of metrics depending on the given predictive query.")
+    "of metrics depending on the given predictive query. The following metrics"
+    "are supported:\n"
+    "Binary classification: 'acc', 'precision', 'recall', 'f1', 'auroc', "
+    "'auprc', 'ap'\n"
+    "Multi-class classification: 'acc', 'precision', 'recall', 'f1', 'mrr'\n"
+    "Regression: 'mae', 'mape', 'mse', 'rmse', 'smape'\n"
+    "Temporal link prediction: 'map@k', 'ndcg@k', 'mrr@k', 'precision@k', "
+    "'recall@k', 'f1@k', 'hit_ratio@k' where 'k' needs to be an integer "
+    "between 1 and 100")
 
 
 async def predict(
@@ -80,6 +88,36 @@ async def predict(
 
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start generating predictions.
+
+    The output prediction format depends on the given task type.
+
+    Binary classification:
+    | ENTITY | ANCHOR_TIMESTAMP | TARGET_PRED | False_PROB | True_PROB |
+    where 'ENTITY' holds the entity ID, 'ANCHOR_TIMESTAMP' holds the anchor
+    time of the prediction in unix format, 'TARGET_PRED' holds the final
+    prediction based on a threshold of 0.5, and 'False_PROB' and 'True_PROB'
+    hold the probabilities.
+
+    Multi-class classification:
+    | ENTITY | ANCHOR_TIMESTAMP | CLASS | SCORE | PREDICTED |
+    where 'ENTITY' holds the entity ID, 'ANCHOR_TIMESTAMP' holds the anchor
+    time of the prediction in unix format. Each row corresponds to an (ENTITY,
+    CLASS) pair (up to 10 classes are reported), where 'CLASS' holds the
+    predicted value, 'SCORE' holds its probability, and 'PREDICTED' denotes
+    whether the (ENTITY, CLASS) pair has the highest likelihood.
+
+    Regression:
+    | ENTITY | ANCHOR_TIMESTAMP | TARGET_PRED |
+    where 'ENTITY' holds the entity ID, 'ANCHOR_TIMESTAMP' holds the anchor
+    time of the prediction in unix format, and 'TARGET_PRED' holds the
+    predicted numerical value.
+
+    Temporal link prediction:
+    | ENTITY | ANCHOR_TIMESTAMP | CLASS | SCORE |
+    where 'ENTITY' holds the entity ID, 'ANCHOR_TIMESTAMP' holds the anchor
+    time of the prediction in unix format. Each row corresponds to an (ENTITY,
+    CLASS) pair, where 'CLASS' holds the recommended item and 'SCORE' holds its
+    likelihood.
 
     Important: Before executing or suggesting any predictive queries,
     read the documentation first at 'kumo://docs/predictive-query'.
