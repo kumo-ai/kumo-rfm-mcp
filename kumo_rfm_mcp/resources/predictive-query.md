@@ -13,6 +13,7 @@ The basic structure of a predictive query is:
 PREDICT <target_expression> FOR <entity_specification> WHERE <optional_filters>
 ```
 
+Every predictive query needs to contain the `PREDICT` and `FOR` keywords.
 All references to columns within predictive queries must be fully qualified by table name and column name as `<table_name>.<column_name>`.
 
 In general, follow these given steps to author a predictive query:
@@ -69,7 +70,8 @@ For example, we can predict the age of users via
 PREDICT users.age FOR users.user_id=1
 ```
 
-We can impute missing values for all `"numerical"` and `"categorical"` columns.
+You can impute missing values for all `"numerical"` and `"categorical"` columns.
+Currently, you cannot impute missing values for other semantic types such as `"timestamp"` or `"text"`.
 For `"numerical"` columns, the predictive query is interpreted as a regression task.
 For `"categorical"` columns, the predictive query is interpreted as a multi-class classification task.
 For binary classification tasks, you can add **conditions** to the target expression:
@@ -87,8 +89,6 @@ The following boolean operators are supported:
 - `>`: `<expression> > <value>` - can be applied to numerical and temporal columns only
 - `>=`: `<expression> >= <value>` - can be applied to numerical and temporal columns only
 - `IN`: `<expression> IN (<value_1>, <value_2>, <value_3>)` - can be applied to any column type
-- `IS NOT NULL`: `<expression> IS NOT NULL`, can be applied to any column type
-- `IS NULL`: `<expression> IS NULL` - can be applied to any column type
 
 When using boolean conditions, the value format must match the column's data type:
 
@@ -191,7 +191,7 @@ In case there is no event for a given entity within the requested time window, p
 **Undefined Aggregations**: For `AVG`, `MIN`, `MAX`, and `LIST_DISTINCT` operations, inactive entities produce undefined results and are excluded from in-context learning.
 
 **Important:** Make sure that treating inactive entities as zero is desirable.
-It is strongly advised to use temporal entity filters in zero-valued aggregations such as `SUM` and `COUNT` to prevent learning from irrelevant and outdated examples (see below).
+Always use temporal entity filters with `SUM` and `COUNT` aggregations to prevent learning from irrelevant and outdated examples (see below on how to define temporal entity filters).
 
 #### Target Filters
 
@@ -250,22 +250,35 @@ The following machine learning tasks are supported:
 Note that you don't need to specify the task type.
 PQL automatically detects it based on whether you're predicting a condition (binary), categories (multi-class), numbers (regression), or ranked lists (recommendation).
 
-## Best-Practices
+## Best Practices
 
-- Use target filters to filter which events to aggregate
-- Use entity filter to filter which historical examples to learn from
-- Make sure to include temporal entity filters in zero-valued aggregations such as `SUM` or `COUNT`
-- Ensure value formats match column data types in conditions (e.g., `'US'` for strings, `1990-01-01` for dates)
+- Use target filters to filter which events to aggregate.
+- Use entity filter to filter which historical examples to learn from.
+- Make sure to include temporal entity filters in zero-valued aggregations such as `SUM` or `COUNT`.
+- Ensure value formats match column data types in conditions (e.g., `'US'` for strings, `1990-01-01` for dates).
 - It might be non-trivial to pick appropriate `<start_offset>` and `<end_offset>` values.
   Choose meaningful time windows that align with domain knowledge and account for event frequency.
   For example, in an e-commerce dataset, predicting churn based on the next seven days might be unrealistic.
   Play around with different time windows and see how it affects the prediction.
-- When running a predictive query via `predict` or `evaluate` tools, use `run_mode="fast"` for initial exploration, reserve `run_mode="best"` for final production queries
+- Analyze the label distribution of in-context learning examples in the `predict` and `evaluate` tool logs to understand if your query needs any adjustments, e.g., more or less strict temporal entity filters.
+- Take the label distribution of the predictive query into account when analyzing output metrics of the `evaluate` tool.
+- When running a predictive query via `predict` or `evaluate` tools, use `run_mode="fast"` for initial exploration, and reserve `run_mode="best"` for final production queries.
 - The entity IDs in the `evaluate` tool have no impact on the output metrics.
   Instead, a number of test entities with known historical ground-truth labels will be sampled for evaluation.
 - Choose anchor times that represent realistic prediction scenarios.
   Use `anchor_time='entity'` for static predictions to prevent temporal leakage if entities denote temporal facts.
-- Tune the `max_pq_iterations` argument if you see that the model fails to find sufficient number of in-context examples w.r.t. the `run_mode`, i.e. 1000 for `'fast'`, 5000 for `'normal'` and 10000 for `'best'`
+- Tune the `max_pq_iterations` argument if you see that the model fails to find sufficient number of in-context examples w.r.t. the `run_mode`, i.e. 1000 for `'fast'`, 5000 for `'normal'` and 10000 for `'best'`.
+
+## Common Mistakes
+
+- Ensure `<start_offset> < <end_offset>` for future predictions, and `<start_offset> < 0` and `end_offset <= 0` for historical context.
+- PQL doesn't support arithmetic operations.
+- PQL is not SQL - use only supported operators and conditions.
+- `SUM` and `COUNT` queries without temporal entity filters include inactive/irrelevant examples.
+  Always use temporal entity filters with `SUM` and `COUNT` to focus on relevant examples.
+- Incorrect semantic types may lead to wrong task formulations.
+  Carefully review and correct semantic types during graph setup.
+- `LIST_DISTINCT` only works on foreign key columns.
 
 ## Examples
 
