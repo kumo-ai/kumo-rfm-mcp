@@ -317,10 +317,8 @@ async def lookup_table_rows(
     query specific rows in a registered table in the graph.
     It should not be used to understand and analyze table schema.
 
-    Use this tool to query feature information about the entities you have just
-    made a prediction for.
-    It can be also used to query information about the recommended items in
-    recommendation tasks to make the recommendations more meaningful.
+    Use this tool to look up detailed information about recommended items to
+    provide richer, more meaningful recommendations to users.
 
     The table to read from needs to have a primary key, and the graph has to be
     materialized.
@@ -345,7 +343,7 @@ async def lookup_table_rows(
 def register_graph_tools(mcp: FastMCP) -> None:
     """Register all graph tools to the MCP server."""
     mcp.tool(annotations=dict(
-        title="Inspecting graph metadata",
+        title="🗂️ Reviewing graph schema…",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
@@ -353,7 +351,7 @@ def register_graph_tools(mcp: FastMCP) -> None:
     ))(inspect_graph_metadata)
 
     mcp.tool(annotations=dict(
-        title="Updating graph metadata",
+        title="🔄 Updating graph schema…",
         readOnlyHint=False,
         destructiveHint=False,
         idempotentHint=False,
@@ -361,7 +359,7 @@ def register_graph_tools(mcp: FastMCP) -> None:
     ))(update_graph_metadata)
 
     mcp.tool(annotations=dict(
-        title="Generating mermaid diagram",
+        title="🖼️ Creating graph diagram…",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
@@ -369,7 +367,7 @@ def register_graph_tools(mcp: FastMCP) -> None:
     ))(get_mermaid)
 
     mcp.tool(annotations=dict(
-        title="Materializing graph",
+        title="🕸️ Assembling graph…",
         readOnlyHint=False,
         destructiveHint=False,
         idempotentHint=False,
@@ -377,7 +375,7 @@ def register_graph_tools(mcp: FastMCP) -> None:
     ))(materialize_graph)
 
     mcp.tool(annotations=dict(
-        title="Looking up table rows",
+        title="📂 Retrieving table entries…",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,

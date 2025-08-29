@@ -81,7 +81,7 @@ async def inspect_table_files(
 def register_io_tools(mcp: FastMCP) -> None:
     """Register all I/O tools to the MCP server."""
     mcp.tool(annotations=dict(
-        title="Finding table-like files",
+        title="🔍 Searching for tabular files…",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
@@ -89,7 +89,7 @@ def register_io_tools(mcp: FastMCP) -> None:
     ))(find_table_files)
 
     mcp.tool(annotations=dict(
-        title="Inspecting table-like files",
+        title="🧐 Analyzing table structure…",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
