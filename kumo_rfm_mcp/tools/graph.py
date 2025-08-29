@@ -15,6 +15,7 @@ from kumo_rfm_mcp import (
     MaterializedGraph,
     SessionManager,
     TableMetadata,
+    TableSourcePreview,
     UpdatedGraphMetadata,
     UpdateGraphMetadata,
 )
@@ -298,6 +299,47 @@ async def materialize_graph() -> MaterializedGraph:
     return graph
 
 
+async def lookup_table_rows(
+    table_name: Annotated[str, "Table name"],
+    ids: Annotated[
+        list[int | float | str],
+        Field(
+            min_length=1,
+            max_length=1000,
+            description="Primary keys to read",
+        ),
+    ],
+) -> TableSourcePreview:
+    """Lookup rows in the raw data frame of a table for a list of primary
+    keys.
+
+    In contrast to the 'inspect_table_files' tool, this tool can be used to
+    query specific rows in a registered table in the graph.
+    It can be useful to query entity information about the entities you have
+    made a prediction for.
+    It can be used to query the recommended items in recommendation tasks to
+    make the recommendations more meaningful.
+
+    The table to read from needs to have a primary key, and the graph has to be
+    materialized.
+    """
+    model = SessionManager.get_default_session().model
+
+    def _lookup_table_rows() -> TableSourcePreview:
+        try:
+            node_ids = model._graph_store.get_node_id(
+                table_name=table_name,
+                pkey=pd.Series(ids),
+            )
+            df = model._graph_store.df_dict[table_name].iloc[node_ids]
+        except Exception as e:
+            raise ToolError(str(e)) from e
+
+        return TableSourcePreview(rows=df.to_dict(orient='records'))
+
+    return await asyncio.to_thread(_lookup_table_rows)
+
+
 def register_graph_tools(mcp: FastMCP) -> None:
     """Register all graph tools to the MCP server."""
     mcp.tool(annotations=dict(
@@ -331,3 +373,11 @@ def register_graph_tools(mcp: FastMCP) -> None:
         idempotentHint=False,
         openWorldHint=False,
     ))(materialize_graph)
+
+    mcp.tool(annotations=dict(
+        title="Looking up table rows",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ))(lookup_table_rows)
