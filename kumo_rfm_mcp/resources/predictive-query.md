@@ -91,7 +91,7 @@ The following boolean operators are supported:
 - `>=`: `<expression> >= <value>` - can be applied to numerical and temporal columns only
 - `IN`: `<expression> IN (<value_1>, <value_2>, <value_3>)` - can be applied to any column type
 
-The `<value>` needs to be constant value.
+The `<value>` needs to be a constant, pre-defined value.
 It cannot be modeled as a target expression.
 When using boolean conditions, the value format must match the column's data type:
 
