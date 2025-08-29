@@ -273,7 +273,8 @@ PQL automatically detects it based on whether you're predicting a condition (bin
 
 ## Common Mistakes
 
-- Ensure `<start_offset> < <end_offset>` for future predictions, and `<start_offset> < 0` and `end_offset <= 0` for historical context.
+- Ensure that `<start_offset>` is always less than `<end_offset>`.
+- Ensure that `<end_offset>` is less than or equal to `0` in temporal entity filters.
 - PQL doesn't support arithmetic operations.
 - PQL is not SQL - use only supported operators and conditions.
 - `SUM` and `COUNT` queries without temporal entity filters include inactive/irrelevant examples.
