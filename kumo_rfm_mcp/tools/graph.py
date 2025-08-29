@@ -302,7 +302,7 @@ async def materialize_graph() -> MaterializedGraph:
 async def lookup_table_rows(
     table_name: Annotated[str, "Table name"],
     ids: Annotated[
-        list[str],
+        list[str | int | float],
         Field(
             min_length=1,
             max_length=1000,
