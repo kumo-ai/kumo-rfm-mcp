@@ -38,7 +38,7 @@ async def authenticate(
 def register_auth_tools(mcp: FastMCP) -> None:
     """Register all authentication tools to the MCP server."""
     mcp.tool(annotations=dict(
-        title="Authenticating KumoRFM session",
+        title="🔑 Signing in to KumoRFM…",
         readOnlyHint=False,
         destructiveHint=False,
         idempotentHint=False,

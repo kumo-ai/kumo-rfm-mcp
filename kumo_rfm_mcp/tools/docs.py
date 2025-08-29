@@ -9,7 +9,7 @@ from fastmcp.resources import FileResource
 def register_docs_tools(mcp: FastMCP) -> None:
     """Register all documentation tools to the MCP server."""
     @mcp.tool(annotations=dict(
-        title="Reading documentation",
+        title="📖 Reading…",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=False,
