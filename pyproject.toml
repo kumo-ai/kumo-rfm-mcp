@@ -22,8 +22,6 @@ requires-python = ">=3.10"
 dependencies = [
     "kumoai>=2.7.0.dev0",
     "fastmcp>=2.2.7",
-    "pandas",
-    "pydantic",
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
