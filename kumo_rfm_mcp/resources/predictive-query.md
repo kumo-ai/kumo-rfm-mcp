@@ -132,11 +132,13 @@ PREDICT SUM(orders.price, 0, 30, days) for users.user_id=1
 
 Here, `orders` is a table that is connected to `users` via a foreign key-primary key relationship (`orders.user_id <> users.user_id`).
 Within the aggregation function inputs, the `<start_offset>` (`0` in the example) and `<end_offset>` (`30` in the example) parameters refer to the time period you want to aggregate across, relative to a given anchor time.
-As such, the example query can be understood as: "Predict the sum of prices of all the orders a user will do in the next 30 days".
-Note that by default, the anchor time is set to the maximum timestamp present in your relational data, but can be fully customized in `predict` and `evaluate` tools.
 Both `<start_offset>` and `<end_offset>` should be non-negative, and `<end_offset>` values should be strictly greater than `<start_offset>`.
-Note that `<start_offset>` is not limited to `0`.
+As such, the example query can be understood as: "Predict the sum of prices of all the orders a user will do in the next 30 days".
+
+Note that by default, the anchor time is set to the maximum timestamp present in your relational data, but can be fully customized in `predict` and `evaluate` tools.
+The `<start_offset>` value is not limited to be always `0`.
 For example, a `<start_offset>` value of `10` and an `<end_offset>` value of `30` implies that you want to aggregate from 10 days later (excluding the 10th day) to 30 days later (including the 30th day).
+
 The following values for `<time_unit>` are supported: `seconds`, `minutes`, `hours`, `days`, `weeks`, `months`
 The time unit of the aggregation defaults to `days` if none is specified.
 
