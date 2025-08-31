@@ -29,7 +29,7 @@
     "KUMO_API_KEY": {
       "type": "string",
       "title": "KumoRFM API key",
-      "description": "You can generate your KumoRFM API key for free at https://kumorfm.ai. If not provided, will authenticate on-the-fly for every individual session.",
+      "description": "You can generate your KumoRFM API key for free at https://kumorfm.ai. If not provided, you can authenticate on-the-fly in individual sessions.",
       "required": false,
       "sensitive": true
     }
