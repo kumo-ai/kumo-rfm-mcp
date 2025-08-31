@@ -14,14 +14,14 @@
   "icon": "icon.png",
   "server": {
     "type": "python",
-    "entry_point": "server.py",
+    "entry_point": "server/main.py",
     "mcp_config": {
       "command": "python",
-      "args": [
-        "${__dirname}/kumo_rfm_mcp/server.py"
-      ],
-      "env": {
-        "PYTHONPATH": "server/lib"
+      "args": ["${__dirname}/server/main.py"],
+      "platform_overrides": {
+        "darwin": {
+          "command": "python3"
+        }
       }
     }
   },
@@ -29,7 +29,7 @@
     "KUMO_API_KEY": {
       "type": "string",
       "title": "KumoRFM API key",
-      "description": "You can generate your KumoRFM API key for free at https://kumorfm.ai",
+      "description": "You can generate your KumoRFM API key for free at https://kumorfm.ai. If not provided, will authenticate on-the-fly for every individual session.",
       "required": false,
       "sensitive": true
     }
