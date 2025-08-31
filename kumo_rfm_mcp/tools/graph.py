@@ -208,8 +208,8 @@ def get_mermaid(
 ) -> str:
     """Return the graph as a Mermaid entity relationship diagram.
 
-    The returned Mermaid markup can be used to input into an artifact to render
-    it visually on the client side.
+    Important: The returned Mermaid markup can be used to input into an
+    artifact to render it visually on the client side.
     """
     session = SessionManager.get_default_session()
 
