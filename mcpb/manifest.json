@@ -14,10 +14,10 @@
   "icon": "icon.png",
   "server": {
     "type": "python",
-    "entry_point": "server/main.py",
+    "entry_point": "server.py",
     "mcp_config": {
       "command": "python",
-      "args": ["${__dirname}/server/main.py"],
+      "args": ["${__dirname}/server.py"],
       "platform_overrides": {
         "darwin": {
           "command": "python3"

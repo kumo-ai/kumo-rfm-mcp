@@ -1,1 +1,1 @@
-fastmcp>=2.2.7,<3
+kumo-rfm-mcp==0.1.0.rc1
