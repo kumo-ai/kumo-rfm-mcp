@@ -16,6 +16,23 @@ The KumoRFM MCP is available for Python 3.10 and above. To install, simply run
 pip install kumo-rfm-mcp
 ```
 
+## Registration
+
+
+```json
+{
+  "mcpServers": {
+    "kumo-rfm": {
+      "command": "python",
+      "args": ["-m", "kumo_rfm_mcp.server"],
+      "env": {
+        "KUMO_API_KEY": "your_api_key_here",
+      }
+    }
+  }
+}
+```
+
 ## Available tools
 
 The KumoRFM MCP provides several categories of tools for working with relational data and machine learning models:
