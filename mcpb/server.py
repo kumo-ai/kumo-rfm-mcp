@@ -19,16 +19,25 @@ def get_venv() -> Path:
         python = VENV / 'bin' / 'python'
 
     if not venv_exists:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'uv'])
-        subprocess.check_call([
-            sys.executable, '-m', 'uv', 'venv', '--python', '3.11',
-            str(VENV)
-        ])
+        subprocess.check_call(
+            [sys.executable, '-m', 'pip', 'install', 'uv'],
+            stdout=subprocess.DEVNULL,
+        )
+        subprocess.check_call(
+            [
+                sys.executable, '-m', 'uv', 'venv', '--python', '3.11',
+                str(VENV)
+            ],
+            stdout=subprocess.DEVNULL,
+        )
 
-    subprocess.check_call([
-        sys.executable, '-m', 'uv', 'pip', 'install', '-r',
-        str(REQUIREMENTS), '--python', python
-    ])
+    subprocess.check_call(
+        [
+            sys.executable, '-m', 'uv', 'pip', 'install', '-r',
+            str(REQUIREMENTS), '--python', python
+        ],
+        stdout=subprocess.DEVNULL,
+    )
 
     return python
 

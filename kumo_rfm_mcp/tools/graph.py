@@ -210,9 +210,6 @@ def get_mermaid(
 
     The returned Mermaid markup can be used to input into an artifact to render
     it visually on the client side.
-
-    Important: Only call this tool if you plan to render the artifact on
-    client-side.
     """
     session = SessionManager.get_default_session()
 
