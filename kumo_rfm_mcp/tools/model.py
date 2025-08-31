@@ -227,7 +227,7 @@ async def evaluate(
 def register_model_tools(mcp: FastMCP) -> None:
     """Register all model tools to the MCP server."""
     mcp.tool(annotations=dict(
-        title="Executing a predictive query",
+        title="🤖 Running predictive query…",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
@@ -235,7 +235,7 @@ def register_model_tools(mcp: FastMCP) -> None:
     ))(predict)
 
     mcp.tool(annotations=dict(
-        title="Evaluating a predictive query",
+        title="📊 Evaluating predictive query…",
         readOnlyHint=True,
         destructiveHint=False,
         idempotentHint=True,
