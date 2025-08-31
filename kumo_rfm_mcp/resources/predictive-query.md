@@ -62,10 +62,10 @@ We differentiate between two types of queries: static and temporal queries.
 ### Static Predictive Queries
 
 Static predictive queries are used to impute missing values from an entity table.
-That is, the target column has to appear in the same table as the entity we are making a prediction for.
+That is, the target column has to appear in the same table as the entity you are making a prediction for.
 KumoRFM will then mask out the target column and predict the value from related in-context examples.
 
-For example, we can predict the age of users via
+For example, you can predict the age of users via
 
 ```
 PREDICT users.age FOR users.user_id=1
@@ -217,7 +217,7 @@ Do not make syntax up that is not listed in this document.
 
 KumoRFM makes entity-specific predictions based on in-context examples, collected from a historical snapshot of the relational data.
 Entity filters can be used to provide more control over how KumoRFM collects in-context examples.
-For example, to exclude `users` without recent activity from the context, we can write:
+For example, to exclude `users` without recent activity from the context, you can write:
 
 ```
 PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 WHERE COUNT(orders.*, -30, 0, days) > 0
@@ -233,7 +233,7 @@ For temporal entity filters, `<start_offset>` can also be defined as `-INF` to i
 
 In order to to investigate hypothetical scenarios and to evaluate impact of your actions or decisions, you can use the `ASSUMING` keyword (instead of `WHERE`) to write forward looking entity filters.
 For example, you may want to investigate how much a user will spend if you give them a certain coupon or notification.
-`ASSUMING` keyword is followed by a future-looking assumption, which will be assumed to be true for the entity IDs we predict for.
+The `ASSUMING` keyword is followed by a future-looking assumption, which will be assumed to be true for the entity IDs you predict for.
 
 ```
 PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 ASSUMING COUNT(notifications.*, 0, 7, days)>0
