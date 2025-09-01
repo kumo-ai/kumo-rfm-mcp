@@ -60,31 +60,31 @@ Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
 
 We provide a single-click installation via [MCP Bundles (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
 
-1. Download the `dxt` file from **[here]()**
+1. Download the `dxt` file from [here]()
 1. Double click to install
 
 <img height="250" src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/mcpb.png" />
 
 ## 📚 Available Tools
 
-The KumoRFM MCP provides several categories of tools:
+The KumoRFM MCP server provides several categories of tools:
 
 ### I/O Operations
 
-- **`find_table_files`**: Find all table-like files (*e.g.*, CSV, Parquet) in a directory.
-- **`inspect_table_files`**: Inspect the first rows of table-like files.
+- **🔍 Searching for tabular files**: Find all table-like files (*e.g.*, CSV, Parquet) in a directory.
+- **🧐 Analyzing table structure**: Inspect the first rows of table-like files.
 
 ### Graph Management
 
-- **`inspect_graph_metadata`**: Inspect the current graph metadata.
-- **`update_graph_metadata`**: Partially update the current graph metadata.
-- **`get_mermaid`**: Return the graph as a Mermaid entity relationship diagram.
-- **`materialize_graph`**: Materialize the graph based on the current state of the graph metadata to make it available for inference operations (*e.g.*, `predict` and `evaluate`).
+- **🗂️ Reviewing graph schema**: Inspect the current graph metadata.
+- **🔄 Updating graph schema**: Partially update the current graph metadata.
+- **🖼️ Creating graph diagram**: Return the graph as a Mermaid entity relationship diagram.
+- **🕸️ Assembling graph**: Materialize the graph based on the current state of the graph metadata to make it available for inference operations.
 
 ### Model Execution
 
-- **`predict`**: Execute a predictive query and return model predictions.
-- **`evaluate`**: Evaluate a predictive query and return performance metrics which compares predictions against known ground-truth labels from historical examples.
+- **🤖 Running predictive query**: Execute a predictive query and return model predictions.
+- **📊 Evaluating predictive query**: Evaluate a predictive query and return performance metrics which compares predictions against known ground-truth labels from historical examples.
 
 ## 🔧 Configuration
 
