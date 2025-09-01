@@ -1,7 +1,7 @@
-<h1 align="center">
-  <img src="https://kumo-ai.github.io/kumo-sdk/docs/_static/kumo-logo.svg"/>
-  KumoRFM MCP Server
-</h1>
+<div align="center">
+  <img src="https://kumo-ai.github.io/kumo-sdk/docs/_static/kumo-logo.svg" height="40"/>
+</div>
+<h1 align="center">KumoRFM MCP Server</h1>
 
 <div align="center">
   <p>
@@ -15,7 +15,7 @@
   [![PyPI Status](https://img.shields.io/pypi/v/kumo-rfm-mcp.svg?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
   [![Slack](https://img.shields.io/badge/slack-join-pink.svg?logo=slack&color=FC1373)](https://join.slack.com/t/kumoaibuilders/shared_invite/zt-2z9uih3lf-fPM1z2ACZg~oS3ObmiQLKQ)
 
-  🔬 MCP Server to query [KumoRFM](https://kumorfm.ai) in your agentic flows
+  🔬 MCP server to query [KumoRFM](https://kumorfm.ai) in your agentic flows
 </div>
 
 ## 📖 Introduction
@@ -34,7 +34,7 @@ This server enables:
 
 ### 🐍 Traditional MCP Server
 
-The KumoRFM MCP is available for Python 3.10 and above. To install, simply run:
+The KumoRFM MCP server is available for Python 3.10 and above. To install, simply run:
 
 ```bash
 pip install kumo-rfm-mcp
@@ -56,16 +56,14 @@ Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
 }
 ```
 
-### ⚡MCP Bundle
+### ⚡ MCP Bundle
 
 We provide a single-click installation via [MCP Bundles (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
 
 1. Download the `dxt` file from **[here]()**
 1. Double click to install
 
-<p align="center">
-  <img height="180" src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/mcpb.png" />
-</p>
+<img height="250" src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/mcpb.png" />
 
 ## 📚 Available Tools
 
@@ -73,7 +71,7 @@ The KumoRFM MCP provides several categories of tools:
 
 ### I/O Operations
 
-- **`find_table_files`**: Find all table-like files (e.g., CSV, Parquet) in a directory.
+- **`find_table_files`**: Find all table-like files (*e.g.*, CSV, Parquet) in a directory.
 - **`inspect_table_files`**: Inspect the first rows of table-like files.
 
 ### Graph Management
@@ -92,10 +90,10 @@ The KumoRFM MCP provides several categories of tools:
 
 ### Environment Variables
 
-* **`KUMO_API_KEY`**: Authenticating is needed once before predicting or evaluating with the
+* **`KUMO_API_KEY`**: Authentication is needed once before predicting or evaluating with the
     KumoRFM model.
-    If the `KUMO_API_KEY` environment variable is not set, you can authenticate via an OAuth2 flow on-the-fly in individual session.
-    You can generate your KumoRFM API key for free at https://kumorfm.ai.
+    You can generate your KumoRFM API key for free [here](https://kumorfm.ai).
+    If not set, you can also authenticate on-the-fly in individual session via an OAuth2 flow.
 
 ## We love your feedback! :heart:
 

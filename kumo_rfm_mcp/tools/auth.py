@@ -13,7 +13,7 @@ async def authenticate(
 ) -> Literal["KumoRFM session successfully authenticated"]:
     """Authenticate the current KumoRFM session.
 
-    Authenticating is needed once before predicting or evaluating with the
+    Authentication is needed once before predicting or evaluating with the
     KumoRFM model. If the 'KUMO_API_KEY' environment variable is not set,
     initiates an OAuth2 authentication flow by opening a browser window for
     user login. Sets the 'KUMO_API_KEY' environment variable upon successful
