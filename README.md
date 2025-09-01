@@ -63,7 +63,7 @@ We provide a single-click installation via [MCP Bundles (MCPB)](https://github.c
 1. Download the `dxt` file from [here]()
 1. Double click to install
 
-<img height="250" src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/mcpb.png" />
+<img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/mcpb.png" />
 
 ## 📚 Available Tools
 
