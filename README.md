@@ -70,14 +70,6 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
       <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_mcpb.png" height="300" />
     </td>
   </tr>
-  <tr>
-    <td>
-      <ol>
-        <li>Download the <pre>dxt</pre> file from <a href="">here</a></li>
-        <li>Double click to install</li>
-      </ol>
-    </td>
-  </tr>
 </table>
 
 ## 📚 Available Tools
