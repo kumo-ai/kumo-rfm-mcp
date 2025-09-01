@@ -10,3 +10,4 @@ wheels/
 tmp/
 mcp.json
 server-info.json
+.DS_Store

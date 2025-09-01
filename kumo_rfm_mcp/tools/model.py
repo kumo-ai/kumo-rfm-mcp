@@ -84,7 +84,7 @@ async def predict(
         Field(default=20, description=max_pq_iterations_doc),
     ],
 ) -> PredictResponse:
-    """Execute a predictive query and returns model predictions.
+    """Execute a predictive query and return model predictions.
 
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start generating predictions.

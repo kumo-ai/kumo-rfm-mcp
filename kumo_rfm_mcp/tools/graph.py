@@ -91,7 +91,7 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
     Note that all operations can be performed in a batch at once, *e.g.*, one
     can add new tables and directly link them to together.
 
-    **Important:** Before creating and updating graphs, read the documentation
+    Important: Before creating and updating graphs, read the documentation
     first at 'kumo://docs/graph-setup'.
     """
     session = SessionManager.get_default_session()
@@ -208,11 +208,8 @@ def get_mermaid(
 ) -> str:
     """Return the graph as a Mermaid entity relationship diagram.
 
-    The returned Mermaid markup can be used to input into an artifact to render
-    it visually on the client side.
-
-    Important: Only call this tool if you plan to render the artifact on
-    client-side.
+    Important: The returned Mermaid markup can be used to input into an
+    artifact to render it visually on the client side.
     """
     session = SessionManager.get_default_session()
 

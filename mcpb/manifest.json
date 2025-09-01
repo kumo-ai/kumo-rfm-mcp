@@ -1,0 +1,53 @@
+{
+  "dxt_version": "0.1",
+  "name": "kumo-rfm-mcp",
+  "display_name": "KumoRFM",
+  "version": "0.1.0",
+  "description": "MCP server for KumoRFM",
+  "long_description": "KumoRFM is a pre-trained Relational Foundation Model (RFM) that generates training-free predictions on any relational multi-table data by interpreting the data as a (temporal) heterogeneous graph. It can be queried via the Predictive Query Language (PQL).",
+  "author": {
+    "name": "Kumo.AI",
+    "email": "hello@kumo.ai"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kumo-ai/kumo-rfm-mcp"
+  },
+  "homepage": "https://kumorfm.ai",
+  "documentation": "https://kumo-ai.github.io/kumo-sdk/docs",
+  "support": "https://github.com/kumo-ai/kumo-rfm-mcp/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "python",
+    "entry_point": "server.py",
+    "mcp_config": {
+      "command": "python",
+      "args": ["${__dirname}/server.py"],
+      "env": {
+        "KUMO_API_KEY": "${user_config.KUMO_API_KEY}"
+      },
+      "platform_overrides": {
+        "darwin": {
+          "command": "python3"
+        }
+      }
+    }
+  },
+  "keywords": [
+    "rfm",
+    "mcp",
+    "foundation model",
+    "relational data",
+    "kumo"
+  ],
+  "license": "MIT",
+  "user_config": {
+    "KUMO_API_KEY": {
+      "type": "string",
+      "title": "KumoRFM API key",
+      "description": "You can generate your KumoRFM API key for free at https://kumorfm.ai. If not provided, you can authenticate on-the-fly in individual sessions.",
+      "required": false,
+      "sensitive": true
+    }
+  }
+}

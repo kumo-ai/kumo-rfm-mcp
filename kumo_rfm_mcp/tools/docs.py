@@ -48,7 +48,7 @@ def register_docs_tools(mcp: FastMCP) -> None:
         ID, text, timestamp, sequence, etc) that denotes the semantic meaning
         of the column and how it should be processed within the model.
 
-        **Important:** Before creating and updating graphs, read the
+        Important: Before creating and updating graphs, read the
         documentation first at 'kumo://docs/graph-setup'.
 
         After a graph is set up and materialized, KumoRFM can generate
