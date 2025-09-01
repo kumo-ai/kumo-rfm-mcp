@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from kumoai.experimental import rfm
 from pytest import TempPathFactory
 
 from kumo_rfm_mcp import (
@@ -15,6 +16,25 @@ from kumo_rfm_mcp import (
 @pytest.fixture(autouse=True)
 def clear_session() -> None:
     SessionManager.get_default_session().clear()
+
+
+@pytest.fixture(autouse=True)
+def mock_model(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv('KUMO_API_KEY', 'DUMMY')
+    monkeypatch.setattr(rfm, 'init', lambda *args, **kwargs: None)
+    monkeypatch.setattr(
+        rfm.KumoRFM, 'predict', lambda *args, **kwargs: pd.DataFrame({
+            'ENTITY': [0],
+            'ANCHOR_TIMESTAMP': ['2025-01-1'],
+            'TARGET_PRED': [True],
+            'False_PROB': [0.4],
+            'True_PROB': [0.6],
+        }))
+    monkeypatch.setattr(
+        rfm.KumoRFM, 'evaluate', lambda *args, **kwargs: pd.DataFrame({
+            'metric': ['ap', 'auprc', 'auroc'],
+            'value': [0.8, 0.8, 0.9],
+        }))
 
 
 @pytest.fixture(scope='session')

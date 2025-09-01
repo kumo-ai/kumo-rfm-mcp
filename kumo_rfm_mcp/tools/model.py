@@ -128,8 +128,9 @@ async def predict(
         anchor_time = pd.Timestamp(anchor_time)
 
     def _predict() -> PredictResponse:
+        logger = ProgressLogger(query)
+
         try:
-            logger = ProgressLogger(query)
             df = model.predict(
                 query,
                 anchor_time=anchor_time,
@@ -141,9 +142,13 @@ async def predict(
         except Exception as e:
             raise ToolError(f"Prediction failed: {e}") from e
 
+        logs = logger.logs
+        if logger.start_time is not None:
+            logs = logs + [f'Duration: {logger.duration:2f}s']
+
         return PredictResponse(
             predictions=df.to_dict(orient='records'),
-            logs=logger.logs + [f'Duration: {logger.duration:2f}s'],
+            logs=logs,
         )
 
     return await asyncio.to_thread(_predict)
@@ -201,8 +206,9 @@ async def evaluate(
         anchor_time = pd.Timestamp(anchor_time)
 
     def _evaluate() -> EvaluateResponse:
+        logger = ProgressLogger(query)
+
         try:
-            logger = ProgressLogger(query)
             df = model.evaluate(
                 query,
                 metrics=metrics,
@@ -215,10 +221,13 @@ async def evaluate(
         except Exception as e:
             raise ToolError(f"Evaluation failed: {e}") from e
 
-        metric_dict = df.set_index('metric')['value'].to_dict()
+        logs = logger.logs
+        if logger.start_time is not None:
+            logs = logs + [f'Duration: {logger.duration:2f}s']
+
         return EvaluateResponse(
-            metrics=metric_dict,
-            logs=logger.logs + [f'Duration: {logger.duration:2f}s'],
+            metrics=df.set_index('metric')['value'].to_dict(),
+            logs=logs,
         )
 
     return await asyncio.to_thread(_evaluate)
