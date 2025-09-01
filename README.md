@@ -65,8 +65,8 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 1. Double click to install
 
 <table style="background-color: lightblue;">
-  <tr>
-    <td align="center">
+  <tr  style="background-color: lightblue;">
+    <td align="center"  style="background-color: lightblue;">
       <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_mcpb.png" height="300" />
     </td>
   </tr>
