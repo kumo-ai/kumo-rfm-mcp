@@ -11,11 +11,12 @@
     <a href="https://kumorfm.ai">Get an API key</a>
   </p>
 
-  [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/kumo-rfm-mcp?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
-  [![PyPI Status](https://img.shields.io/pypi/v/kumo-rfm-mcp.svg?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
-  [![Slack](https://img.shields.io/badge/slack-join-pink.svg?logo=slack&color=FC1373)](https://join.slack.com/t/kumoaibuilders/shared_invite/zt-2z9uih3lf-fPM1z2ACZg~oS3ObmiQLKQ)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/kumo-rfm-mcp?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
+[![PyPI Status](https://img.shields.io/pypi/v/kumo-rfm-mcp.svg?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
+[![Slack](https://img.shields.io/badge/slack-join-pink.svg?logo=slack&color=FC1373)](https://join.slack.com/t/kumoaibuilders/shared_invite/zt-2z9uih3lf-fPM1z2ACZg~oS3ObmiQLKQ)
 
-  🔬 MCP server to query [KumoRFM](https://kumorfm.ai) in your agentic flows
+🔬 MCP server to query [KumoRFM](https://kumorfm.ai) in your agentic flows
+
 </div>
 
 ## 📖 Introduction
@@ -60,7 +61,7 @@ Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
 
 We provide a single-click installation by providing an [MCP Bundle (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
 
-1. Download the `dxt` file from [here]()
+1. Download the `dxt` file from [here](<>)
 1. Double click to install
 
 <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/mcpb.png" />
@@ -88,10 +89,10 @@ We provide a single-click installation by providing an [MCP Bundle (MCPB)](https
 
 ### Environment Variables
 
-* **`KUMO_API_KEY`**: Authentication is needed once before predicting or evaluating with the
-    KumoRFM model.
-    You can generate your KumoRFM API key for free [here](https://kumorfm.ai).
-    If not set, you can also authenticate on-the-fly in individual session via an OAuth2 flow.
+- **`KUMO_API_KEY`**: Authentication is needed once before predicting or evaluating with the
+  KumoRFM model.
+  You can generate your KumoRFM API key for free [here](https://kumorfm.ai).
+  If not set, you can also authenticate on-the-fly in individual session via an OAuth2 flow.
 
 ## We love your feedback! :heart:
 
