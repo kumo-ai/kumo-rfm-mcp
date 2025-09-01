@@ -1,22 +1,46 @@
-<p align="center">
-  <img height="180" src="https://s3.us-west-1.amazonaws.com/data.kumo.ai/img/kumo_pink_md.svg" />
-</p>
+<div align="center">
+  <img src="https://kumo-ai.github.io/kumo-sdk/docs/_static/kumo-logo.svg" height="40"/>
+  <h1>KumoRFM MCP Server</h1>
+</div>
 
-______________________________________________________________________
+<div align="center">
+  <p>
+    <a href="https://github.com/kumo-ai/kumo-rfm/">SDK</a> •
+    <a href="https://kumo.ai/company/news/kumo-relational-foundation-model/">Blog</a> •
+    <a href="https://kumo.ai/research/kumo_relational_foundation_model.pdf">Paper</a> •
+    <a href="https://kumorfm.ai">Get an API key</a>
+  </p>
 
-The KumoRFM MCP implements a Model Context Protocol (MCP) server for
-interacting with the Kumo machine learning platform's RFM (Relational Foundation Model)
-capabilities ([documentation](https://github.com/kumo-ai/kumo-rfm-mcp/)).
+  [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/kumo-rfm-mcp?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
+  [![PyPI Status](https://img.shields.io/pypi/v/kumo-rfm-mcp.svg?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
+  [![Slack](https://img.shields.io/badge/slack-join-pink.svg?logo=slack&color=FC1373)](https://join.slack.com/t/kumoaibuilders/shared_invite/zt-2z9uih3lf-fPM1z2ACZg~oS3ObmiQLKQ)
 
-## Installation
+  🔬 MCP server to query [KumoRFM](https://kumorfm.ai) in your agentic flows
+</div>
 
-The KumoRFM MCP is available for Python 3.10 and above. To install, simply run
+## 📖 Introduction
 
-```
+KumoRFM is a pre-trained *Relational Foundation Model (RFM)* that generates training-free predictions on any relational multi-table data by interpreting the data as a (temporal) heterogeneous graph.
+It can be queried via the *Predictive Query Language (PQL)*.
+
+This repository hosts a full-featured *MCP (Model Context Protocol)* server that empowers AI assistants with KumoRFM intelligence.
+This server enables:
+
+- 🕸️ Build, manage, and visualize graphs directly from CSV or Parquet files
+- 💬 Convert natural language into PQL queries for seamless interaction
+- 🤖 Query, analyze, and evaluate predictions from KumoRFM (missing value imputation, temporal forecasting, *etc*) all without any training required
+
+## 🚀 Installation
+
+### 🐍 Traditional MCP Server
+
+The KumoRFM MCP server is available for Python 3.10 and above. To install, simply run:
+
+```bash
 pip install kumo-rfm-mcp
 ```
 
-## Registration
+Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
 
 ```json
 {
@@ -32,40 +56,45 @@ pip install kumo-rfm-mcp
 }
 ```
 
-## Available tools
+### ⚡ MCP Bundle
 
-The KumoRFM MCP provides several categories of tools for working with relational data and machine learning models:
+We provide a single-click installation by providing an [MCP Bundle (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
 
-### Table Management Tools
+1. Download the `dxt` file from [here]()
+1. Double click to install
 
-- **add_table**: Load CSV or Parquet files into the Kumo graph
-- **remove_table**: Remove tables from the graph
-- **inspect_table**: View table contents and schema information
-- **list_tables**: Get a list of all tables in the current graph
+<img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/mcpb.png" />
 
-### Graph Management Tools
+## 📚 Available Tools
 
-- **infer_links**: Automatically detect relationships between tables based on matching column names
-- **inspect_graph**: View the current graph structure, tables, and links
-- **link_tables**: Manually create foreign key relationships between tables
-- **unlink_tables**: Remove existing relationships between tables
+### I/O Operations
 
-### Model Tools
+- **🔍 Searching for tabular files**: Find all table-like files (*e.g.*, CSV, Parquet) in a directory.
+- **🧐 Analyzing table structure**: Inspect the first rows of table-like files.
 
-- **finalize_graph**: Create a KumoRFM model from the current graph state for inference
-- **validate_query**: Check if a PQL (Predictive Query Language) query is syntactically correct
-- **predict**: Generate predictions using PQL queries on the finalized model
-- **evaluate**: Evaluate model performance using PQL queries with ground truth data
+### Graph Management
 
-### Session Management Tools
+- **🗂️ Reviewing graph schema**: Inspect the current graph metadata.
+- **🔄 Updating graph schema**: Partially update the current graph metadata.
+- **🖼️ Creating graph diagram**: Return the graph as a Mermaid entity relationship diagram.
+- **🕸️ Assembling graph**: Materialize the graph based on the current state of the graph metadata to make it available for inference operations.
 
-- **get_session_status**: Check the current state of the session, graph, and model
-- **clear_session**: Reset the session and clear all data
+### Model Execution
 
-### Documentation Tools
+- **🤖 Running predictive query**: Execute a predictive query and return model predictions.
+- **📊 Evaluating predictive query**: Evaluate a predictive query and return performance metrics which compares predictions against known ground-truth labels from historical examples.
 
-- **get_docs**: Access documentation, guides, and examples via kumo:// URIs
+## 🔧 Configuration
 
-## Contributing
+### Environment Variables
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and [CLAUDE_DESKTOP_SETUP.md](CLAUDE_DESKTOP_SETUP.md) for Claude Desktop integration.
+* **`KUMO_API_KEY`**: Authentication is needed once before predicting or evaluating with the
+    KumoRFM model.
+    You can generate your KumoRFM API key for free [here](https://kumorfm.ai).
+    If not set, you can also authenticate on-the-fly in individual session via an OAuth2 flow.
+
+## We love your feedback! :heart:
+
+As you work with KumoRFM, if you encounter any problems or things that are confusing or don't work quite right, please open a new :octocat:[issue](https://github.com/kumo-ai/kumo-rfm-mcp/issues/new).
+You can also submit general feedback and suggestions [here](https://docs.google.com/forms/d/e/1FAIpQLSfr2HYgJN8ghaKyvU0PSRkqrGd_BijL3oyQTnTxLrf8AEk-EA/viewform).
+Join [our Slack](https://join.slack.com/t/kumoaibuilders/shared_invite/zt-2z9uih3lf-fPM1z2ACZg~oS3ObmiQLKQ)!

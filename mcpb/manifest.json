@@ -3,7 +3,7 @@
   "name": "kumo-rfm-mcp",
   "display_name": "KumoRFM",
   "version": "0.1.0",
-  "description": "MCP server for KumoRFM",
+  "description": "KumoRFM MCP Server",
   "long_description": "KumoRFM is a pre-trained Relational Foundation Model (RFM) that generates training-free predictions on any relational multi-table data by interpreting the data as a (temporal) heterogeneous graph. It can be queried via the Predictive Query Language (PQL).",
   "author": {
     "name": "Kumo.AI",
