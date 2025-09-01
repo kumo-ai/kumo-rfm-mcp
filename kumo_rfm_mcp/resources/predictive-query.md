@@ -165,7 +165,9 @@ The following aggregation operators are supported:
 - `AVG`: Calculates the average of values in a numerical column
 - `MIN`: Finds the minimum value in a numerical column
 - `MAX`: Finds the maximum value in a numerical column
-- `COUNT`: Counts the number of rows/events. Use `COUNT(<target_table>.*, ...)` to count all events, or `COUNT(<target_table>.<target_column>, ...)` to count non-null values in any column type
+- `COUNT`: Counts the number of rows/events.
+  Use `COUNT(<target_table>.*, ...)` to count all events, or `COUNT(<target_table>.<target_column>, ...)` to count non-null values in any column type.
+  The `COUNT` operator is the only operator where the special `*` syntax is allowed.
 - `LIST_DISTINCT`: Returns a distinct list of unique values from a foreign key column (used for recommendations)
 
 ##### Recommendation Tasks
