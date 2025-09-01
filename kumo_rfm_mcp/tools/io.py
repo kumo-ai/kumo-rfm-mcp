@@ -57,6 +57,8 @@ async def inspect_table_files(
     names to their corresponding values.
     """
     def read_file(path: Path) -> TableSourcePreview:
+        path = path.expanduser()
+
         if path.suffix.lower() not in {'.csv', '.parquet'}:
             raise ToolError(f"'{path}' is not a valid CSV or Parquet file")
 

@@ -100,20 +100,22 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
 
     errors: list[str] = []
     for table in update.tables_to_add:
-        if table.path.name.lower().endswith('.csv'):
+        path = table.path.expanduser()
+
+        if path.suffix.lower() == '.csv':
             try:
-                df = pd.read_csv(table.path)
+                df = pd.read_csv(path)
             except Exception as e:
-                errors.append(f"Could not read file '{table.path}': {e}")
+                errors.append(f"Could not read file '{path}': {e}")
                 continue
-        elif table.path.name.lower().endswith('.parquet'):
+        elif path.suffix.lower() == '.parquet':
             try:
-                df = pd.read_parquet(table.path)
+                df = pd.read_parquet(path)
             except Exception as e:
-                errors.append(f"Could not read file '{table.path}': {e}")
+                errors.append(f"Could not read file '{path}': {e}")
                 continue
         else:
-            errors.append(f"'{table.path}' is not a valid CSV or Parquet file")
+            errors.append(f"'{path}' is not a valid CSV or Parquet file")
             continue
 
         try:
@@ -123,7 +125,7 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
                 primary_key=table.primary_key,
                 time_column=table.time_column,
             )
-            local_table._path = table.path
+            local_table._path = path
             graph.add_table(local_table)
         except Exception as e:
             errors.append(f"Could not add table '{table.name}': {e}")
