@@ -55,9 +55,10 @@ def test_graph_metadata(root_dir: Path) -> None:
                 'USERS':
                 UpdateTableMetadata(  # type: ignore[call-arg]
                     stypes={
-                    'AGE': Stype.categorical,
-                    'GENDER': None,
-                })
+                        'AGE': Stype.categorical,
+                        'GENDER': None,
+                    },
+                )
             }))
     assert len(out.graph.tables) == 3
     assert len(out.graph.links) == 0
