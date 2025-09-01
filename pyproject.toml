@@ -50,6 +50,13 @@ dev = [
 [project.scripts]
 kumo-rfm-mcp = "kumo_rfm_mcp.server:main"
 
+[tool.hatch.build]
+exclude = [
+  ".github",
+  "mcpb",
+  ".pre-commit-config.yaml",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["kumo_rfm_mcp"]
 
