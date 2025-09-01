@@ -24,32 +24,33 @@ def test_graph_metadata(root_dir: Path) -> None:
     assert len(graph.links) == 0
 
     out = update_graph_metadata(
-        UpdateGraphMetadata(tables_to_add=[
-            AddTableMetadata(
-                path=root_dir / 'USERS.csv',
-                name='USERS',
-                primary_key='USER_ID',
-                time_column=None,
-            ),
-            AddTableMetadata(
-                path=root_dir / 'ORDERS.parquet',
-                name='ORDERS',
-                primary_key=None,
-                time_column='TIME',
-            ),
-            AddTableMetadata(
-                path=root_dir / 'STORES.csv',
-                name='STORES',
-                primary_key='STORE_ID',
-                time_column=None,
-            ),
-        ]))
+        UpdateGraphMetadata(  # type: ignore[call-arg]
+            tables_to_add=[
+                AddTableMetadata(
+                    path=root_dir / 'USERS.csv',
+                    name='USERS',
+                    primary_key='USER_ID',
+                    time_column=None,
+                ),
+                AddTableMetadata(
+                    path=root_dir / 'ORDERS.parquet',
+                    name='ORDERS',
+                    primary_key=None,
+                    time_column='TIME',
+                ),
+                AddTableMetadata(
+                    path=root_dir / 'STORES.csv',
+                    name='STORES',
+                    primary_key='STORE_ID',
+                    time_column=None,
+                ),
+            ]))
     assert len(out.graph.tables) == 3
     assert len(out.graph.links) == 0
     assert len(out.errors) == 0
 
     out = update_graph_metadata(
-        UpdateGraphMetadata(
+        UpdateGraphMetadata(  # type: ignore[call-arg]
             tables_to_update={
                 'USERS':
                 UpdateTableMetadata(stypes={
@@ -64,24 +65,25 @@ def test_graph_metadata(root_dir: Path) -> None:
     assert out.graph.tables[0].stypes['GENDER'] is None
 
     out = update_graph_metadata(
-        UpdateGraphMetadata(links_to_add=[
-            LinkMetadata(
-                source_table='ORDERS',
-                foreign_key='USER_ID',
-                destination_table='USERS',
-            ),
-            LinkMetadata(
-                source_table='ORDERS',
-                foreign_key='STORE_ID',
-                destination_table='STORES',
-            ),
-        ]))
+        UpdateGraphMetadata(  # type: ignore[call-arg]
+            links_to_add=[
+                LinkMetadata(
+                    source_table='ORDERS',
+                    foreign_key='USER_ID',
+                    destination_table='USERS',
+                ),
+                LinkMetadata(
+                    source_table='ORDERS',
+                    foreign_key='STORE_ID',
+                    destination_table='STORES',
+                ),
+            ]))
     assert len(out.graph.tables) == 3
     assert len(out.graph.links) == 2
     assert len(out.errors) == 0
 
     out = update_graph_metadata(
-        UpdateGraphMetadata(
+        UpdateGraphMetadata(  # type: ignore[call-arg]
             links_to_remove=[
                 LinkMetadata(
                     source_table='ORDERS',

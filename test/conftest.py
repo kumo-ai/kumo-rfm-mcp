@@ -47,7 +47,7 @@ def root_dir(tmp_path_factory: TempPathFactory) -> Path:
 
 @pytest.fixture
 def graph(root_dir: Path) -> UpdateGraphMetadata:
-    return UpdateGraphMetadata(
+    return UpdateGraphMetadata(  # type: ignore[call-arg]
         tables_to_add=[
             AddTableMetadata(
                 path=root_dir / 'USERS.csv',
