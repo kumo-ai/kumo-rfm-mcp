@@ -18,6 +18,9 @@
     "mcp_config": {
       "command": "python",
       "args": ["${__dirname}/server.py"],
+      "env": {
+        "KUMO_API_KEY": "${user_config.KUMO_API_KEY}"
+      },
       "platform_overrides": {
         "darwin": {
           "command": "python3"
