@@ -4,6 +4,18 @@ import pandas as pd
 import pytest
 from pytest import TempPathFactory
 
+from kumo_rfm_mcp import (
+    AddTableMetadata,
+    LinkMetadata,
+    SessionManager,
+    UpdateGraphMetadata,
+)
+
+
+@pytest.fixture(autouse=True)
+def clear_session() -> None:
+    SessionManager.get_default_session().clear()
+
 
 @pytest.fixture(scope='session')
 def root_dir(tmp_path_factory: TempPathFactory) -> Path:
@@ -31,3 +43,41 @@ def root_dir(tmp_path_factory: TempPathFactory) -> Path:
     df.to_csv(path / 'STORES.csv', index=False)
 
     return path
+
+
+@pytest.fixture
+def graph(root_dir: Path) -> UpdateGraphMetadata:
+    return UpdateGraphMetadata(
+        tables_to_add=[
+            AddTableMetadata(
+                path=root_dir / 'USERS.csv',
+                name='USERS',
+                primary_key='USER_ID',
+                time_column=None,
+            ),
+            AddTableMetadata(
+                path=root_dir / 'ORDERS.parquet',
+                name='ORDERS',
+                primary_key=None,
+                time_column='TIME',
+            ),
+            AddTableMetadata(
+                path=root_dir / 'STORES.csv',
+                name='STORES',
+                primary_key='STORE_ID',
+                time_column=None,
+            ),
+        ],
+        links_to_add=[
+            LinkMetadata(
+                source_table='ORDERS',
+                foreign_key='USER_ID',
+                destination_table='USERS',
+            ),
+            LinkMetadata(
+                source_table='ORDERS',
+                foreign_key='STORE_ID',
+                destination_table='STORES',
+            ),
+        ],
+    )

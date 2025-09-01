@@ -100,13 +100,13 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
 
     errors: list[str] = []
     for table in update.tables_to_add:
-        if table.path.lower().endswith('.csv'):
+        if table.path.name.lower().endswith('.csv'):
             try:
                 df = pd.read_csv(table.path)
             except Exception as e:
                 errors.append(f"Could not read file '{table.path}': {e}")
                 continue
-        elif table.path.lower().endswith('.parquet'):
+        elif table.path.name.lower().endswith('.parquet'):
             try:
                 df = pd.read_parquet(table.path)
             except Exception as e:
