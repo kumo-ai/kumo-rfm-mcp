@@ -23,12 +23,17 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.10'
+          activate-environment: true
+
       - name: Install Kumo RFM MCP
-        run: |
-          pip install --verbose .
+        run: uv pip install --verbose .
 
       - name: Install dependencies
-        run: pip install mypy
+        run: uv pip install mypy
 
       - name: Check type hints
-        run: mypy
+        run: uv run --no-project mypy

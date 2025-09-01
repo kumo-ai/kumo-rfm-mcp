@@ -5,6 +5,7 @@ from pathlib import Path
 
 from fastmcp import FastMCP
 from fastmcp.resources import FileResource
+from pydantic import AnyUrl
 
 import kumo_rfm_mcp
 from kumo_rfm_mcp import tools
@@ -35,30 +36,30 @@ tools.register_model_tools(mcp)
 # Resources ##################################################################
 mcp.add_resource(
     FileResource(
-        uri="kumo://docs/overview",
+        uri=AnyUrl('kumo://docs/overview'),
         path=Path(__file__).parent / 'resources' / 'overview.md',
         name="Overview of KumoRFM",
         description="Overview of KumoRFM (Relational Foundation Model)",
-        mime_type="text/markdown",
-        tags={"documentation"},
+        mime_type='text/markdown',
+        tags={'documentation'},
     ))
 mcp.add_resource(
     FileResource(
-        uri="kumo://docs/graph-setup",
+        uri=AnyUrl('kumo://docs/graph-setup'),
         path=Path(__file__).parent / 'resources' / 'graph-setup.md',
         name="Graph Setup",
         description="How to set up graphs in KumoRFM",
-        mime_type="text/markdown",
-        tags={"documentation"},
+        mime_type='text/markdown',
+        tags={'documentation'},
     ))
 mcp.add_resource(
     FileResource(
-        uri="kumo://docs/predictive-query",
+        uri=AnyUrl('kumo://docs/predictive-query'),
         path=Path(__file__).parent / 'resources' / 'predictive-query.md',
         name="Predictive Query",
         description="How to query and generate predictions in KumoRFM",
-        mime_type="text/markdown",
-        tags={"documentation"},
+        mime_type='text/markdown',
+        tags={'documentation'},
     ))
 
 
