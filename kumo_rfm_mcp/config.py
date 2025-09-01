@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Annotated, Any
 
 from kumoapi.typing import Dtype, Stype
@@ -7,7 +8,7 @@ from pydantic import BaseModel, Field
 class TableSource(BaseModel):
     """Source information of a table."""
     path: Annotated[
-        str,
+        Path,
         "Path to the file. Only CSV or Parquet files are supported.",
     ]
     bytes: Annotated[int, "Size in bytes of the file"]

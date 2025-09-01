@@ -33,8 +33,7 @@ async def find_table_files(
         suffixes = {'.csv', '.parquet'}
         files = [f for f in path.glob(pattern) if f.suffix.lower() in suffixes]
         return [
-            TableSource(path=str(f), bytes=f.stat().st_size)
-            for f in sorted(files)
+            TableSource(path=f, bytes=f.stat().st_size) for f in sorted(files)
         ]
 
     return await asyncio.to_thread(_find_table_files)
