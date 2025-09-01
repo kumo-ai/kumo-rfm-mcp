@@ -320,7 +320,10 @@ async def lookup_table_rows(
     The table to read from needs to have a primary key, and the graph has to be
     materialized.
     """
-    model = SessionManager.get_default_session().model
+    model = SessionManager.get_default_session()._model
+
+    if model is None:
+        raise ToolError("Graph is not yet materialized")
 
     def _lookup_table_rows() -> TableSourcePreview:
         try:

@@ -53,7 +53,8 @@ def test_graph_metadata(root_dir: Path) -> None:
         UpdateGraphMetadata(  # type: ignore[call-arg]
             tables_to_update={
                 'USERS':
-                UpdateTableMetadata(stypes={
+                UpdateTableMetadata(  # type: ignore[call-arg]
+                    stypes={
                     'AGE': Stype.categorical,
                     'GENDER': None,
                 })
