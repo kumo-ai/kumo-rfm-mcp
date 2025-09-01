@@ -30,7 +30,7 @@ jobs:
           activate-environment: true
 
       - name: Install Kumo RFM MCP
-        run: uv pip install --verbose '.[dev]'
+        run: uv pip install '.[dev]'
 
       - name: Run test suite
         run: uv run --no-project pytest
