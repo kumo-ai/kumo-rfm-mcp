@@ -64,9 +64,7 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 1. Download the `dxt` file from [here](<>)
 1. Double click to install
 
-<div style="background-color: red; padding: 10; margin: 0">
-<img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_mcpb.png" height="300" />
-</div>
+<img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_destop.png" />
 
 ## 📚 Available Tools
 
