@@ -71,7 +71,7 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
     </td>
     <td>
       <ol>
-        <li>Download the <pre>dxt</pre> file from <a>here</a></li>
+        <li>Download the <pre>dxt</pre> file from <a href="">here</a></li>
         <li>Double click to install</li>
       </ol>
     </td>
