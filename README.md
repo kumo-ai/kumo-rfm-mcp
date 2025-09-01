@@ -18,7 +18,6 @@ pip install kumo-rfm-mcp
 
 ## Registration
 
-
 ```json
 {
   "mcpServers": {

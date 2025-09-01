@@ -55,10 +55,10 @@ def register_docs_tools(mcp: FastMCP) -> None:
         predictions (e.g., missing value imputation, temporal forecasts) and
         evaluations by querying the graph via the Predictive Query Language
         (PQL), a declarative language to formulate machine learning tasks.
-        Understanding PQL and how it maps to a machine learning task is critical
-        to achieve good model predictions. Besides PQL, various other options
-        exist to tune model output, e.g., optimizing the `run_mode` of the
-        model, specifying how subgraphs are formed via `num_neighbors`, or
+        Understanding PQL and how it maps to a machine learning task is
+        critical to achieve good model predictions. Besides PQL, various other
+        options exist to tune model output, e.g., optimizing the `run_mode` of
+        the model, specifying how subgraphs are formed via `num_neighbors`, or
         adjusting the `anchor_time` to denote the point in time for when a
         prediction should be made.
 
