@@ -12,7 +12,7 @@
   </p>
 
   [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/kumo-rfm-mcp?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
-  [![PyPI Status](https://img.shields.io/pypi/v/kumoai.svg?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
+  [![PyPI Status](https://img.shields.io/pypi/v/kumo-rfm-mcp.svg?color=FC1373)](https://pypi.org/project/kumo-rfm-mcp/)
   [![Slack](https://img.shields.io/badge/slack-join-pink.svg?logo=slack&color=FC1373)](https://join.slack.com/t/kumoaibuilders/shared_invite/zt-2z9uih3lf-fPM1z2ACZg~oS3ObmiQLKQ)
 
   🔬 MCP Server to query [KumoRFM](https://kumorfm.ai) in your agentic flows
@@ -20,14 +20,15 @@
 
 ## 📖 Introduction
 
-KumoRFM is a pre-trained Relational Foundation Model (RFM) that generates training-free predictions on any relational multi-table data by interpreting the data as a (temporal) heterogeneous graph.
-It can be queried via the Predictive Query Language (PQL).
+KumoRFM is a pre-trained *Relational Foundation Model (RFM)* that generates training-free predictions on any relational multi-table data by interpreting the data as a (temporal) heterogeneous graph.
+It can be queried via the *Predictive Query Language (PQL)*.
 
-This repository contains a comprehensive MCP (Model Context Protocol) server that provides AI assistants with KumoRFM capabilities.
+This repository hosts a full-featured *MCP (Model Context Protocol)* server that empowers AI assistants with KumoRFM intelligence.
 This server enables:
-- 🕸️ Creation, modification, visualization and management of graphs from CSV and Parquet files
-- Natural language to PQL conversion
-- 🤖 Querying, analyzing and evaluating KumoRFM predictions such as missing value imputation or temporal forecasts without *any* training
+
+- 🕸️ Build, manage, and visualize graphs directly from CSV or Parquet files
+- 💬 Convert natural language into PQL queries for seamless interaction
+- 🤖 Query, analyze, and evaluate predictions from KumoRFM (missing value imputation, temporal forecasting, *etc*) all without any training required
 
 ## 🚀 Installation
 
