@@ -28,7 +28,7 @@ async def find_table_files(
     if not path.exists() or not path.is_dir():
         raise ToolError(f"Directory '{path}' does not exist")
 
-    def _find_table_files():
+    def _find_table_files() -> list[TableSource]:
         pattern = "**/*" if recursive else "*"
         suffixes = {'.csv', '.parquet'}
         files = [f for f in path.glob(pattern) if f.suffix.lower() in suffixes]
