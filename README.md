@@ -59,7 +59,7 @@ Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
 
 ### ⚡ MCP Bundle
 
-We provide a single-click installation by providing an [MCP Bundle (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
+We provide a single-click installation via our [MCP Bundle (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
 
 1. Download the `dxt` file from [here](<>)
 1. Double click to install
