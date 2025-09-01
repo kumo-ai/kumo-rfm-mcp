@@ -70,26 +70,27 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 ### I/O Operations
 
-- **🔍 Searching for tabular files**: Find all table-like files (*e.g.*, CSV, Parquet) in a directory.
-- **🧐 Analyzing table structure**: Inspect the first rows of table-like files.
+- **🔍 Searching for tabular files:** Find all table-like files (*e.g.*, CSV, Parquet) in a directory.
+- **🧐 Analyzing table structure:** Inspect the first rows of table-like files.
 
 ### Graph Management
 
-- **🗂️ Reviewing graph schema**: Inspect the current graph metadata.
-- **🔄 Updating graph schema**: Partially update the current graph metadata.
-- **🖼️ Creating graph diagram**: Return the graph as a Mermaid entity relationship diagram.
-- **🕸️ Assembling graph**: Materialize the graph based on the current state of the graph metadata to make it available for inference operations.
+- **🗂️ Reviewing graph schema:** Inspect the current graph metadata.
+- **🔄 Updating graph schema:** Partially update the current graph metadata.
+- **🖼️ Creating graph diagram:** Return the graph as a Mermaid entity relationship diagram.
+- **🕸️ Assembling graph:** Materialize the graph based on the current state of the graph metadata to make it available for inference operations.
+- **📂 Retrieving table entries:** Lookup rows in the raw data frame of a table for a list of primary keys.
 
 ### Model Execution
 
-- **🤖 Running predictive query**: Execute a predictive query and return model predictions.
-- **📊 Evaluating predictive query**: Evaluate a predictive query and return performance metrics which compares predictions against known ground-truth labels from historical examples.
+- **🤖 Running predictive query:** Execute a predictive query and return model predictions.
+- **📊 Evaluating predictive query:** Evaluate a predictive query and return performance metrics which compares predictions against known ground-truth labels from historical examples.
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-- **`KUMO_API_KEY`**: Authentication is needed once before predicting or evaluating with the
+- **`KUMO_API_KEY`:** Authentication is needed once before predicting or evaluating with the
   KumoRFM model.
   You can generate your KumoRFM API key for free [here](https://kumorfm.ai).
   If not set, you can also authenticate on-the-fly in individual session via an OAuth2 flow.

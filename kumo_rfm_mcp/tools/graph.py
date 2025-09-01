@@ -100,13 +100,13 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
 
     errors: list[str] = []
     for table in update.tables_to_add:
-        if table.path.lower().endswith('.csv'):
+        if table.path.name.lower().endswith('.csv'):
             try:
                 df = pd.read_csv(table.path)
             except Exception as e:
                 errors.append(f"Could not read file '{table.path}': {e}")
                 continue
-        elif table.path.lower().endswith('.parquet'):
+        elif table.path.name.lower().endswith('.parquet'):
             try:
                 df = pd.read_parquet(table.path)
             except Exception as e:
@@ -320,7 +320,10 @@ async def lookup_table_rows(
     The table to read from needs to have a primary key, and the graph has to be
     materialized.
     """
-    model = SessionManager.get_default_session().model
+    model = SessionManager.get_default_session()._model
+
+    if model is None:
+        raise ToolError("Graph is not yet materialized")
 
     def _lookup_table_rows() -> TableSourcePreview:
         try:
