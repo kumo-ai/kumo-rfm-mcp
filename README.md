@@ -58,7 +58,7 @@ Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
 
 ### ⚡ MCP Bundle
 
-We provide a single-click installation via [MCP Bundles (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
+We provide a single-click installation by providing an [MCP Bundle (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
 
 1. Download the `dxt` file from [here]()
 1. Double click to install
@@ -66,8 +66,6 @@ We provide a single-click installation via [MCP Bundles (MCPB)](https://github.c
 <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/mcpb.png" />
 
 ## 📚 Available Tools
-
-The KumoRFM MCP server provides several categories of tools:
 
 ### I/O Operations
 
