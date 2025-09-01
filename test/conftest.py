@@ -20,6 +20,7 @@ def clear_session() -> None:
 
 @pytest.fixture(autouse=True)
 def mock_model(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv('KUMO_API_KEY', 'DUMMY')
     monkeypatch.setattr(rfm, 'init', lambda *args, **kwargs: None)
     monkeypatch.setattr(
         rfm.KumoRFM, 'predict', lambda *args, **kwargs: pd.DataFrame({
