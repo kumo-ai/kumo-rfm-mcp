@@ -43,8 +43,6 @@ classifiers = [
 dev = [
     "pytest",
     "pytest-asyncio",
-    "pytest-cov",
-    "ruff",
 ]
 
 [project.scripts]
