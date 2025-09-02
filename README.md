@@ -77,6 +77,7 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 from creai import Agent
 from crewai_tools import MCPServerAdapter
 from mcp import StdioServerParameters
+ 
 params = StdioServerParameters(
     command='python',
     args=['-m', 'kumo_rfm_mcp.server'],
