@@ -66,6 +66,23 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_desktop.png" />
 
+## 🔬 Agentic Workflows
+
+You can use the KumoRFM MCP directly in your agentic workflows:
+
+<table>
+  <tr>
+    <th>Crew.AI</th>
+    <th>LangGraph</th>
+  </tr>
+  <tr>
+    <th>Crew.AI</th>
+    <th>LangGraph</th>
+  </tr>
+</table>
+
+Browse our [agentic examples]() on how to get started.
+
 ## 📚 Available Tools
 
 ### I/O Operations
