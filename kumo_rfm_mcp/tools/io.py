@@ -12,7 +12,7 @@ from kumo_rfm_mcp import TableSource, TableSourcePreview
 
 
 async def find_table_files(
-    path: Annotated[Path, "Root directory to scan"],
+    path: Annotated[Path, "Local root directory to scan"],
     recursive: Annotated[
         bool,
         Field(
