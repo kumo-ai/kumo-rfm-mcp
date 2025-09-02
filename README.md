@@ -77,47 +77,70 @@ You can use the KumoRFM MCP directly in your agentic workflows:
         <img src="https://cdn.prod.website-files.com/66cf2bfc3ed15b02da0ca770/66d07240057721394308addd_Logo%20(1).svg" width="150" />
       </a>
     </th>
-    <td valign="top"><pre lang="diff"><code>
-  from crewai import Agent
-+ from crewai_tools import MCPServerAdapter
-+ from mcp import StdioServerParameters
-  <br>
-+ params = StdioServerParameters(
-+     command='python',
-+     args=['-m', 'kumo_rfm_mcp.server'],
-+     env={'KUMO_API_KEY': ...},
-+ )
-  <br>
-+ with MCPServerAdapter(params) as mcp_tools:
-      agent = Agent(
-          role=...,
-          goal=...,
-          backstory=...,
-+         tools=mcp_tools,
-      )
+    <td valign="top"><pre lang="python"><code>
+from crewai import Agent
+from crewai_tools import MCPServerAdapter
+from mcp import StdioServerParameters
+
+params = StdioServerParameters(
+    command='python',
+    args=['-m', 'kumo_rfm_mcp.server'],
+    env={'KUMO_API_KEY': ...},
+)
+
+with MCPServerAdapter(params) as mcp_tools:
+    agent = Agent(
+        role=...,
+        goal=...,
+        backstory=...,
+        tools=mcp_tools,
+    )
 </code></pre></td>
   </tr>
+  <tr>
     <th>
       <a href="https://langchain-ai.github.io/langgraph/agents/mcp/">
         <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250" />
       </a>
     </th>
-    <td valign="top"><pre lang="diff"><code>
-+ from langchain_mcp_adapter.client MultiServerMCPClient
-  from langgraph.prebuilt import create_react_agent
-  <br>
-+ client import MultiServerMCPClient({
-+     'kumo-rfm': {
-+         'command': 'python',
-+         'args': ['-m', 'kumo_rfm_mcp.server'],
-+         'env': {'KUMO_API_KEY': ...},
-+     }
-+ })
-  <br>
-  agent = create_react_agent(
-      llm=...,
-+     tools=await client.get_tools(),
-  )
+    <td valign="top"><pre lang="python"><code>
+from langchain_mcp_adapter.client MultiServerMCPClient
+from langgraph.prebuilt import create_react_agent
+
+client import MultiServerMCPClient({
+    'kumo-rfm': {
+        'command': 'python',
+        'args': ['-m', 'kumo_rfm_mcp.server'],
+        'env': {'KUMO_API_KEY': ...},
+    }
+})
+
+agent = create_react_agent(
+    llm=...,
+    tools=await client.get_tools(),
+)
+</code></pre></td>
+  </tr>
+  <tr>
+    <th>
+      <a href="https://openai.github.io/openai-agents-python/mcp/">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuDvlNDmDGF5QwPETEs3eh7RHNGmKBpgwyw&s" width="250" />
+      </a>
+    </th>
+    <td valign="top"><pre lang="python"><code>
+from agents import Agent
+from agents.mcp import MCPServerStdio
+
+async with MCPServerStdio(params={
+    'command': 'python',
+    'args': ['-m', 'kumo_rfm_mcp.server'],
+    'env': {'KUMO_API_KEY': ...},
+}) as server:
+    agent=Agent(
+        name=...,
+        instructions=...,
+        mcp_servers=[server],
+    )
 </code></pre></td>
   </tr>
 </table>
