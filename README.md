@@ -96,7 +96,24 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 </code></pre></td>
   </tr>
     <th><img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="150" /></th>
-    <td valign="top"></td>
+    <td valign="top"><pre lang="diff"><code>
++ from langchain_mcp_adapter.client MultiServerMCPClient
+  from langgraph.prebuilt import create_react_agent
+  <br>
++ client import MultiServerMCPClient({
++     'kumo-rfm': {
++         'command': 'python',
++         'args': ['-m', 'kumo_rfm_mcp.server'],
++         'env': {'KUMO_API_KEY': ...},
++     }
++ })
+  <br>
+  agent = create_react_agent(
+      llm=...,
++     tools=await client.get_tools(),
+  )
+
+</code></pre></td>
   </tr>
 </table>
 
