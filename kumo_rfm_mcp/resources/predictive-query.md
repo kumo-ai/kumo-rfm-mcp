@@ -273,6 +273,7 @@ PQL automatically detects it based on whether you're predicting a condition (bin
 - The entity IDs in the `evaluate` tool have no impact on the output metrics.
   Instead, a number of test entities with known historical ground-truth labels will be sampled for evaluation.
 - Choose anchor times that represent realistic prediction scenarios.
+  Use `anchor_time=None` to make predictions based on the most recent data.
   Use `anchor_time='entity'` for static predictions to prevent temporal leakage if entities denote temporal facts.
 - Tune the `max_pq_iterations` argument if you see that the model fails to find sufficient number of in-context examples w.r.t. the `run_mode`, i.e. 1000 for `'fast'`, 5000 for `'normal'` and 10000 for `'best'`.
 
@@ -287,6 +288,7 @@ PQL automatically detects it based on whether you're predicting a condition (bin
 - Incorrect semantic types may lead to wrong task formulations.
   Carefully review and correct semantic types during graph setup.
 - `LIST_DISTINCT` only works on foreign key columns.
+- Using `anchor_time='entity'` for temporal queries with aggregations is NOT supported.
 
 ## Examples
 
