@@ -76,18 +76,14 @@ You can use the KumoRFM MCP directly in your agentic workflows:
     <th>LangGraph</th>
   </tr>
   <tr>
-    <td>
-      <pre lang="python"><code class="diff">
+    <td valign="top"><pre lang="diff"><code>
 - model = torch_geometric.compile(model)
 + model = torch.compile(model)
-      </code></pre>
-    </td>
-    <td>
-      <pre lang="diff"><code class="diff">
+</code></pre></td>
+    <td valign="top"><pre lang="diff"><code>
 - model = torch_geometric.compile(model)
 + model = torch.compile(model)
-      </code></pre>
-    </td>
+</code></pre></td>
   </tr>
 </table>
 
