@@ -73,7 +73,9 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 <table>
   <tr>
     <th>
-      <img src="https://cdn.prod.website-files.com/66cf2bfc3ed15b02da0ca770/66d07240057721394308addd_Logo%20(1).svg" width="150" />
+      <a href="https://docs.crewai.com/en/mcp/overview">
+        <img src="https://cdn.prod.website-files.com/66cf2bfc3ed15b02da0ca770/66d07240057721394308addd_Logo%20(1).svg" width="150" />
+      </a>
     </th>
     <td valign="top"><pre lang="diff"><code>
   from crewai import Agent
@@ -95,7 +97,11 @@ You can use the KumoRFM MCP directly in your agentic workflows:
       )
 </code></pre></td>
   </tr>
-    <th><img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="150" /></th>
+    <th>
+      <a href="https://langchain-ai.github.io/langgraph/agents/mcp/">
+        <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250" />
+      </a>
+    </th>
     <td valign="top"><pre lang="diff"><code>
 + from langchain_mcp_adapter.client MultiServerMCPClient
   from langgraph.prebuilt import create_react_agent
@@ -112,7 +118,6 @@ You can use the KumoRFM MCP directly in your agentic workflows:
       llm=...,
 +     tools=await client.get_tools(),
   )
-
 </code></pre></td>
   </tr>
 </table>
