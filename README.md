@@ -95,12 +95,12 @@ You can use the KumoRFM MCP directly in your agentic workflows:
       )
 </code></pre></td>
   </tr>
-    <th valign="top">LangGraph</th>
+    <th valign="top"><img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="150" /></th>
     <td valign="top"></td>
   </tr>
 </table>
 
-Browse our [agentic examples]() on how to get started.
+Browse our [examples](https://github.com/kumo-ai/kumo-rfm/tree/master/notebooks) to get started with agentic workflows powered by KumoRFM.
 
 ## 📚 Available Tools
 
