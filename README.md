@@ -81,13 +81,13 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 from crewai import Agent
 from crewai_tools import MCPServerAdapter
 from mcp import StdioServerParameters
-
+<br/>
 params = StdioServerParameters(
     command='python',
     args=['-m', 'kumo_rfm_mcp.server'],
     env={'KUMO_API_KEY': ...},
 )
-
+<br/>
 with MCPServerAdapter(params) as mcp_tools:
     agent = Agent(
         role=...,
@@ -106,7 +106,7 @@ with MCPServerAdapter(params) as mcp_tools:
     <td valign="top"><pre lang="python"><code>
 from langchain_mcp_adapter.client MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
-
+<br/>
 client import MultiServerMCPClient({
     'kumo-rfm': {
         'command': 'python',
@@ -114,7 +114,7 @@ client import MultiServerMCPClient({
         'env': {'KUMO_API_KEY': ...},
     }
 })
-
+<br/>
 agent = create_react_agent(
     llm=...,
     tools=await client.get_tools(),
@@ -130,7 +130,7 @@ agent = create_react_agent(
     <td valign="top"><pre lang="python"><code>
 from agents import Agent
 from agents.mcp import MCPServerStdio
-
+<br/>
 async with MCPServerStdio(params={
     'command': 'python',
     'args': ['-m', 'kumo_rfm_mcp.server'],
