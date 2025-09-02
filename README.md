@@ -107,7 +107,7 @@ with MCPServerAdapter(params) as mcp_tools:
 from langchain_mcp_adapter.client MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 <br/>
-client import MultiServerMCPClient({
+client = MultiServerMCPClient({
     'kumo-rfm': {
         'command': 'python',
         'args': ['-m', 'kumo_rfm_mcp.server'],
