@@ -77,16 +77,16 @@ You can use the KumoRFM MCP directly in your agentic workflows:
   </tr>
   <tr>
     <td>
-      ```diff
+      <pre><code class="diff">
       - model = torch_geometric.compile(model)
       + model = torch.compile(model)
-      ```
+      </code></pre>
     </td>
     <td>
-      ```diff
+      <pre><code class="diff">
       - model = torch_geometric.compile(model)
       + model = torch.compile(model)
-      ```
+      </code></pre>
     </td>
   </tr>
 </table>
