@@ -72,7 +72,7 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 
 <table>
   <tr>
-    <th>
+    <th align="center">
       <a href="https://docs.crewai.com/en/mcp/overview">
         <img src="https://cdn.prod.website-files.com/66cf2bfc3ed15b02da0ca770/66d07240057721394308addd_Logo%20(1).svg" width="150" />
       </a>
@@ -98,7 +98,7 @@ with MCPServerAdapter(params) as mcp_tools:
 </code></pre></td>
   </tr>
   <tr>
-    <th>
+    <th align="center">
       <a href="https://langchain-ai.github.io/langgraph/agents/mcp/">
         <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250" />
       </a>
@@ -122,7 +122,7 @@ agent = create_react_agent(
 </code></pre></td>
   </tr>
   <tr>
-    <th>
+    <th align="center">
       <a href="https://openai.github.io/openai-agents-python/mcp/">
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuDvlNDmDGF5QwPETEs3eh7RHNGmKBpgwyw&s" width="180" />
       </a>
@@ -141,6 +141,34 @@ async with MCPServerStdio(params={
         instructions=...,
         mcp_servers=[server],
     )
+</code></pre></td>
+  </tr>
+  <tr>
+    <th align="center">
+      <a href="https://docs.anthropic.com/en/docs/claude-code/sdk/sdk-python/">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/1280px-Claude_AI_logo.svg.png" width="180" />
+      </a>
+    </th>
+    <td valign="top"><pre lang="python"><code>
+from claude_code_sdk import query, ClaudeCodeOptions
+<br/>
+mcp_servers = {
+    'kumo-rfm': {
+        'command': 'python',
+        'args': ['-m', 'kumo_rfm_mcp.server'],
+        'env': {'KUMO_API_KEY': ...},
+    }
+}
+<br/>
+async for message in query(
+    prompt=...,
+    options=ClaudeCodeOptions(
+        system_prompt=...,
+        mcp_servers=mcp_servers,
+        permission_mode='default',
+    ),
+):
+    ...
 </code></pre></td>
   </tr>
 </table>
