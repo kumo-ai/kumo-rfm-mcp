@@ -91,6 +91,16 @@ You can use the KumoRFM MCP directly in your agentic workflows:
   </tr>
 </table>
 
+| Crew.Ai | LangGraph |
+| ------- | --------- |
+| ```diff
+- model = torch_geometric.compile(model)
++ model = torch.compile(model)
+``` | ```diff
+- model = torch_geometric.compile(model)
++ model = torch.compile(model)
+``` |
+
 Browse our [agentic examples]() on how to get started.
 
 ## 📚 Available Tools
