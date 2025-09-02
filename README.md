@@ -72,7 +72,7 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 
 <table>
   <tr>
-    <th valign="top">
+    <th>
       <img src="https://cdn.prod.website-files.com/66cf2bfc3ed15b02da0ca770/66d07240057721394308addd_Logo%20(1).svg" width="150" />
     </th>
     <td valign="top"><pre lang="diff"><code>
@@ -95,7 +95,7 @@ You can use the KumoRFM MCP directly in your agentic workflows:
       )
 </code></pre></td>
   </tr>
-    <th valign="top"><img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="150" /></th>
+    <th><img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="150" /></th>
     <td valign="top"></td>
   </tr>
 </table>
