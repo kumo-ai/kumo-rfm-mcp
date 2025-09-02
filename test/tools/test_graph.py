@@ -122,7 +122,7 @@ def test_get_mermaid(graph: UpdateGraphMetadata) -> None:
 
 @pytest.mark.asyncio
 async def test_materialize_graph(graph: UpdateGraphMetadata) -> None:
-    out = update_graph_metadata(graph)
+    update_graph_metadata(graph)
     out = await materialize_graph()
     assert out.num_nodes == 10
     assert out.num_edges == 16
