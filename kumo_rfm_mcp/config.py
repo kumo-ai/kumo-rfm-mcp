@@ -149,7 +149,7 @@ class UpdatedGraphMetadata(BaseModel):
     ]
 
 
-class MaterializedGraph(BaseModel):
+class MaterializedGraphInfo(BaseModel):
     """Information about the materialized graph."""
     num_nodes: Annotated[int, "Number of nodes in the graph"]
     num_edges: Annotated[int, "Number of edges in the graph"]

@@ -9,7 +9,7 @@ from .config import (
     GraphMetadata,
     UpdateGraphMetadata,
     UpdatedGraphMetadata,
-    MaterializedGraph,
+    MaterializedGraphInfo,
     PredictResponse,
     EvaluateResponse,
 )
@@ -26,7 +26,7 @@ __all__ = [
     'GraphMetadata',
     'UpdateGraphMetadata',
     'UpdatedGraphMetadata',
-    'MaterializedGraph',
+    'MaterializedGraphInfo',
     'PredictResponse',
     'EvaluateResponse',
     'Session',

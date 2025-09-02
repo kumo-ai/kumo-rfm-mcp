@@ -12,7 +12,7 @@ from pydantic import Field
 from kumo_rfm_mcp import (
     GraphMetadata,
     LinkMetadata,
-    MaterializedGraph,
+    MaterializedGraphInfo,
     SessionManager,
     TableMetadata,
     TableSourcePreview,
@@ -252,7 +252,7 @@ def get_mermaid(
     return '\n'.join(lines)
 
 
-async def materialize_graph() -> MaterializedGraph:
+async def materialize_graph() -> MaterializedGraphInfo:
     """Materialize the graph based on the current state of the graph metadata
     to make it available for inference operations (e.g., ``predict`` and
     ``evaluate``).
@@ -268,7 +268,7 @@ async def materialize_graph() -> MaterializedGraph:
         except Exception as e:
             raise ToolError(f"Failed to materialize graph: {e}")
 
-    def _get_info(model: rfm.KumoRFM) -> MaterializedGraph:
+    def _get_info(model: rfm.KumoRFM) -> MaterializedGraphInfo:
         store = model._graph_store
         num_nodes = sum(len(df) for df in store.df_dict.values())
         num_edges = sum(len(row) for row in store.row_dict.values())
@@ -283,13 +283,11 @@ async def materialize_graph() -> MaterializedGraph:
                 continue
             time_ranges[table.name] = f"{time.min()} - {time.max()}"
 
-        info = MaterializedGraph(
+        return MaterializedGraphInfo(
             num_nodes=num_nodes,
             num_edges=num_edges,
             time_ranges=time_ranges,
         )
-
-        return info
 
     if session._model is None:
         async with _materialize_lock:
