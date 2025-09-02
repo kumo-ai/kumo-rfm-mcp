@@ -73,9 +73,6 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 <table>
   <tr>
     <th>Crew.AI</th>
-    <th>LangGraph</th>
-  </tr>
-  <tr>
     <td valign="top"><pre lang="diff"><code>
 
 + params = StdioServerParameters(
@@ -92,22 +89,11 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 +          tools=mcp\_tools,
       )
 </code></pre></td>
-    <td valign="top"><pre lang="diff"><code>
-- model = torch_geometric.compile(model)
-+ model = torch.compile(model)
-</code></pre></td>
+  </tr>
+    <th>LangGraph</th>
+    <td></td>
   </tr>
 </table>
-
-| Crew.Ai | LangGraph |
-| ------- | --------- |
-| ```diff
-- model = torch_geometric.compile(model)
-+ model = torch.compile(model)
-``` | ```diff
-- model = torch_geometric.compile(model)
-+ model = torch.compile(model)
-``` |
 
 Browse our [agentic examples]() on how to get started.
 
