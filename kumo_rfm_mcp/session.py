@@ -50,7 +50,6 @@ class Session:
                                 "automatically generate an API key.")
 
             rfm.init()
-            self._is_initialized = True
 
         return self
 
