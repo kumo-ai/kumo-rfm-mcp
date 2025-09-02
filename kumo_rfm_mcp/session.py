@@ -9,19 +9,18 @@ from typing_extensions import Self
 @dataclass(init=False, repr=False)
 class Session:
     name: str
-    _initialized: bool = False
     _graph: rfm.LocalGraph = field(default_factory=lambda: rfm.LocalGraph([]))
     _model: rfm.KumoRFM | None = None
 
     def __init__(self, name: str) -> None:
         self.name = name
-        self._is_initialized = False
         self._graph = rfm.LocalGraph([])
         self._model = None
 
     @property
     def is_initialized(self) -> bool:
-        return self._is_initialized
+        from kumoai import global_state
+        return global_state.initialized
 
     @property
     def graph(self) -> rfm.LocalGraph:
@@ -51,7 +50,6 @@ class Session:
                                 "automatically generate an API key.")
 
             rfm.init()
-            self._is_initialized = True
 
         return self
 
