@@ -337,6 +337,7 @@ async def lookup_table_rows(
         except Exception as e:
             raise ToolError(str(e)) from e
 
+        df = df.astype(object).where(df.notna(), None)
         return TableSourcePreview(rows=df.to_dict(orient='records'))
 
     return await asyncio.to_thread(_lookup_table_rows)

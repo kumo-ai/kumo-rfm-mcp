@@ -72,6 +72,7 @@ async def inspect_table_files(
         except Exception as e:
             raise ToolError(f"Could not read file '{path}': {e}") from e
 
+        df = df.astype(object).where(df.notna(), None)
         return TableSourcePreview(rows=df.to_dict(orient='records'))
 
     tasks = [asyncio.to_thread(read_file, path) for path in paths]
