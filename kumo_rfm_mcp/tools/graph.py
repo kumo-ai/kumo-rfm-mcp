@@ -12,7 +12,7 @@ from pydantic import Field
 from kumo_rfm_mcp import (
     GraphMetadata,
     LinkMetadata,
-    MaterializedGraph,
+    MaterializedGraphInfo,
     SessionManager,
     TableMetadata,
     TableSourcePreview,
@@ -252,7 +252,7 @@ def get_mermaid(
     return '\n'.join(lines)
 
 
-async def materialize_graph() -> MaterializedGraph:
+async def materialize_graph() -> MaterializedGraphInfo:
     """Materialize the graph based on the current state of the graph metadata
     to make it available for inference operations (e.g., ``predict`` and
     ``evaluate``).
@@ -262,12 +262,13 @@ async def materialize_graph() -> MaterializedGraph:
     """
     session = SessionManager.get_default_session()
 
-    def _materialize_graph() -> tuple[rfm.KumoRFM, MaterializedGraph]:
+    def _materialize_graph() -> rfm.KumoRFM:
         try:
-            model = rfm.KumoRFM(session.graph, verbose=False)
+            return rfm.KumoRFM(session.graph, verbose=False)
         except Exception as e:
             raise ToolError(f"Failed to materialize graph: {e}")
 
+    def _get_info(model: rfm.KumoRFM) -> MaterializedGraphInfo:
         store = model._graph_store
         num_nodes = sum(len(df) for df in store.df_dict.values())
         num_edges = sum(len(row) for row in store.row_dict.values())
@@ -282,20 +283,17 @@ async def materialize_graph() -> MaterializedGraph:
                 continue
             time_ranges[table.name] = f"{time.min()} - {time.max()}"
 
-        graph = MaterializedGraph(
+        return MaterializedGraphInfo(
             num_nodes=num_nodes,
             num_edges=num_edges,
             time_ranges=time_ranges,
         )
 
-        return model, graph
+    if session._model is None:
+        async with _materialize_lock:
+            session._model = await asyncio.to_thread(_materialize_graph)
 
-    async with _materialize_lock:
-        if session._model is not None:
-            raise ToolError("Graph is already materialized")
-        session._model, graph = await asyncio.to_thread(_materialize_graph)
-
-    return graph
+    return await asyncio.to_thread(_get_info, session._model)
 
 
 async def lookup_table_rows(
