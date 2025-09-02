@@ -7,6 +7,7 @@ import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
+from kumoai.graph import Edge
 from kumoapi.typing import Dtype, Stype
 from pydantic import Field
 
@@ -106,6 +107,11 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
         path = osp.expanduser(table.path)
         suffix = path.rsplit('.', maxsplit=1)[-1].lower()
 
+        if table.name in graph and graph[table.name]._path == path:
+            graph[table.name].primary_key = table.primary_key
+            graph[table.name].time_column = table.time_column
+            continue
+
         if suffix not in {'csv', 'parquet'}:
             errors.append(f"'{path}' is not a valid CSV or Parquet file")
             continue
@@ -161,14 +167,17 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
                 link.foreign_key,
                 link.destination_table,
             )
-        except Exception as e:
-            errors.append(f"Could not remove link from source table "
-                          f"'{link.source_table}' to destination table "
-                          f"'{link.destination_table}' via the "
-                          f"'{link.foreign_key}' column: {e}")
+        except Exception:
             continue
 
     for link in update.links_to_add:
+        if Edge(
+                src_table=link.source_table,
+                fkey=link.foreign_key,
+                dst_table=link.destination_table,
+        ) in graph.edges:
+            continue
+
         try:
             graph.link(
                 link.source_table,
@@ -185,8 +194,7 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
     for table_name in update.tables_to_remove:
         try:
             del graph[table_name]
-        except Exception as e:
-            errors.append(f"Could not remove table '{table.name}': {e}")
+        except Exception:
             continue
 
     try:
@@ -357,7 +365,7 @@ def register_graph_tools(mcp: FastMCP) -> None:
         title="🔄 Updating graph schema…",
         readOnlyHint=False,
         destructiveHint=False,
-        idempotentHint=False,
+        idempotentHint=True,
         openWorldHint=False,
     ))(update_graph_metadata)
 
@@ -373,7 +381,7 @@ def register_graph_tools(mcp: FastMCP) -> None:
         title="🕸️ Assembling graph…",
         readOnlyHint=False,
         destructiveHint=False,
-        idempotentHint=False,
+        idempotentHint=True,
         openWorldHint=False,
     ))(materialize_graph)
 
