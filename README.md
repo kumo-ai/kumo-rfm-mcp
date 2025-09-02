@@ -124,7 +124,7 @@ agent = create_react_agent(
   <tr>
     <th>
       <a href="https://openai.github.io/openai-agents-python/mcp/">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuDvlNDmDGF5QwPETEs3eh7RHNGmKBpgwyw&s" width="250" />
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuDvlNDmDGF5QwPETEs3eh7RHNGmKBpgwyw&s" width="180" />
       </a>
     </th>
     <td valign="top"><pre lang="python"><code>
