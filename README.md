@@ -136,7 +136,7 @@ async with MCPServerStdio(params={
     'args': ['-m', 'kumo_rfm_mcp.server'],
     'env': {'KUMO_API_KEY': ...},
 }) as server:
-    agent=Agent(
+    agent = Agent(
         name=...,
         instructions=...,
         mcp_servers=[server],
