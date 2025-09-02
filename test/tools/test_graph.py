@@ -27,19 +27,19 @@ def test_graph_metadata(root_dir: Path) -> None:
         UpdateGraphMetadata(  # type: ignore[call-arg]
             tables_to_add=[
                 AddTableMetadata(
-                    path=root_dir / 'USERS.csv',
+                    path=str(root_dir / 'USERS.csv'),
                     name='USERS',
                     primary_key='USER_ID',
                     time_column=None,
                 ),
                 AddTableMetadata(
-                    path=root_dir / 'ORDERS.parquet',
+                    path=str(root_dir / 'ORDERS.parquet'),
                     name='ORDERS',
                     primary_key=None,
                     time_column='TIME',
                 ),
                 AddTableMetadata(
-                    path=root_dir / 'STORES.csv',
+                    path=str(root_dir / 'STORES.csv'),
                     name='STORES',
                     primary_key='STORE_ID',
                     time_column=None,
@@ -122,7 +122,7 @@ def test_get_mermaid(graph: UpdateGraphMetadata) -> None:
 
 @pytest.mark.asyncio
 async def test_materialize_graph(graph: UpdateGraphMetadata) -> None:
-    update_graph_metadata(graph)
+    out = update_graph_metadata(graph)
     out = await materialize_graph()
     assert out.num_nodes == 10
     assert out.num_edges == 16

@@ -1,4 +1,5 @@
 import asyncio
+import os.path as osp
 from collections import defaultdict
 from typing import Annotated
 
@@ -88,6 +89,8 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
     For newly added tables, it is advised to double-check semantic types and
     modify in a follow-up step if necessary.
 
+    Make sure that tables are correctly linked before proceeding.
+
     Note that all operations can be performed in a batch at once, *e.g.*, one
     can add new tables and directly link them to together.
 
@@ -100,22 +103,21 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
 
     errors: list[str] = []
     for table in update.tables_to_add:
-        path = table.path.expanduser()
+        path = osp.expanduser(table.path)
+        suffix = path.rsplit('.', maxsplit=1)[-1].lower()
 
-        if path.suffix.lower() == '.csv':
-            try:
-                df = pd.read_csv(path)
-            except Exception as e:
-                errors.append(f"Could not read file '{path}': {e}")
-                continue
-        elif path.suffix.lower() == '.parquet':
-            try:
-                df = pd.read_parquet(path)
-            except Exception as e:
-                errors.append(f"Could not read file '{path}': {e}")
-                continue
-        else:
+        if suffix not in {'csv', 'parquet'}:
             errors.append(f"'{path}' is not a valid CSV or Parquet file")
+            continue
+
+        try:
+            if suffix == 'csv':
+                df = pd.read_csv(path)
+            else:
+                assert suffix == 'parquet'
+                df = pd.read_parquet(path)
+        except Exception as e:
+            errors.append(f"Could not read file '{path}': {e}")
             continue
 
         try:

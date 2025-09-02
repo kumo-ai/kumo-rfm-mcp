@@ -1,4 +1,5 @@
 import asyncio
+import os.path as osp
 from pathlib import Path
 from typing import Annotated
 
@@ -22,7 +23,11 @@ async def find_table_files(
         ),
     ],
 ) -> list[TableSource]:
-    """Finds all table-like files (e.g., CSV, Parquet) in a directory."""
+    """Finds all table-like files (e.g., CSV, Parquet) in a directory.
+
+    This tool is for local directories only. It cannot search, e.g., in S3
+    buckets.
+    """
     path = path.expanduser()
 
     if not path.exists() or not path.is_dir():
@@ -40,7 +45,11 @@ async def find_table_files(
 
 
 async def inspect_table_files(
-    paths: Annotated[list[Path], "File paths to inspect"],
+    paths: Annotated[
+        list[str],
+        ("File paths to inspect. Can be a mix of local file paths, S3 URIs "
+         "(s3://...), or HTTP/HTTPS URLs."),
+    ],
     num_rows: Annotated[
         int,
         Field(
@@ -50,23 +59,24 @@ async def inspect_table_files(
             description="Number of rows to read per file",
         ),
     ],
-) -> dict[Path, TableSourcePreview]:
+) -> dict[str, TableSourcePreview]:
     """Inspect the first rows of table-like files.
 
     Each row in a file is represented as a dictionary mapping column
     names to their corresponding values.
     """
-    def read_file(path: Path) -> TableSourcePreview:
-        path = path.expanduser()
+    def read_file(path: str) -> TableSourcePreview:
+        path = osp.expanduser(path)
+        suffix = path.rsplit('.', maxsplit=1)[-1].lower()
 
-        if path.suffix.lower() not in {'.csv', '.parquet'}:
+        if suffix not in {'csv', 'parquet'}:
             raise ToolError(f"'{path}' is not a valid CSV or Parquet file")
 
         try:
-            if path.suffix.lower() == '.csv':
+            if suffix == 'csv':
                 df = pd.read_csv(path, nrows=num_rows)
             else:
-                assert path.suffix.lower() == '.parquet'
+                assert suffix == 'parquet'
                 # TODO Read first row groups via `pyarrow` instead.
                 df = pd.read_parquet(path).head(num_rows)
         except Exception as e:
