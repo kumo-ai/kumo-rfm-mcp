@@ -221,6 +221,8 @@ async def evaluate(
         except Exception as e:
             raise ToolError(f"Evaluation failed: {e}") from e
 
+        df = df.astype(object).where(df.notna(), None)
+
         logs = logger.logs
         if logger.start_time is not None:
             logs = logs + [f'Duration: {logger.duration:2f}s']
