@@ -163,9 +163,9 @@ mcp_servers = {
 async for message in query(
     prompt=...,
     options=ClaudeCodeOptions(
-        mcp_servers=mcp_servers,
         system_prompt=...,
-        permission_mode="default",
+        mcp_servers=mcp_servers,
+        permission_mode='default',
     ),
 ):
     ...
