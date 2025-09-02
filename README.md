@@ -77,8 +77,20 @@ You can use the KumoRFM MCP directly in your agentic workflows:
   </tr>
   <tr>
     <td valign="top"><pre lang="diff"><code>
-- model = torch_geometric.compile(model)
-+ model = torch.compile(model)
+
++ params = StdioServerParameters(
++     command='python',
++     args=['-m', 'kumo\_rfm\_mcp.server'],
++     env={'KUMO\_API\_KEY': ...},
++ )
+
++ with MCPServerAdapter(params) as mcp=_tools:
+      agent = Agent(
+          role=...,
+          goal=...,
+          backstory=...,
++          tools=mcp\_tools,
+      )
 </code></pre></td>
     <td valign="top"><pre lang="diff"><code>
 - model = torch_geometric.compile(model)
