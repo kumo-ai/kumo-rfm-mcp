@@ -72,26 +72,25 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 
 <table>
   <tr>
-    <th>Crew.AI</th>
+    <th valign="top">Crew.AI</th>
     <td valign="top"><pre lang="diff"><code>
-
 + params = StdioServerParameters(
 +     command='python',
-+     args=['-m', 'kumo\_rfm\_mcp.server'],
-+     env={'KUMO\_API\_KEY': ...},
++     args=['-m', 'kumo_rfm_mcp.server'],
++     env={'KUMO_API_KEY': ...},
 + )
 
-+ with MCPServerAdapter(params) as mcp=_tools:
++ with MCPServerAdapter(params) as mcp_tools:
       agent = Agent(
           role=...,
           goal=...,
           backstory=...,
-+          tools=mcp\_tools,
++          tools=mcp_tools,
       )
 </code></pre></td>
   </tr>
-    <th>LangGraph</th>
-    <td></td>
+    <th valign="top">LangGraph</th>
+    <td valign="top"></td>
   </tr>
 </table>
 
