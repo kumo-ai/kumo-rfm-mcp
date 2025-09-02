@@ -73,7 +73,7 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 <table>
   <tr>
     <th valign="top">Crew.AI</th>
-    <td valign="top"><pre lang="python"><code>
+    <td valign="top"><pre lang="diff"><code>
 + params = StdioServerParameters(
 +     command='python',
 +     args=['-m', 'kumo_rfm_mcp.server'],
