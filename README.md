@@ -79,7 +79,7 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 +     args=['-m', 'kumo_rfm_mcp.server'],
 +     env={'KUMO_API_KEY': ...},
 + )
-
+  
 + with MCPServerAdapter(params) as mcp_tools:
       agent = Agent(
           role=...,
