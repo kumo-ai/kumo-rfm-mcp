@@ -16,9 +16,12 @@ async def test_find_table_files(root_dir: Path, recursive: bool) -> None:
 
 @pytest.mark.asyncio
 async def test_inspect_table_files(root_dir: Path) -> None:
-    previews = await inspect_table_files([root_dir / 'USERS.csv'], num_rows=4)
+    previews = await inspect_table_files(
+        paths=[(root_dir / 'USERS.csv').as_posix()],
+        num_rows=4,
+    )
     assert len(previews) == 1
-    preview = previews[root_dir / 'USERS.csv']
+    preview = previews[(root_dir / 'USERS.csv').as_posix()]
     assert preview.rows == [
         {
             'USER_ID': 0,
