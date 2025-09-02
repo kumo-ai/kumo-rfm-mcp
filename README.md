@@ -72,9 +72,11 @@ You can use the KumoRFM MCP directly in your agentic workflows:
 
 <table>
   <tr>
-    <th valign="top">Crew.AI</th>
+    <th valign="top">
+      <img src="https://cdn.prod.website-files.com/66cf2bfc3ed15b02da0ca770/66d07240057721394308addd_Logo%20(1).svg" width="150" />
+    </th>
     <td valign="top"><pre lang="diff"><code>
-  from creai import Agent
+  from crewai import Agent
 + from crewai_tools import MCPServerAdapter
 + from mcp import StdioServerParameters
   <br>
