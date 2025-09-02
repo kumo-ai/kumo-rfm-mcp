@@ -9,7 +9,7 @@ class TableSource(BaseModel):
     """Source information of a table."""
     path: Annotated[
         Path,
-        "Path to the file. Only CSV or Parquet files are supported.",
+        "Path to a local file. Only CSV or Parquet files are supported.",
     ]
     bytes: Annotated[int, "Size in bytes of the file"]
 
@@ -29,7 +29,11 @@ class TableSourcePreview(BaseModel):
 
 class TableMetadata(BaseModel):
     """Metadata for a table."""
-    path: Annotated[Path, "Path to the table"]
+    path: Annotated[
+        str,
+        ("Path to the table. Can be a local file path, an S3 URI "
+         "(s3://...), or an HTTP/HTTPS URL."),
+    ]
     name: Annotated[str, "Name of the table"]
     num_rows: Annotated[int, "Number of rows in the table"]
     dtypes: Annotated[
@@ -48,8 +52,9 @@ class TableMetadata(BaseModel):
 class AddTableMetadata(BaseModel):
     """Metadata to add a new table."""
     path: Annotated[
-        Path,
-        "Path to the file. Only CSV or Parquet files are supported.",
+        str,
+        ("Path to the table. Can be a local file path, an S3 URI "
+         "(s3://...), or an HTTP/HTTPS URL."),
     ]
     name: Annotated[str, "Name of the table"]
     primary_key: Annotated[str | None, "Name of the primary key column"]

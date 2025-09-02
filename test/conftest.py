@@ -70,19 +70,19 @@ def graph(root_dir: Path) -> UpdateGraphMetadata:
     return UpdateGraphMetadata(  # type: ignore[call-arg]
         tables_to_add=[
             AddTableMetadata(
-                path=root_dir / 'USERS.csv',
+                path=(root_dir / 'USERS.csv').as_posix(),
                 name='USERS',
                 primary_key='USER_ID',
                 time_column=None,
             ),
             AddTableMetadata(
-                path=root_dir / 'ORDERS.parquet',
+                path=(root_dir / 'ORDERS.parquet').as_posix(),
                 name='ORDERS',
                 primary_key=None,
                 time_column='TIME',
             ),
             AddTableMetadata(
-                path=root_dir / 'STORES.csv',
+                path=(root_dir / 'STORES.csv').as_posix(),
                 name='STORES',
                 primary_key='STORE_ID',
                 time_column=None,
