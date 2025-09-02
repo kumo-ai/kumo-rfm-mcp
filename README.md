@@ -70,21 +70,21 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 ### I/O Operations
 
-- **🔍 Searching for tabular files:** Find all table-like files (*e.g.*, CSV, Parquet) in a directory.
-- **🧐 Analyzing table structure:** Inspect the first rows of table-like files.
+- **🔍 `find_table_files` - Searching for tabular files:** Find all table-like files (*e.g.*, CSV, Parquet) in a directory.
+- **🧐 `inspect_table_files` - Analyzing table structure:** Inspect the first rows of table-like files.
 
 ### Graph Management
 
-- **🗂️ Reviewing graph schema:** Inspect the current graph metadata.
-- **🔄 Updating graph schema:** Partially update the current graph metadata.
-- **🖼️ Creating graph diagram:** Return the graph as a Mermaid entity relationship diagram.
-- **🕸️ Assembling graph:** Materialize the graph based on the current state of the graph metadata to make it available for inference operations.
-- **📂 Retrieving table entries:** Lookup rows in the raw data frame of a table for a list of primary keys.
+- **🗂️ `inspect_graph_metadata` - Reviewing graph schema:** Inspect the current graph metadata.
+- **🔄 `update_graph_metadata` - Updating graph schema:** Partially update the current graph metadata.
+- **🖼️ `get_mermaid` - Creating graph diagram:** Return the graph as a Mermaid entity relationship diagram.
+- **🕸️ `materialize_graph` - Assembling graph:** Materialize the graph based on the current state of the graph metadata to make it available for inference operations.
+- **📂 `lookup_table_rows` - Retrieving table entries:** Lookup rows in the raw data frame of a table for a list of primary keys.
 
 ### Model Execution
 
-- **🤖 Running predictive query:** Execute a predictive query and return model predictions.
-- **📊 Evaluating predictive query:** Evaluate a predictive query and return performance metrics which compares predictions against known ground-truth labels from historical examples.
+- **🤖 `predict` - Running predictive query:** Execute a predictive query and return model predictions.
+- **📊 `evaluate` - Evaluating predictive query:** Evaluate a predictive query and return performance metrics which compares predictions against known ground-truth labels from historical examples.
 
 ## 🔧 Configuration
 
