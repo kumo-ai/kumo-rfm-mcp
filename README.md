@@ -108,7 +108,11 @@ with MCPServerAdapter(params) as mcp_tools:
   <tr>
     <th align="center">
       <a href="https://langchain-ai.github.io/langgraph/agents/mcp/">
-        <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg">
+          <source media="(prefers-color-scheme: dark)" srcset="https://langchain-ai.github.io/langgraph/static/wordmark_light.svg">
+          <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250">
+</picture>
       </a>
       <br/>
       [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/insurance_agent.ipynb">Example</a>]
