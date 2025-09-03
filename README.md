@@ -68,9 +68,10 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 ## 🎬 Claude Desktop Demo
 
-See [here](https://claude.ai/share/57321d6e-4668-4722-8eba-e4315e82e79d) for the transcript.
+See [here](https://claude.ai/share/63211f3c-56b9-45e5-99d3-076c8a499e20) for the transcript.
 
-https://github.com/user-attachments/assets/da7cee28-a7d3-4198-b492-442efc1677e8
+https://github.com/user-attachments/assets/c35478cb-ca58-43fe-b32f-4675e897662c
+
 
 ## 🔬 Agentic Workflows
 
