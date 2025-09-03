@@ -66,6 +66,12 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_desktop.png" />
 
+## 🎬 Claude Desktop Demo
+
+See [here](https://claude.ai/share/57321d6e-4668-4722-8eba-e4315e82e79d) for the transcript.
+
+https://github.com/user-attachments/assets/12b38900-cc37-4e76-b430-c628c216befb
+
 ## 🔬 Agentic Workflows
 
 You can use the KumoRFM MCP directly in your agentic workflows:
