@@ -110,6 +110,8 @@ with MCPServerAdapter(params) as mcp_tools:
       <a href="https://langchain-ai.github.io/langgraph/agents/mcp/">
         <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250" />
       </a>
+      <br/>
+      [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/insurance_agent.ipynb">Example</a>]
     </th>
     <td valign="top"><pre lang="python"><code>
 from langchain_mcp_adapter.client MultiServerMCPClient
