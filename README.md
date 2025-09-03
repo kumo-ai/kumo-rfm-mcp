@@ -59,7 +59,7 @@ Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
 
 **Claude Desktop Demo:** See [here](https://claude.ai/share/57321d6e-4668-4722-8eba-e4315e82e79d) for the transcript
 
-[▶️ Watch full demo](https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_desktop.mp4)
+https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_desktop.mp4
 
 ### ⚡ MCP Bundle
 
