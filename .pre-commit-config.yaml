@@ -19,12 +19,6 @@ repos:
       - id: check-toml
         name: Check toml
 
-  - repo: https://github.com/regebro/pyroma
-    rev: '4.3.3'
-    hooks:
-      - id: pyroma
-        name: Check packaging
-
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.37.0
     hooks:
