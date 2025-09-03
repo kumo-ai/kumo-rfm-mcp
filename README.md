@@ -83,7 +83,7 @@ You can use the KumoRFM MCP directly in your agentic workflows:
         <img src="https://cdn.prod.website-files.com/66cf2bfc3ed15b02da0ca770/66d07240057721394308addd_Logo%20(1).svg" width="150" />
       </a>
       <br/>
-      [[Example](https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/ecom_agent.ipynb)]
+      [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/ecom_agent.ipynb">Example</a>]
     </th>
     <td valign="top"><pre lang="python"><code>
 from crewai import Agent
@@ -135,7 +135,7 @@ agent = create_react_agent(
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuDvlNDmDGF5QwPETEs3eh7RHNGmKBpgwyw&s" width="180" />
       </a>
       <br/>
-      [[Example](https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/simple_sales_agent.ipynb)]
+      [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/simple_sales_agent.ipynb">Example</a>]
     </th>
     <td valign="top"><pre lang="python"><code>
 from agents import Agent
