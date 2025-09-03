@@ -112,7 +112,7 @@ with MCPServerAdapter(params) as mcp_tools:
           <source media="(prefers-color-scheme: light)" srcset="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg">
           <source media="(prefers-color-scheme: dark)" srcset="https://langchain-ai.github.io/langgraph/static/wordmark_light.svg">
           <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250">
-</picture>
+        </picture>
       </a>
       <br/>
       [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/insurance_agent.ipynb">Example</a>]
@@ -138,7 +138,11 @@ agent = create_react_agent(
   <tr>
     <th align="center">
       <a href="https://openai.github.io/openai-agents-python/mcp/">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuDvlNDmDGF5QwPETEs3eh7RHNGmKBpgwyw&s" width="180" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/openai_dark.png">
+          <source media="(prefers-color-scheme: dark)" srcset="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/openai_light.png">
+          <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/openai_dark.png" width="180" />
+        </picture>
       </a>
       <br/>
       [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/simple_sales_agent.ipynb">Example</a>]
