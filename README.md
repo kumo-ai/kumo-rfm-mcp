@@ -166,7 +166,11 @@ async with MCPServerStdio(params={
   <tr>
     <th align="center">
       <a href="https://docs.anthropic.com/en/docs/claude-code/sdk/sdk-python/">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/1280px-Claude_AI_logo.svg.png" width="180" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/b4f8fc8a-6d3f-44ba-9623-3dedb29c6a95">
+          <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/4408e2ca-7e4b-4a4c-8bb6-eb00dd486315">
+          <img src="https://github.com/user-attachments/assets/b4f8fc8a-6d3f-44ba-9623-3dedb29c6a95" width="180" />
+        </picture>
       </a>
     </th>
     <td valign="top"><pre lang="python"><code>
