@@ -5,9 +5,9 @@
 
 <div align="center">
   <p>
-    <a href="https://github.com/kumo-ai/kumo-rfm/">SDK</a> •
-    <a href="https://kumo.ai/company/news/kumo-relational-foundation-model/">Blog</a> •
-    <a href="https://kumo.ai/research/kumo_relational_foundation_model.pdf">Paper</a> •
+    <a href="https://kumorfm.ai">KumoRFM</a> •
+    <a href="https://github.com/kumo-ai/kumo-rfm/">Notebooks</a> •
+    <a href="https://kumo.ai/company/news/kumorfm-mcp/">Blog</a> •
     <a href="https://kumorfm.ai">Get an API key</a>
   </p>
 
@@ -70,7 +70,7 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 See [here](https://claude.ai/share/57321d6e-4668-4722-8eba-e4315e82e79d) for the transcript.
 
-https://github.com/user-attachments/assets/12b38900-cc37-4e76-b430-c628c216befb
+https://github.com/user-attachments/assets/da7cee28-a7d3-4198-b492-442efc1677e8
 
 ## 🔬 Agentic Workflows
 
