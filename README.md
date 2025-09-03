@@ -72,7 +72,6 @@ See [here](https://claude.ai/share/63211f3c-56b9-45e5-99d3-076c8a499e20) for the
 
 https://github.com/user-attachments/assets/c35478cb-ca58-43fe-b32f-4675e897662c
 
-
 ## 🔬 Agentic Workflows
 
 You can use the KumoRFM MCP directly in your agentic workflows:
