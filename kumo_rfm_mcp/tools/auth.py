@@ -24,7 +24,8 @@ async def authenticate(
     if session.is_initialized:
         raise ToolError("KumoRFM session is already authenticated")
 
-    if os.getenv('KUMO_API_KEY') is None:
+    api_key = os.getenv('KUMO_API_KEY')
+    if api_key is None or api_key in {'', '${user_config.KUMO_API_KEY}'}:
         try:
             await asyncio.to_thread(rfm.authenticate)
         except Exception as e:
