@@ -22,6 +22,8 @@ requires-python = ">=3.10"
 dependencies = [
     "kumoai==2.8.0",
     "fastmcp>=2.2.7,<3",
+    "s3fs>=2025.9.0",
+    "fsspec>=2025.9.0",
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
