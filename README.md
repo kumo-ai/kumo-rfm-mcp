@@ -108,7 +108,11 @@ with MCPServerAdapter(params) as mcp_tools:
   <tr>
     <th align="center">
       <a href="https://langchain-ai.github.io/langgraph/agents/mcp/">
-        <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg">
+          <source media="(prefers-color-scheme: dark)" srcset="https://langchain-ai.github.io/langgraph/static/wordmark_light.svg">
+          <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250">
+        </picture>
       </a>
       <br/>
       [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/insurance_agent.ipynb">Example</a>]
@@ -134,7 +138,11 @@ agent = create_react_agent(
   <tr>
     <th align="center">
       <a href="https://openai.github.io/openai-agents-python/mcp/">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuDvlNDmDGF5QwPETEs3eh7RHNGmKBpgwyw&s" width="180" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/a28d3311-d676-4b2f-923e-49d59fa00dfa">
+          <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/27bde36e-e0cc-4944-93f6-66e432df2180">
+          <img src="https://github.com/user-attachments/assets/a28d3311-d676-4b2f-923e-49d59fa00dfa" width="180" />
+        </picture>
       </a>
       <br/>
       [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/simple_sales_agent.ipynb">Example</a>]
@@ -158,7 +166,11 @@ async with MCPServerStdio(params={
   <tr>
     <th align="center">
       <a href="https://docs.anthropic.com/en/docs/claude-code/sdk/sdk-python/">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/1280px-Claude_AI_logo.svg.png" width="180" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/b4f8fc8a-6d3f-44ba-9623-3dedb29c6a95">
+          <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/4408e2ca-7e4b-4a4c-8bb6-eb00dd486315">
+          <img src="https://github.com/user-attachments/assets/b4f8fc8a-6d3f-44ba-9623-3dedb29c6a95" width="180" />
+        </picture>
       </a>
     </th>
     <td valign="top"><pre lang="python"><code>
