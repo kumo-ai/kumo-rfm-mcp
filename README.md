@@ -139,9 +139,9 @@ agent = create_react_agent(
     <th align="center">
       <a href="https://openai.github.io/openai-agents-python/mcp/">
         <picture class="github-only">
-          <source media="(prefers-color-scheme: light)" srcset="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/openai_dark.png">
-          <source media="(prefers-color-scheme: dark)" srcset="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/openai_light.png">
-          <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/openai_dark.png" width="180" />
+          <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/a28d3311-d676-4b2f-923e-49d59fa00dfa">
+          <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/27bde36e-e0cc-4944-93f6-66e432df2180">
+          <img src="https://github.com/user-attachments/assets/a28d3311-d676-4b2f-923e-49d59fa00dfa" width="180" />
         </picture>
       </a>
       <br/>
