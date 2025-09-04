@@ -70,7 +70,7 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 See [here](https://claude.ai/share/d2a34e63-b1d2-4255-b3e9-a6cb55004497) for the transcript.
 
-https://github.com/user-attachments/assets/1c540527-d841-4df1-bc13-91f0c4a5eca8
+https://github.com/user-attachments/assets/56192b0b-d9df-425f-9c10-8517c754420f
 
 ## 🔬 Agentic Workflows
 
