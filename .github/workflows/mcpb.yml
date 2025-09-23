@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 
 jobs:
-  pytest:
+  mcpb:
     runs-on: ${{ matrix.os }}
 
     strategy:
