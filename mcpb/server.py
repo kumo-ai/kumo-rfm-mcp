@@ -55,4 +55,4 @@ def get_venv() -> Path:
 
 if __name__ == '__main__':
     python = get_venv()
-    sys.exit(subprocess.call([str(python), '-m', 'kumo_rfm_mcp.server']))
+    os.execv(str(python), [str(python), '-m', 'kumo_rfm_mcp.server'])
