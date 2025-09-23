@@ -5,9 +5,9 @@
 
 <div align="center">
   <p>
-    <a href="https://github.com/kumo-ai/kumo-rfm/">SDK</a> •
-    <a href="https://kumo.ai/company/news/kumo-relational-foundation-model/">Blog</a> •
-    <a href="https://kumo.ai/research/kumo_relational_foundation_model.pdf">Paper</a> •
+    <a href="https://kumorfm.ai">KumoRFM</a> •
+    <a href="https://github.com/kumo-ai/kumo-rfm/">Notebooks</a> •
+    <a href="https://kumo.ai/company/news/kumorfm-mcp/">Blog</a> •
     <a href="https://kumorfm.ai">Get an API key</a>
   </p>
 
@@ -70,9 +70,9 @@ The MCP Bundle is Windows compatible, but requires python to be installed!
 
 ## 🎬 Claude Desktop Demo
 
-See [here](https://claude.ai/share/57321d6e-4668-4722-8eba-e4315e82e79d) for the transcript.
+See [here](https://claude.ai/share/d2a34e63-b1d2-4255-b3e9-a6cb55004497) for the transcript.
 
-https://github.com/user-attachments/assets/12b38900-cc37-4e76-b430-c628c216befb
+https://github.com/user-attachments/assets/56192b0b-d9df-425f-9c10-8517c754420f
 
 ## 🔬 Agentic Workflows
 
@@ -84,6 +84,8 @@ You can use the KumoRFM MCP directly in your agentic workflows:
       <a href="https://docs.crewai.com/en/mcp/overview">
         <img src="https://cdn.prod.website-files.com/66cf2bfc3ed15b02da0ca770/66d07240057721394308addd_Logo%20(1).svg" width="150" />
       </a>
+      <br/>
+      [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/ecom_agent.ipynb">Example</a>]
     </th>
     <td valign="top"><pre lang="python"><code>
 from crewai import Agent
@@ -108,8 +110,14 @@ with MCPServerAdapter(params) as mcp_tools:
   <tr>
     <th align="center">
       <a href="https://langchain-ai.github.io/langgraph/agents/mcp/">
-        <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg">
+          <source media="(prefers-color-scheme: dark)" srcset="https://langchain-ai.github.io/langgraph/static/wordmark_light.svg">
+          <img src="https://langchain-ai.github.io/langgraph/static/wordmark_dark.svg" width="250">
+        </picture>
       </a>
+      <br/>
+      [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/insurance_agent.ipynb">Example</a>]
     </th>
     <td valign="top"><pre lang="python"><code>
 from langchain_mcp_adapter.client MultiServerMCPClient
@@ -132,8 +140,14 @@ agent = create_react_agent(
   <tr>
     <th align="center">
       <a href="https://openai.github.io/openai-agents-python/mcp/">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXuDvlNDmDGF5QwPETEs3eh7RHNGmKBpgwyw&s" width="180" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/a28d3311-d676-4b2f-923e-49d59fa00dfa">
+          <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/27bde36e-e0cc-4944-93f6-66e432df2180">
+          <img src="https://github.com/user-attachments/assets/a28d3311-d676-4b2f-923e-49d59fa00dfa" width="180" />
+        </picture>
       </a>
+      <br/>
+      [<a href="https://github.com/kumo-ai/kumo-rfm/blob/master/notebooks/simple_sales_agent.ipynb">Example</a>]
     </th>
     <td valign="top"><pre lang="python"><code>
 from agents import Agent
@@ -154,7 +168,11 @@ async with MCPServerStdio(params={
   <tr>
     <th align="center">
       <a href="https://docs.anthropic.com/en/docs/claude-code/sdk/sdk-python/">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/1280px-Claude_AI_logo.svg.png" width="180" />
+        <picture class="github-only">
+          <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/b4f8fc8a-6d3f-44ba-9623-3dedb29c6a95">
+          <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/4408e2ca-7e4b-4a4c-8bb6-eb00dd486315">
+          <img src="https://github.com/user-attachments/assets/b4f8fc8a-6d3f-44ba-9623-3dedb29c6a95" width="180" />
+        </picture>
       </a>
     </th>
     <td valign="top"><pre lang="python"><code>

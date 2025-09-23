@@ -40,6 +40,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
+s3 = ["s3fs"]
 dev = [
     "pytest",
     "pytest-asyncio",
