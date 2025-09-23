@@ -66,7 +66,7 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 <img src="https://kumo-sdk-public.s3.us-west-2.amazonaws.com/claude_desktop.png" />
 
-The MCP Bundle is Linux, macOS and Windows compatible, but requires a Python executable to be found.
+The MCP Bundle supports Linux, macOS and Windows, but requires a Python executable to be found in order to create a separate new virtual environment.
 
 ## 🎬 Claude Desktop Demo
 
