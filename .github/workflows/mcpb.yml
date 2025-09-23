@@ -1,4 +1,4 @@
-name: Test
+name: MCPBundle
 
 on:  # yamllint disable-line rule:truthy
   push:
@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      os: [ubuntu-latest, windows-latest, macos-14]
+      os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: Checkout repository
