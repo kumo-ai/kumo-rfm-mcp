@@ -11,8 +11,13 @@ from pydantic import Field
 from kumo_rfm_mcp import EvaluateResponse, PredictResponse, SessionManager
 
 query_doc = ("The predictive query string, e.g., "
-             "PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 or "
-             "PREDICT users.age FOR users.user_id IN (1, 2)")
+             "'PREDICT COUNT(orders.*, 0, 30, days)>0 FOR EACH users.user_id' "
+             "or 'PREDICT users.age FOR EACH users.user_id'")
+indices_doc = ("The primary keys (entity indices) to generate predictions "
+               "for. Up to 1000 entities are supported for an individual "
+               "query. Predictions will be generated for all indices, "
+               "regardless of whether they match any entity filter "
+               "constraints.")
 anchor_time_doc = (
     "The anchor time for which we are making a prediction for the "
     "the future. If `None`, will use the maximum timestamp in the "
@@ -62,6 +67,7 @@ metrics_doc = (
 
 async def predict(
     query: Annotated[str, query_doc],
+    indices: Annotated[list[str] | list[float] | list[int], indices_doc],
     anchor_time: Annotated[
         datetime | Literal['entity'] | None,
         Field(default=None, description=anchor_time_doc),
@@ -133,6 +139,7 @@ async def predict(
         try:
             df = model.predict(
                 query,
+                indices=indices,
                 anchor_time=anchor_time,
                 run_mode=run_mode,
                 num_neighbors=num_neighbors,
@@ -185,11 +192,6 @@ async def evaluate(
     """Evaluate a predictive query and return performance metrics which
     compares predictions against known ground-truth labels from historical
     examples.
-
-    Note that the specific entities defined in the predictive query will be
-    ignored. Instead, a number of test entities with known historical
-    ground-truth labels will be sampled for evaluation to judge the quality of
-    the predictive query.
 
     The graph needs to be materialized and the session needs to be
     authenticated before the KumoRFM model can start evaluating.
