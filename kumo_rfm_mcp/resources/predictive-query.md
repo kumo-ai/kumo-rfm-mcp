@@ -10,17 +10,16 @@ PQL lets you define predictive problems by specifying:
 The basic structure of a predictive query is:
 
 ```
-PREDICT <target_expression> FOR <entity_specification> WHERE <optional_filters>
+PREDICT <target_expression> FOR EACH <entity_specification> WHERE <optional_filters>
 ```
 
-Every predictive query needs to contain the `PREDICT` and `FOR` keywords.
+Every predictive query needs to contain the `PREDICT` and `FOR EACH` keywords.
 All references to columns within predictive queries must be fully qualified by table name and column name as `<table_name>.<column_name>`.
 
 In general, follow these given steps to author a predictive query:
 
 1. **Choose your entity** - a table and its primary key you predict for.
 1. **Define the target** - a raw column or an aggregation over a future window.
-1. **Pin the entity list** - pass a single ID or multiple IDs to make predictions for.
 1. **Refine the context** - if necessary, restrict which historical rows are used as in-context learning examples.
 1. **Run & fetch** - run `predict` or `evaluate` on top.
 
@@ -35,23 +34,17 @@ Do not make syntax up that is not listed in this document.
 
 ## Entity Specification
 
-Entities for each query can be specified in one of two ways:
+Entities for each query can be specified via:
 
-- By specifying a single entity ID:
-  ```
-  PREDICT ... FOR users.user_id=1
-  ```
-- By specifying a tuple of entity IDs:
-  ```
-  PREDICT ... FOR users.user_id IN (1, 2, 3)
-  ```
+```
+PREDICT ... FOR EACH users.user_id
+```
 
 Note that the entity table needs a primary key to uniquely determine the set of IDs to predict for.
-Up to 1000 IDs can be passed at once.
 
-The data type of the primary key in the entity table denotes how entity IDs should be passed.
-For string-based IDs, use `users.user_id='1'` or `users.user_id IN ('1', '2')`.
-For numerical IDs, use `users.user_id=1` or `users.user_id IN (1, 2)`.
+The actual entities to generate predictions for can be fully customized as part of the `predict` tool via the `indices` argument.
+Up to 1000 entities are supported for an individual query.
+Note that predictions will be generated for all indices, regardless of whether they match any entity filter constraints defined in the `WHERE` clause.
 
 ## Target Expression
 
@@ -68,7 +61,7 @@ KumoRFM will then mask out the target column and predict the value from related 
 For example, you can predict the age of users via
 
 ```
-PREDICT users.age FOR users.user_id=1
+PREDICT users.age FOR EACH users.user_id
 ```
 
 You can impute missing values for all `"numerical"` and `"categorical"` columns.
@@ -78,7 +71,7 @@ For `"categorical"` columns, the predictive query is interpreted as a multi-clas
 For binary classification tasks, you can add **conditions** to the target expression:
 
 ```
-PREDICT users.age > 40 FOR users.user_id=1
+PREDICT users.age > 40 FOR EACH users.user_id
 ```
 
 The following boolean operators are supported:
@@ -96,14 +89,14 @@ It cannot be modeled as a target expression.
 When using boolean conditions, the value format must match the column's data type:
 
 ```
-PREDICT users.location='US' FOR users.user_id=1
-PREDICT users.birthday>1990-01-01 FOR users.user_id=1
+PREDICT users.location='US' FOR EACH users.user_id
+PREDICT users.birthday>1990-01-01 FOR EACH users.user_id
 ```
 
 Multiple conditions can be logically combined via `AND`, `OR` and `NOT` to form complex predictive queries, e.g.:
 
 ```
-PREDICT (users.age>40 OR users.location='US') AND (NOT users.gender='male') FOR users.user_id=1
+PREDICT (users.age>40 OR users.location='US') AND (NOT users.gender='male') FOR EACH users.user_id
 ```
 
 The following logical operations are supported:
@@ -130,7 +123,7 @@ The syntax is as follows:
 For example:
 
 ```
-PREDICT SUM(orders.price, 0, 30, days) for users.user_id=1
+PREDICT SUM(orders.price, 0, 30, days) FOR EACH users.user_id
 ```
 
 Here, `orders` is a table that is connected to `users` via a foreign key-primary key relationship (`orders.user_id <> users.user_id`).
@@ -148,13 +141,13 @@ The time unit of the aggregation defaults to `days` if none is specified.
 Similar to static predictive queries, you can add conditions and logical operations to temporal predictive queries to create binary classification tasks:
 
 ```
-PREDICT SUM(transactions.price, 0, 30, days)=0 for users.user_id=1
+PREDICT SUM(transactions.price, 0, 30, days)=0 FOR EACH users.user_id
 ```
 
 When using logical operations, it is allowed to aggregate from multiple different target tables:
 
 ```
-PREDICT COUNT(session.*, 0, 7)>10 OR SUM(transaction.value, 0, 5)>100 FOR user.user_id=1
+PREDICT COUNT(session.*, 0, 7)>10 OR SUM(transaction.value, 0, 5)>100 FOR EACH user.user_id
 ```
 
 #### Aggregation Operators
@@ -177,7 +170,7 @@ It predicts which foreign key values an entity will interact with in the future.
 The basic syntax is:
 
 ```
-LIST_DISTINCT(<target_table>.<foreign_key>, <start_offset>, <end_offset>, <time_unit>) RANK TOP k FOR ...
+LIST_DISTINCT(<target_table>.<foreign_key>, <start_offset>, <end_offset>, <time_unit>) RANK TOP k FOR EACH ...
 ```
 
 `LIST_DISTINCT` aggregations must be applied to foreign key columns (not regular columns).
@@ -186,7 +179,7 @@ They also must include `RANK TOP k` to specify how many recommendations to retur
 For example:
 
 ```
-PREDICT LIST_DISTINCT(orders.item_id, 0, 7, days) RANK TOP 10 FOR users.user_id=1
+PREDICT LIST_DISTINCT(orders.item_id, 0, 7, days) RANK TOP 10 FOR EACH users.user_id
 ```
 
 ##### Handling Inactive Entities in Temporal Aggregations
@@ -207,12 +200,12 @@ By using a `WHERE` clause within the target expression (valid for all aggregatio
 For example:
 
 ```
-PREDICT COUNT(transactions.* WHERE transactions.price > 10, 0, 7, days) FOR users.user_id=1
+PREDICT COUNT(transactions.* WHERE transactions.price > 10, 0, 7, days) FOR EACH users.user_id
 ```
 
 Note that the `WHERE` clause of target filters need to be part of the aggregation input.
-Target filters must be static and thus can ONLY reference columns within the target table being aggregated.
-Cross-table references, subqueries, and joins are NOT supported.
+Target filters must be static and thus can **only** reference columns within the target table being aggregated.
+Cross-table references, subqueries, and joins are **not** supported.
 Do not make syntax up that is not listed in this document.
 
 ## Entity Filters
@@ -222,11 +215,11 @@ Entity filters can be used to provide more control over how KumoRFM collects in-
 For example, to exclude `users` without recent activity from the context, you can write:
 
 ```
-PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 WHERE COUNT(orders.*, -30, 0, days) > 0
+PREDICT COUNT(orders.*, 0, 30, days)>0 FOR EACH users.user_id WHERE COUNT(orders.*, -30, 0, days) > 0
 ```
 
 This limits the in-context examples for predicting churn to active users only.
-Note that these filters are NOT applied to the provided entity list.
+Note that these filters are **not** applied to the provided entity list `indices` as part of the `predict` tool.
 
 Both static and temporal filters can be used as entity filters.
 If you use temporal entity filters, the `<start_offset>` and `<end_offset>` parameters need to be backward looking, i.e. `<start_offset> < 0` and `<end_offset> <= 0`.
@@ -238,7 +231,7 @@ For example, you may want to investigate how much a user will spend if you give 
 The `ASSUMING` keyword is followed by a future-looking assumption, which will be assumed to be true for the entity IDs you predict for.
 
 ```
-PREDICT COUNT(orders.*, 0, 30, days)>0 FOR users.user_id=1 ASSUMING COUNT(notifications.*, 0, 7, days)>0
+PREDICT COUNT(orders.*, 0, 30, days)>0 FOR EACH users.user_id ASSUMING COUNT(notifications.*, 0, 7, days)>0
 ```
 
 Standard SQL operations such as `JOIN`, `SELECT`, `UNION`, `GROUP BY`, and subqueries are not supported in PQL.
@@ -255,12 +248,12 @@ The following machine learning tasks are supported:
 - **Recommendation/temporal link prediction:** When predicting a ranked list of items using `LIST_DISTINCT`
 
 Note that you don't need to specify the task type.
-PQL automatically detects it based on whether you're predicting a condition (binary), categories (multi-class), numbers (regression), or ranked lists (recommendation).
+PQL automatically detects it based on whether you are predicting a condition (binary), categories (multi-class), numbers (regression), or ranked lists (recommendation).
 
 ## Best Practices
 
 - Use target filters to filter which events to aggregate.
-- Use entity filter to filter which historical examples to learn from.
+- Use entity filters to filter which historical examples to learn from.
 - Make sure to include temporal entity filters in zero-valued aggregations such as `SUM` or `COUNT`.
 - Ensure value formats match column data types in conditions (e.g., `'US'` for strings, `1990-01-01` for dates).
 - It might be non-trivial to pick appropriate `<start_offset>` and `<end_offset>` values.
@@ -270,8 +263,6 @@ PQL automatically detects it based on whether you're predicting a condition (bin
 - Analyze the label distribution of in-context learning examples in the `predict` and `evaluate` tool logs to understand if your query needs any adjustments, e.g., more or less strict temporal entity filters.
 - Take the label distribution of the predictive query into account when analyzing output metrics of the `evaluate` tool.
 - When running a predictive query via `predict` or `evaluate` tools, use `run_mode="fast"` for initial exploration, and reserve `run_mode="best"` for final production queries.
-- The entity IDs in the `evaluate` tool have no impact on the output metrics.
-  Instead, a number of test entities with known historical ground-truth labels will be sampled for evaluation.
 - Choose anchor times that represent realistic prediction scenarios.
   Use `anchor_time=None` to make predictions based on the most recent data.
   Use `anchor_time='entity'` for static predictions to prevent temporal leakage if entities denote temporal facts.
@@ -288,38 +279,42 @@ PQL automatically detects it based on whether you're predicting a condition (bin
 - Incorrect semantic types may lead to wrong task formulations.
   Carefully review and correct semantic types during graph setup.
 - `LIST_DISTINCT` only works on foreign key columns.
-- Using `anchor_time='entity'` for temporal queries with aggregations is NOT supported.
+- Using `anchor_time='entity'` for temporal queries with aggregations is **not** supported.
 
 ## Examples
 
 1. **Recommend movies to users:**
 
    ```
-   PREDICT LIST_DISTINCT(ratings.movie_id, 0, 14, days) RANK TOP 20 FOR users.user_id=9987
+   PREDICT LIST_DISTINCT(ratings.movie_id, 0, 14, days) RANK TOP 20
+   FOR EACH users.user_id
    ```
 
 1. **Predict inactive users:**
 
    ```
-   PREDICT COUNT(sessions.*, 0, 14)=0 FOR users.user_id=9987 WHERE COUNT(sessions.*,-7,0)>0
+   PREDICT COUNT(sessions.*, 0, 14)=0
+   FOR EACH users.user_id WHERE COUNT(sessions.*,-7,0)>0
    ```
 
 1. **Predict 5-star reviews:**
 
    ```
-   PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0, 30)>0 FOR products.product_id=123456
+   PREDICT COUNT(ratings.* WHERE ratings.rating = 5, 0, 30)>0
+   FOR EACH products.product_id
    ```
 
 1. **Predict customer churn:**
 
    ```
    PREDICT COUNT(transactions.price, 0, 3, months)>0
-   FOR customers.customer_id=123456 WHERE SUM(transactions.price, -2, 0, months)>0.05
+   FOR EACH customers.customer_id
+   WHERE SUM(transactions.price, -2, 0, months)>0.05
    ```
 
 1. **Find next best articles:**
 
    ```
-   PREDICT LIST_DISTINCT(transactions.article_id, 0, 90)
-   RANK TOP 20 FOR customers.customer_id=123456
+   PREDICT LIST_DISTINCT(transactions.article_id, 0, 90) RANK TOP 20
+   FOR EACH customers.customer_id
    ```
