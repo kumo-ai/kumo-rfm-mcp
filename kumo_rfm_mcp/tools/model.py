@@ -8,7 +8,12 @@ from fastmcp.exceptions import ToolError
 from kumoai.utils import ProgressLogger
 from pydantic import Field
 
-from kumo_rfm_mcp import EvaluateResponse, PredictResponse, SessionManager
+from kumo_rfm_mcp import (
+    EvaluateResponse,
+    ExplanationResponse,
+    PredictResponse,
+    SessionManager,
+)
 
 query_doc = ("The predictive query string, e.g., "
              "'PREDICT COUNT(orders.*, 0, 30, days)>0 FOR EACH users.user_id' "
@@ -237,6 +242,82 @@ async def evaluate(
     return await asyncio.to_thread(_evaluate)
 
 
+async def explain(
+    query: Annotated[str, query_doc],
+    index: Annotated[
+        str | float | int,
+        "The primary key (entity index) of the prediction to explain.",
+    ],
+    anchor_time: Annotated[
+        datetime | Literal['entity'] | None,
+        Field(default=None, description=anchor_time_doc),
+    ],
+    num_neighbors: Annotated[
+        list[int],
+        Field(
+            default=None,
+            min_length=0,
+            max_length=6,
+            description=num_neighbors_doc,
+        ),
+    ],
+    max_pq_iterations: Annotated[
+        int,
+        Field(default=20, description=max_pq_iterations_doc),
+    ],
+) -> ExplanationResponse:
+    """Execute a predictive query and explain the model prediction.
+
+    The graph needs to be materialized and the session needs to be
+    authenticated before the KumoRFM model can start generating an explanation
+    for a prediction.
+
+    Only a single entity prediction can be explained at a time.
+    The `run_mode` will be fixed to `'fast'` mode for explainability.
+    Note that the model prediction returned by the explanation might differ
+    slightly from the result of the `predict` tool due to floating-point
+    precision. Ignore such small differences.
+
+    Important: Before executing or suggesting any predictive queries,
+    read the documentation first at 'kumo://docs/predictive-query'.
+
+    Important: Before analyzing the explanation output, read the documentation
+    first at 'kumo://docs/explainability'.
+    """
+    model = SessionManager.get_default_session().model
+
+    if anchor_time is not None and anchor_time != "entity":
+        anchor_time = pd.Timestamp(anchor_time)
+
+    def _explain() -> ExplanationResponse:
+        logger = ProgressLogger(query)
+
+        try:
+            out = model.predict(
+                query,
+                indices=[index],
+                explain=True,
+                anchor_time=anchor_time,
+                num_neighbors=num_neighbors,
+                max_pq_iterations=max_pq_iterations,
+                verbose=logger,
+            )
+        except Exception as e:
+            raise ToolError(f"Explanation failed: {e}") from e
+
+        logs = logger.logs
+        if logger.start_time is not None:
+            logs = logs + [f'Duration: {logger.duration:2f}s']
+
+        return ExplanationResponse(
+            prediction=out.df.to_dict(orient='records')[0],
+            explanation=out.details,
+            logs=logs,
+        )
+
+    return await asyncio.to_thread(_explain)
+
+
 def register_model_tools(mcp: FastMCP) -> None:
     """Register all model tools to the MCP server."""
     mcp.tool(annotations=dict(
@@ -254,3 +335,11 @@ def register_model_tools(mcp: FastMCP) -> None:
         idempotentHint=True,
         openWorldHint=False,
     ))(evaluate)
+
+    mcp.tool(annotations=dict(
+        title="🧠 Explaining prediction…",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ))(explain)

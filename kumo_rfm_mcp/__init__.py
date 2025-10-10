@@ -12,6 +12,7 @@ from .config import (
     MaterializedGraphInfo,
     PredictResponse,
     EvaluateResponse,
+    ExplanationResponse,
 )
 from .session import Session, SessionManager
 
@@ -29,6 +30,7 @@ __all__ = [
     'MaterializedGraphInfo',
     'PredictResponse',
     'EvaluateResponse',
+    'ExplanationResponse',
     'Session',
     'SessionManager',
 ]

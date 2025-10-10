@@ -61,6 +61,15 @@ mcp.add_resource(
         mime_type='text/markdown',
         tags={'documentation'},
     ))
+mcp.add_resource(
+    FileResource(
+        uri=AnyUrl('kumo://docs/explainability'),
+        path=Path(__file__).parent / 'resources' / 'explainability.md',
+        name="Explainability",
+        description="How to interpret and summarize explanations of KumoRFM",
+        mime_type='text/markdown',
+        tags={'documentation'},
+    ))
 
 
 def main() -> None:
