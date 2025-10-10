@@ -10,7 +10,8 @@ A table schema is defined by three concepts:
 
 - **Semantic types (`stypes`):** Semantic types denote the semantic meaning of columns in a table and how they should be processed within the model
 - **Primary key (`primary_key`):** A unique identifier for the table
-- **Time column (`time_column`):** The column that denotes the create time of rows
+- **Time column (`time_column`):** The column that denotes the create time of rows (marking when the record became active)
+- **End time column (`end_time_column`):** The column that denotes the end time of rows (marking when the row stopped being active)
 
 ### Semantic Types
 
@@ -36,7 +37,7 @@ You can use your world knowledge and common sense to analyze and correct such mi
 
 If certain columns should be discarded, e.g., in case they have such high cardinality to make proper model generalization infeasible, a semantic type of `None` can be used to discard the column from being encoded.
 
-### Primary key
+### Primary Key
 
 The primary key is a unique identifier of each row in a table.
 Each table can have at most one primary key.
@@ -46,9 +47,9 @@ However, a primary key does not need to necessarily link to other tables.
 Setting a primary key will automatically assing the semantic type `"ID"` to this column.
 A primary key may not exist for all tables, but will be required whenever tables need to be linked together or whenever the table is used as the entity in a predictive query.
 
-### Time column
+### Time Column
 
-A time column indicates the timestamp column that record when the event occured.
+A time column specifies the timestamp at which an event occured or when this row became active.
 It is used to prevent temporal leakage during subgraph sampling, i.e. for a given anchor time only events are preserved with timestamp less than or equal to the given anchor time.
 Time column data must obey to datetime format to be correctly parsed by `pandas.to_datetime`.
 Each table can have at most one time column.
@@ -56,6 +57,15 @@ A time column may not exist for all tables, but will be required when predicting
 The system will only keep rows with non-N/A timestamps.
 In case there exists multiple time columns in the table, pick the column as time column that most likely refers to the create time of the event.
 For example, `create_time` should be preferred over `update_time`.
+
+### End Time Column
+
+An end time column specifies the timestamp at which an event or row stopped being active.
+It is used to exclude in-context examples that have already expired relative to a given anchor time.
+End time column data must obey to datetime format to be correctly parsed by `pandas.to_datetime`.
+Each table can have at most one end time column.
+If both a time column and an end time column are present, they must refer to different columns in the dataset.
+An end time column is optional and typically only appears alongside a time column.
 
 ## Graph Schema
 
