@@ -10,7 +10,7 @@ A table schema is defined by three concepts:
 
 - **Semantic types (`stypes`):** Semantic types denote the semantic meaning of columns in a table and how they should be processed within the model
 - **Primary key (`primary_key`):** A unique identifier for the table
-- **Time column (`time_column`):** The column that denotes the create time of rows (marking when the record became active)
+- **Time column (`time_column`):** The column that denotes the create time of rows (marking when the row became active)
 - **End time column (`end_time_column`):** The column that denotes the end time of rows (marking when the row stopped being active)
 
 ### Semantic Types
