@@ -11,7 +11,8 @@ async def test_predict(graph: UpdateGraphMetadata) -> None:
     await materialize_graph()
 
     out = await predict(
-        'PREDICT USERS.AGE>20 FOR USERS.USER_ID=0',
+        'PREDICT USERS.AGE>20 FOR EACH USERS.USER_ID',
+        indices=[0],
         anchor_time=None,
         run_mode='fast',
         num_neighbors=[16, 16],
@@ -27,7 +28,7 @@ async def test_evaluate(graph: UpdateGraphMetadata) -> None:
     await materialize_graph()
 
     out = await evaluate(
-        'PREDICT USERS.AGE>20 FOR USERS.USER_ID=0',
+        'PREDICT USERS.AGE>20 FOR EACH USERS.USER_ID',
         metrics=None,
         anchor_time=None,
         run_mode='fast',
