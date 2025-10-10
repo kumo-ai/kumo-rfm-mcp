@@ -246,7 +246,7 @@ async def explain(
     query: Annotated[str, query_doc],
     index: Annotated[
         str | float | int,
-        "The primary key (entity index) of the prediction to explain.",
+        "The primary key (entity index) of the prediction to explain",
     ],
     anchor_time: Annotated[
         datetime | Literal['entity'] | None,
