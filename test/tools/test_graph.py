@@ -30,18 +30,21 @@ def test_graph_metadata(root_dir: Path) -> None:
                 name='USERS',
                 primary_key='USER_ID',
                 time_column=None,
+                end_time_colun=None,
             ),
             AddTableMetadata(
                 path=(root_dir / 'ORDERS.parquet').as_posix(),
                 name='ORDERS',
                 primary_key=None,
                 time_column='TIME',
+                end_time_colun=None,
             ),
             AddTableMetadata(
                 path=(root_dir / 'STORES.csv').as_posix(),
                 name='STORES',
                 primary_key='STORE_ID',
                 time_column=None,
+                end_time_colun=None,
             ),
         ])
     update_graph_metadata(update)

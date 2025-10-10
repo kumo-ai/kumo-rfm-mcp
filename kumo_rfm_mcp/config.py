@@ -46,7 +46,15 @@ class TableMetadata(BaseModel):
         "been discarded",
     ]
     primary_key: Annotated[str | None, "Name of the primary key column"]
-    time_column: Annotated[str | None, "Name of the time column"]
+    time_column: Annotated[
+        str | None,
+        "Name of the time column marking when the record becomes active",
+    ]
+    end_time_column: Annotated[
+        str | None,
+        ("Name of the end time column marking when the record stops being "
+         "active"),
+    ]
 
 
 class AddTableMetadata(BaseModel):
@@ -57,8 +65,29 @@ class AddTableMetadata(BaseModel):
          "(s3://...), or an HTTP/HTTPS URL."),
     ]
     name: Annotated[str, "Name of the table"]
-    primary_key: Annotated[str | None, "Name of the primary key column"]
-    time_column: Annotated[str | None, "Name of the time column"]
+    primary_key: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Name of the primary key column",
+        ),
+    ]
+    time_column: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description=("Name of the time column marking when the record "
+                         "becomes active"),
+        ),
+    ]
+    end_time_column: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description=("Name of the end time column marking when the record "
+                         "stops being active"),
+        ),
+    ]
 
 
 class UpdateTableMetadata(BaseModel):
@@ -88,6 +117,15 @@ class UpdateTableMetadata(BaseModel):
             description=("Update the time column. Set to `None` if the time "
                          "column should be discarded. If omitted, the current "
                          "time column will be untouched."),
+        ),
+    ]
+    end_time_column: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description=("Update the end time column. Set to `None` if the "
+                         "end time column should be discarded. If omitted, "
+                         "the current end time column will be untouched."),
         ),
     ]
 
