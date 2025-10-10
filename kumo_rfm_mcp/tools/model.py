@@ -82,7 +82,7 @@ async def predict(
         Field(default='fast', description=run_mode_doc),
     ],
     num_neighbors: Annotated[
-        list[int],
+        list[int] | None,
         Field(
             default=None,
             min_length=0,
@@ -181,7 +181,7 @@ async def evaluate(
         Field(default='fast', description=run_mode_doc),
     ],
     num_neighbors: Annotated[
-        list[int],
+        list[int] | None,
         Field(
             default=None,
             min_length=0,
@@ -253,7 +253,7 @@ async def explain(
         Field(default=None, description=anchor_time_doc),
     ],
     num_neighbors: Annotated[
-        list[int],
+        list[int] | None,
         Field(
             default=None,
             min_length=0,
