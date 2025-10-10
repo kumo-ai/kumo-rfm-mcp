@@ -59,6 +59,7 @@ def inspect_graph_metadata() -> GraphMetadata:
                 stypes=stypes,
                 primary_key=table._primary_key,
                 time_column=table._time_column,
+                end_time_column=table._end_time_column,
             ))
 
     links: list[LinkMetadata] = []
@@ -110,6 +111,7 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
         if table.name in graph and graph[table.name]._path == path:
             graph[table.name].primary_key = table.primary_key
             graph[table.name].time_column = table.time_column
+            graph[table.name].end_time_column = table.end_time_column
             continue
 
         if suffix not in {'csv', 'parquet'}:
@@ -132,6 +134,7 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
                 name=table.name,
                 primary_key=table.primary_key,
                 time_column=table.time_column,
+                end_time_column=table.end_time_column,
             )
             local_table._path = path
             graph.add_table(local_table)
@@ -156,6 +159,9 @@ def update_graph_metadata(update: UpdateGraphMetadata) -> UpdatedGraphMetadata:
                 graph[table_name].primary_key = table_update['primary_key']
             if 'time_column' in table_update:
                 graph[table_name].time_column = table_update['time_column']
+            if 'end_time_column' in table_update:
+                graph[table_name].end_time_column = table_update[
+                    'end_time_column']
         except Exception as e:
             errors.append(f"Could not fully update table '{table_name}': {e}")
             continue
@@ -236,7 +242,8 @@ def get_mermaid(
         for column in table.columns:
             if (column.name != table._primary_key
                     and column.name not in fkey_dict[table.name]
-                    and column.name != table._time_column):
+                    and column.name != table._time_column
+                    and column.name != table._end_time_column):
                 feat_columns.append(column)
 
         lines.append(f"{' ' * 4}{table.name} {{")
@@ -247,6 +254,8 @@ def get_mermaid(
             lines.append(f"{' ' * 8}{fkey.stype} {fkey.name} FK")
         if time_col := table.time_column:
             lines.append(f"{' ' * 8}{time_col.stype} {time_col.name}")
+        if end_time_col := table.end_time_column:
+            lines.append(f"{' ' * 8}{end_time_col.stype} {end_time_col.name}")
         if show_columns:
             for col in feat_columns:
                 lines.append(f"{' ' * 8}{col.stype} {col.name}")
