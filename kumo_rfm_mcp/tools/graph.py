@@ -8,6 +8,7 @@ from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
 from kumoai.graph import Edge
+from kumoai.utils import ProgressLogger
 from kumoapi.typing import Dtype, Stype
 from pydantic import Field
 
@@ -283,7 +284,8 @@ async def materialize_graph() -> MaterializedGraphInfo:
 
     def _materialize_graph() -> rfm.KumoRFM:
         try:
-            return rfm.KumoRFM(session.graph, verbose=False)
+            logger = ProgressLogger("Materializing graph")
+            return rfm.KumoRFM(session.graph, verbose=logger)
         except Exception as e:
             raise ToolError(f"Failed to materialize graph: {e}")
 
