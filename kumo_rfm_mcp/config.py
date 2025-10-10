@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Annotated, Any
 
+from kumoapi.rfm import Explanation
 from kumoapi.typing import Dtype, Stype
 from pydantic import BaseModel, Field
 
@@ -213,7 +214,7 @@ class PredictResponse(BaseModel):
             default_factory=list,
             description=(
                 "The predictions, where each row holds information about the "
-                "entity, the anchor time, and the prediction"),
+                "entity, the anchor time, and the prediction scores"),
         ),
     ]
     logs: Annotated[
@@ -242,5 +243,32 @@ class EvaluateResponse(BaseModel):
             description=("Evaluation-specific log messages such as number of "
                          "context and test examples, the underlying task type "
                          "and the label distribution"),
+        ),
+    ]
+
+
+class ExplanationResponse(BaseModel):
+    prediction: Annotated[
+        dict[str, Any],
+        ("The prediction, holding information about the entity, the anchor "
+         "time, and the prediction scores"),
+    ]
+    explanation: Annotated[
+        Explanation,
+        ("The explanation of the prediction. Provides both a global, "
+         "column-level analysis and a local, cell-level attribution view. "
+         "The global analysis clusters column distributions of in-context "
+         "examples into cohorts and relates them to their relevance with "
+         "respect to ground-truth labels. The local view computes "
+         "gradient-based attribution scores over prediction subgraphs. "
+         "Together, these views enable comprehensive interpretation."),
+    ]
+    logs: Annotated[
+        list[str],
+        Field(
+            default_factory=list,
+            description=("Prediction-specific log messages such as number of "
+                         "context examples, the underlying task type and the "
+                         "label distribution"),
         ),
     ]

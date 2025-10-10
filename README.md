@@ -220,6 +220,7 @@ Browse our [examples](https://github.com/kumo-ai/kumo-rfm/tree/master/notebooks)
 
 - **🤖 `predict` - Running predictive query:** Execute a predictive query and return model predictions.
 - **📊 `evaluate` - Evaluating predictive query:** Evaluate a predictive query and return performance metrics which compares predictions against known ground-truth labels from historical examples.
+- **🧠 `explain` - Explaining prediction:** Execute a predictive query and explain the model prediction.
 
 ## 🔧 Configuration
 

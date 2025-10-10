@@ -20,6 +20,7 @@ def register_docs_tools(mcp: FastMCP) -> None:
             'kumo://docs/overview',
             'kumo://docs/graph-setup',
             'kumo://docs/predictive-query',
+            'kumo://docs/explainability',
         ]
     ) -> str:
         """Get documentation on how to use KumoRFM.
@@ -64,6 +65,14 @@ def register_docs_tools(mcp: FastMCP) -> None:
 
         Important: Before executing or suggesting any predictive queries,
         read the documentation first at 'kumo://docs/predictive-query'.
+
+        KumoRFM can additionally generate explanations for predictions,
+        providing both a global column-level analysis and a local, cell-level
+        attribution view.
+        Together, these views enable comprehensive interpretation.
+
+        Important: Before analyzing the explanation output, read the
+        documentation first at 'kumo://docs/explainability'.
         """
         resources = await mcp.get_resources()
         if resource_uri not in resources:

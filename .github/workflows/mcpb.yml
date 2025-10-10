@@ -1,9 +1,10 @@
 name: MCPBundle
 
-on:  # yamllint disable-line rule:truthy
-  push:
-    branches: [main]
-  pull_request:
+# TODO Re-enable
+# on:  # yamllint disable-line rule:truthy
+#   push:
+#     branches: [main]
+#   pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ startsWith(github.ref, 'refs/pull/') || github.run_number }}
