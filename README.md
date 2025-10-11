@@ -50,7 +50,7 @@ Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
       "command": "python",
       "args": ["-m", "kumo_rfm_mcp.server"],
       "env": {
-        "KUMO_API_KEY": "your_api_key_here",
+        "KUMO_API_KEY": "your_api_key_here"
       }
     }
   }
