@@ -106,11 +106,11 @@ Avoid jargon; explain in business terms.
 ## Common Interpretation Pitfalls
 
 - **Don't assume correlation = causation:**
-  High scores show model importance, not real-world causality
-  For example, "black clothing" might correlate with churn, but color isn't the cause
+  High scores show model importance, not real-world causality.
+  For example, "black clothing" might correlate with churn, but color isn't the cause.
 - **Consider data distribution:**
-  Rare cohorts may show extreme `targets` with small `populations`
-  Focus on cohorts with both significant population AND divergent targets
+  Rare cohorts may show extreme `targets` with small `populations`.
+  Focus on cohorts with both significant population AND divergent targets.
 - **Missing cohort analysis:**
-  Not all columns have cohort analysis (some semantic types unsupported)
-  Text and ID columns typically only appear in local view
+  Not all columns have a cohort analysis since some semantic types are unsupported.
+  For example, text and ID columns typically only appear in local view.
