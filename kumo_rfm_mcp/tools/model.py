@@ -310,7 +310,7 @@ async def explain(
             logs = logs + [f'Duration: {logger.duration:2f}s']
 
         return ExplanationResponse(
-            prediction=out.df.to_dict(orient='records')[0],
+            prediction=out.prediction.to_dict(orient='records')[0],
             explanation=out.details,
             logs=logs,
         )

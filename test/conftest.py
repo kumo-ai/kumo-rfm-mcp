@@ -1,8 +1,12 @@
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pytest
 from kumoai.experimental import rfm
+from kumoai.experimental.rfm.rfm import Explanation
+from kumoapi.rfm import Explanation as ExplanationConfig
+from kumoapi.task import TaskType
 from pytest import TempPathFactory
 
 from kumo_rfm_mcp import (
@@ -22,19 +26,42 @@ def clear_session() -> None:
 def mock_model(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv('KUMO_API_KEY', 'DUMMY')
     monkeypatch.setattr(rfm, 'init', lambda *args, **kwargs: None)
-    monkeypatch.setattr(
-        rfm.KumoRFM, 'predict', lambda *args, **kwargs: pd.DataFrame({
+
+    def predict(
+        *args: Any,
+        explain: bool = False,
+        **kwargs: Any,
+    ) -> pd.DataFrame | Explanation:
+
+        df = pd.DataFrame({
             'ENTITY': [0],
             'ANCHOR_TIMESTAMP': ['2025-01-1'],
             'TARGET_PRED': [True],
             'False_PROB': [0.4],
             'True_PROB': [0.6],
-        }))
-    monkeypatch.setattr(
-        rfm.KumoRFM, 'evaluate', lambda *args, **kwargs: pd.DataFrame({
+        })
+
+        if not explain:
+            return df
+
+        return Explanation(
+            prediction=df,
+            summary='',
+            details=ExplanationConfig(
+                task_type=TaskType.BINARY_CLASSIFICATION,
+                cohorts=[],
+                subgraphs=[],
+            ),
+        )
+
+    def evaluate(*args: Any, **kwargs: Any) -> pd.DataFrame:
+        return pd.DataFrame({
             'metric': ['ap', 'auprc', 'auroc'],
             'value': [0.8, 0.8, 0.9],
-        }))
+        })
+
+    monkeypatch.setattr(rfm.KumoRFM, 'predict', predict)
+    monkeypatch.setattr(rfm.KumoRFM, 'evaluate', evaluate)
 
 
 @pytest.fixture(scope='session')
