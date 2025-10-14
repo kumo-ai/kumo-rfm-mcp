@@ -64,7 +64,7 @@ metrics_doc = (
     "Binary classification: 'acc', 'precision', 'recall', 'f1', 'auroc', "
     "'auprc', 'ap'\n"
     "Multi-class classification: 'acc', 'precision', 'recall', 'f1', 'mrr'\n"
-    "Regression: 'mae', 'mape', 'mse', 'rmse', 'smape'\n"
+    "Regression: 'mae', 'mape', 'mse', 'rmse', 'smape', 'r2'\n"
     "Temporal link prediction: 'map@k', 'ndcg@k', 'mrr@k', 'precision@k', "
     "'recall@k', 'f1@k', 'hit_ratio@k' where 'k' needs to be an integer "
     "between 1 and 100")
