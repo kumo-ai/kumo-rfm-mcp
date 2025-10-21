@@ -4,7 +4,7 @@ The Predictive Query Language (PQL) is a querying language that allows to define
 PQL lets you define predictive problems by specifying:
 
 1. **The target expression:** Declares the value or aggregate the model should predict
-1. **The entity specification:** Specified the single ID or list of IDs to predict for
+1. **The entity specification:** Specifies the entities to predict for
 1. **Optional entity filters:** Filters which historical entities are used as in-context learning examples
 
 The basic structure of a predictive query is:
