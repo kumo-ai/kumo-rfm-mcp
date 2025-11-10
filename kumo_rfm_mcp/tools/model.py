@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from kumoai.experimental.rfm import ExplainConfig
 from kumoai.utils import ProgressLogger
 from pydantic import Field
 
@@ -296,7 +297,7 @@ async def explain(
             out = model.predict(
                 query,
                 indices=[index],
-                explain=True,
+                explain=ExplainConfig(skip_summary=True),
                 anchor_time=anchor_time,
                 num_neighbors=num_neighbors,
                 max_pq_iterations=max_pq_iterations,
