@@ -296,7 +296,7 @@ async def explain(
             out = model.predict(
                 query,
                 indices=[index],
-                explain=True,
+                explain=dict(skip_summary=True),
                 anchor_time=anchor_time,
                 num_neighbors=num_neighbors,
                 max_pq_iterations=max_pq_iterations,
