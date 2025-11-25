@@ -68,6 +68,13 @@ We provide a single-click installation via our [MCP Bundle (MCPB)](https://githu
 
 The MCP Bundle supports Linux, macOS and Windows, but requires a Python executable to be found in order to create a separate new virtual environment.
 
+### Claude code
+
+To include the server in claude code use:
+```
+claude mcp add --transport stdio kumo-rfm-mcp --env KUMO_API_KEY=<YOUR-API-KEY> -- python -m kumo_rfm_mcp.server --port 8000
+```
+
 ## 🎬 Claude Desktop Demo
 
 See [here](https://claude.ai/share/d2a34e63-b1d2-4255-b3e9-a6cb55004497) for the transcript.
