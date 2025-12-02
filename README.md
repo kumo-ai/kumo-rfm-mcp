@@ -71,6 +71,7 @@ The MCP Bundle supports Linux, macOS and Windows, but requires a Python executab
 ### Claude code
 
 To include the server in claude code use:
+
 ```
 claude mcp add --transport stdio kumo-rfm-mcp --env KUMO_API_KEY=<YOUR-API-KEY> -- python -m kumo_rfm_mcp.server --port 8000
 ```
