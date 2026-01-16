@@ -33,7 +33,7 @@ Create ARCHITECTURE.md content with these sections:
 - **Directory Structure:** Tree with descriptions (important dirs)
 - **Key Components:** Table of modules/classes with locations
 - **MCP Tools:** Table of available MCP tools and their purposes
-- **Integration Points:** Table of relationships with kumo-* repos
+- **Integration Points:** Table of relationships with kumo-\* repos
 - **Entry Points:** Table for where to start for common tasks
 
 **Style guidelines:**
