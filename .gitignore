@@ -9,5 +9,8 @@ wheels/
 .mypy_cache/
 tmp/
 mcp.json
+.mcp.json
 server-info.json
 .DS_Store
+.claude/
+uv.lock

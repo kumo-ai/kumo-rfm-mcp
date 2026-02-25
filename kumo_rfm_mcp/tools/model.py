@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
-from kumoai.utils import ProgressLogger
+from kumo_rfm_mcp.logger import McpProgressLogger
 from pydantic import Field
 
 from kumo_rfm_mcp import (
@@ -139,7 +139,7 @@ async def predict(
         anchor_time = pd.Timestamp(anchor_time)
 
     def _predict() -> PredictResponse:
-        logger = ProgressLogger(query)
+        logger = McpProgressLogger(query, verbose=False)
 
         try:
             df = model.predict(
@@ -213,7 +213,7 @@ async def evaluate(
         anchor_time = pd.Timestamp(anchor_time)
 
     def _evaluate() -> EvaluateResponse:
-        logger = ProgressLogger(query)
+        logger = McpProgressLogger(query, verbose=False)
 
         try:
             df = model.evaluate(
@@ -290,7 +290,7 @@ async def explain(
         anchor_time = pd.Timestamp(anchor_time)
 
     def _explain() -> ExplanationResponse:
-        logger = ProgressLogger(query)
+        logger = McpProgressLogger(query, verbose=False)
 
         try:
             out = model.predict(
