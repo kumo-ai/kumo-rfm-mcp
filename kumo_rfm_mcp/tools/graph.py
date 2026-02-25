@@ -9,7 +9,6 @@ from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
 from kumoai.experimental.rfm.infer.dtype import infer_dtype
 from kumoai.graph import Edge
-from kumo_rfm_mcp.logger import McpProgressLogger
 from kumoapi.typing import Dtype, Stype
 from pydantic import Field
 
@@ -23,6 +22,7 @@ from kumo_rfm_mcp import (
     UpdatedGraphMetadata,
     UpdateGraphMetadata,
 )
+from kumo_rfm_mcp.logger import McpProgressLogger
 
 _materialize_lock = asyncio.Lock()
 

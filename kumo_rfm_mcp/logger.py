@@ -14,7 +14,6 @@ class McpProgressLogger(PlainProgressLogger):
     overrides the context manager to preserve timing and log collection
     while skipping all stdout writes.
     """
-
     def __enter__(self) -> Self:
         self._depth += 1
         if self._depth == 1:

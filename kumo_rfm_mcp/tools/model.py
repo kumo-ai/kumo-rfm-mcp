@@ -5,7 +5,6 @@ from typing import Annotated, Literal
 import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
-from kumo_rfm_mcp.logger import McpProgressLogger
 from pydantic import Field
 
 from kumo_rfm_mcp import (
@@ -14,6 +13,7 @@ from kumo_rfm_mcp import (
     PredictResponse,
     SessionManager,
 )
+from kumo_rfm_mcp.logger import McpProgressLogger
 
 query_doc = ("The predictive query string, e.g., "
              "'PREDICT COUNT(orders.*, 0, 30, days)>0 FOR EACH users.user_id' "
