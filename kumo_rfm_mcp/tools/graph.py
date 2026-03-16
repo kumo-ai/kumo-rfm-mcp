@@ -7,8 +7,8 @@ import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
+from kumoai.experimental.rfm.infer.dtype import infer_dtype
 from kumoai.graph import Edge
-from kumoai.utils import ProgressLogger
 from kumoapi.typing import Dtype, Stype
 from pydantic import Field
 
@@ -22,6 +22,7 @@ from kumo_rfm_mcp import (
     UpdatedGraphMetadata,
     UpdateGraphMetadata,
 )
+from kumo_rfm_mcp.logger import MCPProgressLogger
 
 _materialize_lock = asyncio.Lock()
 
@@ -49,7 +50,7 @@ def inspect_graph_metadata() -> GraphMetadata:
                 dtypes[column] = table[column].dtype
                 stypes[column] = table[column].stype
             else:
-                dtypes[column] = rfm.utils.to_dtype(table._data[column])
+                dtypes[column] = infer_dtype(table._data[column])
                 stypes[column] = None
         tables.append(
             TableMetadata(
@@ -284,25 +285,18 @@ async def materialize_graph() -> MaterializedGraphInfo:
 
     def _materialize_graph() -> rfm.KumoRFM:
         try:
-            logger = ProgressLogger("Materializing graph")
+            logger = MCPProgressLogger("Materializing graph", verbose=False)
             return rfm.KumoRFM(session.graph, verbose=logger)
         except Exception as e:
             raise ToolError(f"Failed to materialize graph: {e}")
 
     def _get_info(model: rfm.KumoRFM) -> MaterializedGraphInfo:
-        store = model._graph_store
+        store = model._sampler._graph_store
         num_nodes = sum(len(df) for df in store.df_dict.values())
         num_edges = sum(len(row) for row in store.row_dict.values())
         time_ranges = {}
-        for table in session.graph.tables.values():
-            if table._time_column is None:
-                continue
-            time = store.df_dict[table.name][table._time_column]
-            if table.name in store.mask_dict.keys():
-                time = time[store.mask_dict[table.name]]
-            if len(time) == 0:
-                continue
-            time_ranges[table.name] = f"{time.min()} - {time.max()}"
+        for table_name, (min_t, max_t) in store.min_max_time_dict.items():
+            time_ranges[table_name] = f"{min_t} - {max_t}"
 
         return MaterializedGraphInfo(
             num_nodes=num_nodes,
@@ -348,11 +342,12 @@ async def lookup_table_rows(
 
     def _lookup_table_rows() -> TableSourcePreview:
         try:
-            node_ids = model._graph_store.get_node_id(
+            store = model._sampler._graph_store
+            node_ids = store.get_node_id(
                 table_name=table_name,
                 pkey=pd.Series(ids),
             )
-            df = model._graph_store.df_dict[table_name].iloc[node_ids]
+            df = store.df_dict[table_name].iloc[node_ids]
         except Exception as e:
             raise ToolError(str(e)) from e
 
