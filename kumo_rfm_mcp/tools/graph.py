@@ -22,7 +22,7 @@ from kumo_rfm_mcp import (
     UpdatedGraphMetadata,
     UpdateGraphMetadata,
 )
-from kumo_rfm_mcp.logger import McpProgressLogger
+from kumo_rfm_mcp.logger import MCPProgressLogger
 
 _materialize_lock = asyncio.Lock()
 
@@ -285,7 +285,7 @@ async def materialize_graph() -> MaterializedGraphInfo:
 
     def _materialize_graph() -> rfm.KumoRFM:
         try:
-            logger = McpProgressLogger("Materializing graph", verbose=False)
+            logger = MCPProgressLogger("Materializing graph", verbose=False)
             return rfm.KumoRFM(session.graph, verbose=logger)
         except Exception as e:
             raise ToolError(f"Failed to materialize graph: {e}")

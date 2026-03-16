@@ -13,7 +13,7 @@ from kumo_rfm_mcp import (
     PredictResponse,
     SessionManager,
 )
-from kumo_rfm_mcp.logger import McpProgressLogger
+from kumo_rfm_mcp.logger import MCPProgressLogger
 
 query_doc = ("The predictive query string, e.g., "
              "'PREDICT COUNT(orders.*, 0, 30, days)>0 FOR EACH users.user_id' "
@@ -139,7 +139,7 @@ async def predict(
         anchor_time = pd.Timestamp(anchor_time)
 
     def _predict() -> PredictResponse:
-        logger = McpProgressLogger(query, verbose=False)
+        logger = MCPProgressLogger(query, verbose=False)
 
         try:
             df = model.predict(
@@ -213,7 +213,7 @@ async def evaluate(
         anchor_time = pd.Timestamp(anchor_time)
 
     def _evaluate() -> EvaluateResponse:
-        logger = McpProgressLogger(query, verbose=False)
+        logger = MCPProgressLogger(query, verbose=False)
 
         try:
             df = model.evaluate(
@@ -290,7 +290,7 @@ async def explain(
         anchor_time = pd.Timestamp(anchor_time)
 
     def _explain() -> ExplanationResponse:
-        logger = McpProgressLogger(query, verbose=False)
+        logger = MCPProgressLogger(query, verbose=False)
 
         try:
             out = model.predict(

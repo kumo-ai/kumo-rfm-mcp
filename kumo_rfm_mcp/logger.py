@@ -5,7 +5,7 @@ from kumoai.utils.progress_logger import PlainProgressLogger
 from typing_extensions import Self
 
 
-class McpProgressLogger(PlainProgressLogger):
+class MCPProgressLogger(PlainProgressLogger):
     """A progress logger safe for MCP stdio transport.
 
     The base :class:`ProgressLogger` writes OSC escape sequences to
