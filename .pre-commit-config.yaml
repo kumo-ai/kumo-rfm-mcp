@@ -20,7 +20,7 @@ repos:
         name: Check toml
 
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.37.1
+    rev: v1.38.0
     hooks:
       - id: yamllint
         name: Lint yaml
@@ -34,7 +34,7 @@ repos:
         args: [--py310-plus]
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.3.1
+    rev: v2.3.3
     hooks:
       - id: autoflake
         name: Remove unused imports and variables
@@ -54,7 +54,7 @@ repos:
         additional_dependencies: [toml]
 
   - repo: https://github.com/pycqa/isort
-    rev: 7.0.0
+    rev: 8.0.1
     hooks:
       - id: isort
         name: Sort imports
@@ -66,14 +66,14 @@ repos:
         name: Check PEP8
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.7
+    rev: v0.15.4
     hooks:
       - id: ruff
         name: Ruff formatting
         args: [--fix, --exit-non-zero-on-fix]
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.22
+    rev: 1.0.0
     hooks:
       - id: mdformat
         name: Format Markdown
