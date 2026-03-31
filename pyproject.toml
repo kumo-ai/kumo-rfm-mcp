@@ -21,7 +21,7 @@ keywords = [
 requires-python = ">=3.10"
 dependencies = [
     "kumoai>=2.15.0",
-    "fastmcp>=2.2.7,<3",
+    "fastmcp>=3.2.0",
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
