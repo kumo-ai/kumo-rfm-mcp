@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
+import argparse
 import logging
+import os
 import sys
 from pathlib import Path
+from typing import Final
 
 from fastmcp import FastMCP
 from fastmcp.resources import FileResource
 from pydantic import AnyUrl
 
 import kumo_rfm_mcp
+from kumo_rfm_mcp.http_auth import get_http_auth
 from kumo_rfm_mcp import tools
 
 logging.basicConfig(
@@ -16,15 +20,25 @@ logging.basicConfig(
     stream=sys.stderr)
 logger = logging.getLogger('kumo-rfm-mcp')
 
-mcp = FastMCP(
-    name='KumoRFM (Relational Foundation Model)',
-    instructions=("KumoRFM is a pre-trained Relational Foundation Model (RFM) "
-                  "that generates training-free predictions on any relational "
-                  "multi-table data by interpreting the data as a (temporal) "
-                  "heterogeneous graph. It can be queried via the Predictive "
-                  "Query Language (PQL)."),
-    version=kumo_rfm_mcp.__version__,
-)
+DEFAULT_HTTP_HOST: Final[str] = '127.0.0.1'
+DEFAULT_HTTP_PORT: Final[int] = 8000
+DEFAULT_HTTP_PATH: Final[str] = '/mcp'
+
+
+def create_mcp() -> FastMCP:
+    return FastMCP(
+        name='KumoRFM (Relational Foundation Model)',
+        instructions=("KumoRFM is a pre-trained Relational Foundation Model "
+                      "(RFM) that generates training-free predictions on any "
+                      "relational multi-table data by interpreting the data "
+                      "as a (temporal) heterogeneous graph. It can be queried "
+                      "via the Predictive Query Language (PQL)."),
+        version=kumo_rfm_mcp.__version__,
+        auth=get_http_auth(),
+    )
+
+
+mcp = create_mcp()
 
 # Tools ######################################################################
 tools.register_docs_tools(mcp)
@@ -75,7 +89,42 @@ mcp.add_resource(
 def main() -> None:
     """Main entry point for the CLI command."""
     try:
-        mcp.run(transport='stdio')
+        parser = argparse.ArgumentParser(description='Run the KumoRFM MCP server')
+        parser.add_argument(
+            '--transport',
+            choices=('stdio', 'http', 'streamable-http', 'sse'),
+            default=os.getenv('KUMO_MCP_TRANSPORT', 'stdio'),
+            help='MCP transport to expose. Use streamable-http for Snowflake.',
+        )
+        parser.add_argument(
+            '--host',
+            default=os.getenv('KUMO_MCP_HOST', DEFAULT_HTTP_HOST),
+            help='HTTP bind host for HTTP transports.',
+        )
+        parser.add_argument(
+            '--port',
+            type=int,
+            default=int(os.getenv('KUMO_MCP_PORT', str(DEFAULT_HTTP_PORT))),
+            help='HTTP bind port for HTTP transports.',
+        )
+        parser.add_argument(
+            '--path',
+            default=os.getenv('KUMO_MCP_PATH', DEFAULT_HTTP_PATH),
+            help='HTTP endpoint path for HTTP transports.',
+        )
+        args = parser.parse_args()
+
+        transport = args.transport
+        if transport == 'stdio':
+            mcp.run(transport='stdio')
+            return
+
+        mcp.run(
+            transport=transport,
+            host=args.host,
+            port=args.port,
+            path=args.path,
+        )
     except KeyboardInterrupt:
         logger.info("Server shutdown requested by user")
         sys.exit(0)
