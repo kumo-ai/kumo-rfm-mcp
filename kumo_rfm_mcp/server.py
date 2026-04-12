@@ -11,8 +11,8 @@ from fastmcp.resources import FileResource
 from pydantic import AnyUrl
 
 import kumo_rfm_mcp
-from kumo_rfm_mcp.http_auth import get_http_auth
 from kumo_rfm_mcp import tools
+from kumo_rfm_mcp.http_auth import get_http_auth
 
 logging.basicConfig(
     level=logging.INFO,
@@ -89,7 +89,8 @@ mcp.add_resource(
 def main() -> None:
     """Main entry point for the CLI command."""
     try:
-        parser = argparse.ArgumentParser(description='Run the KumoRFM MCP server')
+        parser = argparse.ArgumentParser(
+            description='Run the KumoRFM MCP server')
         parser.add_argument(
             '--transport',
             choices=('stdio', 'http', 'streamable-http', 'sse'),

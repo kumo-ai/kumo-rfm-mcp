@@ -3,13 +3,11 @@ from typing import Final
 
 from fastmcp.server.auth.auth import AccessToken, TokenVerifier
 
-
 MCP_BEARER_TOKEN_ENV: Final[str] = 'MCP_BEARER_TOKEN'
 
 
 class StaticBearerTokenAuth(TokenVerifier):
     """Authenticate MCP HTTP requests with a shared bearer token."""
-
     def __init__(self, token: str) -> None:
         super().__init__()
         self._token = token
