@@ -28,7 +28,7 @@ async def test_authenticate_with_api_key(
 
 @pytest.mark.asyncio
 async def test_authenticate_rejects_empty_api_key(
-    monkeypatch: pytest.MonkeyPatch, ) -> None:
+        monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv('KUMO_API_KEY', raising=False)
 
     with pytest.raises(ToolError, match='Provided API key is empty'):
@@ -37,10 +37,10 @@ async def test_authenticate_rejects_empty_api_key(
 
 @pytest.mark.asyncio
 async def test_authenticate_uses_browser_flow_without_api_key(
-    monkeypatch: pytest.MonkeyPatch, ) -> None:
+        monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv('KUMO_API_KEY', raising=False)
     SessionManager.get_default_session().clear()
-    called = {'api_url': None, 'init': False}
+    called: dict[str, str | bool | None] = {'api_url': None, 'init': False}
 
     def fake_authenticate(api_url: str | None = None) -> None:
         called['api_url'] = api_url
