@@ -57,6 +57,30 @@ Add to your MCP configuration file (*e.g.*, Claude Desktop's `mcp_config.json`):
 }
 ```
 
+### HTTP Transport
+
+For HTTP-native MCP clients such as a Snowflake Native App, run the server with
+`streamable-http` instead of `stdio`:
+
+```bash
+KUMO_API_KEY=<YOUR-KUMO-API-KEY> \
+MCP_BEARER_TOKEN=<SHARED-MCP-TOKEN> \
+python -m kumo_rfm_mcp.server \
+  --transport streamable-http \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --path /mcp
+```
+
+Notes:
+
+- Set `KUMO_API_KEY` up front for headless deployments. This avoids the
+  browser-based OAuth flow.
+- If your MCP client cannot inject environment variables, call the
+  `authenticate` tool with an `api_key` argument once at session start.
+- If `MCP_BEARER_TOKEN` is set, the HTTP endpoint requires
+  `Authorization: Bearer <SHARED-MCP-TOKEN>`.
+
 ### ⚡ MCP Bundle
 
 We provide a single-click installation via our [MCP Bundle (MCPB)](https://github.com/anthropics/mcpb) (*e.g.*, for integration into Claude Desktop):
