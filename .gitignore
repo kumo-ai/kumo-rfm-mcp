@@ -14,3 +14,4 @@ server-info.json
 .DS_Store
 .claude/
 uv.lock
+.worktrees
