@@ -7,7 +7,10 @@ import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from kumoai.experimental import rfm
-from kumoai.experimental.rfm.infer.dtype import infer_dtype
+try:
+    from kumoai.rfm.infer.dtype import infer_dtype
+except ImportError:
+    from kumoai.experimental.rfm.infer.dtype import infer_dtype
 from kumoai.graph import Edge
 from kumoapi.typing import Dtype, Stype
 from pydantic import Field
