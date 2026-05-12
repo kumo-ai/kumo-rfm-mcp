@@ -4,7 +4,7 @@ from typing import Any
 import pandas as pd
 import pytest
 from kumoai.experimental import rfm
-from kumoai.experimental.rfm.rfm import Explanation
+from kumoai.experimental.rfm import Explanation
 from kumoapi.rfm import Explanation as ExplanationConfig
 from kumoapi.task import TaskType
 from pytest import TempPathFactory
